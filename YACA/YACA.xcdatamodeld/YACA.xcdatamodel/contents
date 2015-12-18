@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="9525" systemVersion="14F1021" minimumToolsVersion="Automatic">
+    <entity name="Meeting" syncable="YES">
+        <attribute name="duration" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+        <attribute name="location" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="notes" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="starttime" optional="YES" attributeType="Date" syncable="YES"/>
+        <relationship name="participants" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Participant" inverseName="meetings" inverseEntity="Participant" syncable="YES"/>
+    </entity>
+    <entity name="Participant" syncable="YES">
+        <attribute name="location" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="meetings" maxCount="1" deletionRule="Nullify" destinationEntity="Meeting" inverseName="participants" inverseEntity="Meeting" syncable="YES"/>
+    </entity>
+    <elements>
+        <element name="Meeting" positionX="-63" positionY="-18" width="128" height="135"/>
+        <element name="Participant" positionX="-54" positionY="-9" width="128" height="90"/>
+    </elements>
+</model>
