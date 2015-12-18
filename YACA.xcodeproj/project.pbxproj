@@ -7,21 +7,55 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		3E3BEBF91C243956008BC0CF /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E3BEBF81C243956008BC0CF /* AppDelegate.swift */; };
-		3E3BEBFB1C243956008BC0CF /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E3BEBFA1C243956008BC0CF /* ViewController.swift */; };
-		3E3BEBFE1C243956008BC0CF /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3E3BEBFC1C243956008BC0CF /* Main.storyboard */; };
-		3E3BEC001C243956008BC0CF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3E3BEBFF1C243956008BC0CF /* Assets.xcassets */; };
-		3E3BEC031C243956008BC0CF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3E3BEC011C243956008BC0CF /* LaunchScreen.storyboard */; };
+		3E3BEC1F1C243999008BC0CF /* MeetingListCellHeader.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3E3BEC0A1C243999008BC0CF /* MeetingListCellHeader.xib */; };
+		3E3BEC201C243999008BC0CF /* YACA.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 3E3BEC0B1C243999008BC0CF /* YACA.xcdatamodeld */; };
+		3E3BEC211C243999008BC0CF /* Meeting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E3BEC0D1C243999008BC0CF /* Meeting.swift */; };
+		3E3BEC221C243999008BC0CF /* MeetingListCellHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E3BEC0E1C243999008BC0CF /* MeetingListCellHeader.swift */; };
+		3E3BEC231C243999008BC0CF /* MeetingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E3BEC0F1C243999008BC0CF /* MeetingsViewController.swift */; };
+		3E3BEC241C243999008BC0CF /* MeetingListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E3BEC101C243999008BC0CF /* MeetingListCell.swift */; };
+		3E3BEC251C243999008BC0CF /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E3BEC111C243999008BC0CF /* AppDelegate.swift */; };
+		3E3BEC261C243999008BC0CF /* CoreDataStackManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E3BEC121C243999008BC0CF /* CoreDataStackManager.swift */; };
+		3E3BEC271C243999008BC0CF /* OpenWeatherClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E3BEC131C243999008BC0CF /* OpenWeatherClient.swift */; };
+		3E3BEC281C243999008BC0CF /* OpenWeatherConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E3BEC141C243999008BC0CF /* OpenWeatherConstants.swift */; };
+		3E3BEC291C243999008BC0CF /* OpenWeatherConvenience.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E3BEC151C243999008BC0CF /* OpenWeatherConvenience.swift */; };
+		3E3BEC2A1C243999008BC0CF /* Participant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E3BEC161C243999008BC0CF /* Participant.swift */; };
+		3E3BEC2B1C243999008BC0CF /* UIViewExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E3BEC171C243999008BC0CF /* UIViewExtension.swift */; };
+		3E3BEC2C1C243999008BC0CF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3E3BEC181C243999008BC0CF /* Assets.xcassets */; };
+		3E3BEC2D1C243999008BC0CF /* BorderedButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E3BEC191C243999008BC0CF /* BorderedButton.swift */; };
+		3E3BEC2E1C243999008BC0CF /* Roboto-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3E3BEC1A1C243999008BC0CF /* Roboto-Medium.ttf */; };
+		3E3BEC2F1C243999008BC0CF /* Roboto-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3E3BEC1B1C243999008BC0CF /* Roboto-Regular.ttf */; };
+		3E3BEC301C243999008BC0CF /* Roboto-Thin.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3E3BEC1C1C243999008BC0CF /* Roboto-Thin.ttf */; };
+		3E3BEC311C243999008BC0CF /* MeetingViewParticipantTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E3BEC1D1C243999008BC0CF /* MeetingViewParticipantTableViewCell.swift */; };
+		3E3BEC321C243999008BC0CF /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E3BEC1E1C243999008BC0CF /* SettingsViewController.swift */; };
+		3E3BEC351C2439B1008BC0CF /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3E3BEC331C2439B1008BC0CF /* Main.storyboard */; };
+		3E3BEC361C2439B1008BC0CF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3E3BEC341C2439B1008BC0CF /* LaunchScreen.storyboard */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		3E3BEBF51C243956008BC0CF /* YACA.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = YACA.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		3E3BEBF81C243956008BC0CF /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		3E3BEBFA1C243956008BC0CF /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
-		3E3BEBFD1C243956008BC0CF /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		3E3BEBFF1C243956008BC0CF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		3E3BEC021C243956008BC0CF /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		3E3BEC041C243957008BC0CF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		3E3BEC0A1C243999008BC0CF /* MeetingListCellHeader.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MeetingListCellHeader.xib; sourceTree = "<group>"; };
+		3E3BEC0C1C243999008BC0CF /* YACA.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = YACA.xcdatamodel; sourceTree = "<group>"; };
+		3E3BEC0D1C243999008BC0CF /* Meeting.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Meeting.swift; sourceTree = "<group>"; };
+		3E3BEC0E1C243999008BC0CF /* MeetingListCellHeader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MeetingListCellHeader.swift; sourceTree = "<group>"; };
+		3E3BEC0F1C243999008BC0CF /* MeetingsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MeetingsViewController.swift; sourceTree = "<group>"; };
+		3E3BEC101C243999008BC0CF /* MeetingListCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MeetingListCell.swift; sourceTree = "<group>"; };
+		3E3BEC111C243999008BC0CF /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		3E3BEC121C243999008BC0CF /* CoreDataStackManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataStackManager.swift; sourceTree = "<group>"; };
+		3E3BEC131C243999008BC0CF /* OpenWeatherClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenWeatherClient.swift; sourceTree = "<group>"; };
+		3E3BEC141C243999008BC0CF /* OpenWeatherConstants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenWeatherConstants.swift; sourceTree = "<group>"; };
+		3E3BEC151C243999008BC0CF /* OpenWeatherConvenience.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenWeatherConvenience.swift; sourceTree = "<group>"; };
+		3E3BEC161C243999008BC0CF /* Participant.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Participant.swift; sourceTree = "<group>"; };
+		3E3BEC171C243999008BC0CF /* UIViewExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIViewExtension.swift; sourceTree = "<group>"; };
+		3E3BEC181C243999008BC0CF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		3E3BEC191C243999008BC0CF /* BorderedButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BorderedButton.swift; sourceTree = "<group>"; };
+		3E3BEC1A1C243999008BC0CF /* Roboto-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Roboto-Medium.ttf"; sourceTree = "<group>"; };
+		3E3BEC1B1C243999008BC0CF /* Roboto-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Roboto-Regular.ttf"; sourceTree = "<group>"; };
+		3E3BEC1C1C243999008BC0CF /* Roboto-Thin.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Roboto-Thin.ttf"; sourceTree = "<group>"; };
+		3E3BEC1D1C243999008BC0CF /* MeetingViewParticipantTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MeetingViewParticipantTableViewCell.swift; sourceTree = "<group>"; };
+		3E3BEC1E1C243999008BC0CF /* SettingsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
+		3E3BEC331C2439B1008BC0CF /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
+		3E3BEC341C2439B1008BC0CF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -35,6 +69,73 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		3E190EAB1C243CBE00B80B6B /* Storyboard */ = {
+			isa = PBXGroup;
+			children = (
+				3E3BEC331C2439B1008BC0CF /* Main.storyboard */,
+				3E3BEC341C2439B1008BC0CF /* LaunchScreen.storyboard */,
+				3E3BEC0A1C243999008BC0CF /* MeetingListCellHeader.xib */,
+			);
+			name = Storyboard;
+			sourceTree = "<group>";
+		};
+		3E190EAC1C243CDE00B80B6B /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				3E190EAD1C243CE800B80B6B /* Clients */,
+				3E3BEC121C243999008BC0CF /* CoreDataStackManager.swift */,
+				3E3BEC161C243999008BC0CF /* Participant.swift */,
+				3E3BEC0D1C243999008BC0CF /* Meeting.swift */,
+				3E3BEC0B1C243999008BC0CF /* YACA.xcdatamodeld */,
+			);
+			name = Model;
+			sourceTree = "<group>";
+		};
+		3E190EAD1C243CE800B80B6B /* Clients */ = {
+			isa = PBXGroup;
+			children = (
+				3E190EAE1C243CEF00B80B6B /* openweather */,
+			);
+			name = Clients;
+			sourceTree = "<group>";
+		};
+		3E190EAE1C243CEF00B80B6B /* openweather */ = {
+			isa = PBXGroup;
+			children = (
+				3E3BEC131C243999008BC0CF /* OpenWeatherClient.swift */,
+				3E3BEC141C243999008BC0CF /* OpenWeatherConstants.swift */,
+				3E3BEC151C243999008BC0CF /* OpenWeatherConvenience.swift */,
+			);
+			name = openweather;
+			sourceTree = "<group>";
+		};
+		3E190EAF1C243D2C00B80B6B /* Controller */ = {
+			isa = PBXGroup;
+			children = (
+				3E3BEC0E1C243999008BC0CF /* MeetingListCellHeader.swift */,
+				3E3BEC0F1C243999008BC0CF /* MeetingsViewController.swift */,
+				3E3BEC101C243999008BC0CF /* MeetingListCell.swift */,
+				3E3BEC111C243999008BC0CF /* AppDelegate.swift */,
+				3E3BEC171C243999008BC0CF /* UIViewExtension.swift */,
+				3E3BEC1D1C243999008BC0CF /* MeetingViewParticipantTableViewCell.swift */,
+				3E3BEC1E1C243999008BC0CF /* SettingsViewController.swift */,
+			);
+			name = Controller;
+			sourceTree = "<group>";
+		};
+		3E190EB01C243D3700B80B6B /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				3E3BEC181C243999008BC0CF /* Assets.xcassets */,
+				3E3BEC191C243999008BC0CF /* BorderedButton.swift */,
+				3E3BEC1A1C243999008BC0CF /* Roboto-Medium.ttf */,
+				3E3BEC1B1C243999008BC0CF /* Roboto-Regular.ttf */,
+				3E3BEC1C1C243999008BC0CF /* Roboto-Thin.ttf */,
+				3E3BEC041C243957008BC0CF /* Info.plist */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
 		3E3BEBEC1C243956008BC0CF = {
 			isa = PBXGroup;
 			children = (
@@ -54,12 +155,10 @@
 		3E3BEBF71C243956008BC0CF /* YACA */ = {
 			isa = PBXGroup;
 			children = (
-				3E3BEBF81C243956008BC0CF /* AppDelegate.swift */,
-				3E3BEBFA1C243956008BC0CF /* ViewController.swift */,
-				3E3BEBFC1C243956008BC0CF /* Main.storyboard */,
-				3E3BEBFF1C243956008BC0CF /* Assets.xcassets */,
-				3E3BEC011C243956008BC0CF /* LaunchScreen.storyboard */,
-				3E3BEC041C243957008BC0CF /* Info.plist */,
+				3E190EAB1C243CBE00B80B6B /* Storyboard */,
+				3E190EAC1C243CDE00B80B6B /* Model */,
+				3E190EAF1C243D2C00B80B6B /* Controller */,
+				3E190EB01C243D3700B80B6B /* Resources */,
 			);
 			path = YACA;
 			sourceTree = "<group>";
@@ -122,9 +221,13 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3E3BEC031C243956008BC0CF /* LaunchScreen.storyboard in Resources */,
-				3E3BEC001C243956008BC0CF /* Assets.xcassets in Resources */,
-				3E3BEBFE1C243956008BC0CF /* Main.storyboard in Resources */,
+				3E3BEC2C1C243999008BC0CF /* Assets.xcassets in Resources */,
+				3E3BEC1F1C243999008BC0CF /* MeetingListCellHeader.xib in Resources */,
+				3E3BEC2F1C243999008BC0CF /* Roboto-Regular.ttf in Resources */,
+				3E3BEC351C2439B1008BC0CF /* Main.storyboard in Resources */,
+				3E3BEC361C2439B1008BC0CF /* LaunchScreen.storyboard in Resources */,
+				3E3BEC301C243999008BC0CF /* Roboto-Thin.ttf in Resources */,
+				3E3BEC2E1C243999008BC0CF /* Roboto-Medium.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -135,31 +238,25 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3E3BEBFB1C243956008BC0CF /* ViewController.swift in Sources */,
-				3E3BEBF91C243956008BC0CF /* AppDelegate.swift in Sources */,
+				3E3BEC281C243999008BC0CF /* OpenWeatherConstants.swift in Sources */,
+				3E3BEC251C243999008BC0CF /* AppDelegate.swift in Sources */,
+				3E3BEC221C243999008BC0CF /* MeetingListCellHeader.swift in Sources */,
+				3E3BEC201C243999008BC0CF /* YACA.xcdatamodeld in Sources */,
+				3E3BEC311C243999008BC0CF /* MeetingViewParticipantTableViewCell.swift in Sources */,
+				3E3BEC291C243999008BC0CF /* OpenWeatherConvenience.swift in Sources */,
+				3E3BEC271C243999008BC0CF /* OpenWeatherClient.swift in Sources */,
+				3E3BEC2B1C243999008BC0CF /* UIViewExtension.swift in Sources */,
+				3E3BEC321C243999008BC0CF /* SettingsViewController.swift in Sources */,
+				3E3BEC261C243999008BC0CF /* CoreDataStackManager.swift in Sources */,
+				3E3BEC2D1C243999008BC0CF /* BorderedButton.swift in Sources */,
+				3E3BEC2A1C243999008BC0CF /* Participant.swift in Sources */,
+				3E3BEC231C243999008BC0CF /* MeetingsViewController.swift in Sources */,
+				3E3BEC241C243999008BC0CF /* MeetingListCell.swift in Sources */,
+				3E3BEC211C243999008BC0CF /* Meeting.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXVariantGroup section */
-		3E3BEBFC1C243956008BC0CF /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				3E3BEBFD1C243956008BC0CF /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
-		3E3BEC011C243956008BC0CF /* LaunchScreen.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				3E3BEC021C243956008BC0CF /* Base */,
-			);
-			name = LaunchScreen.storyboard;
-			sourceTree = "<group>";
-		};
-/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		3E3BEC051C243957008BC0CF /* Debug */ = {
@@ -247,10 +344,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				INFOPLIST_FILE = YACA/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = ap.YACA;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
 		};
@@ -258,7 +358,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				INFOPLIST_FILE = YACA/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = ap.YACA;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -284,8 +386,22 @@
 				3E3BEC091C243957008BC0CF /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		3E3BEC0B1C243999008BC0CF /* YACA.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				3E3BEC0C1C243999008BC0CF /* YACA.xcdatamodel */,
+			);
+			currentVersion = 3E3BEC0C1C243999008BC0CF /* YACA.xcdatamodel */;
+			path = YACA.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = 3E3BEBED1C243956008BC0CF /* Project object */;
 }
