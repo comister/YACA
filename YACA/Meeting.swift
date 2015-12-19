@@ -8,6 +8,7 @@
 
 import Foundation
 import CoreData
+import EventKit
 
 @objc(Meeting)
 
@@ -18,7 +19,6 @@ class Meeting: NSManagedObject {
         static let Notes = "notes"
         static let StartTime = "starttime"
         static let EndTime = "starttime"
-        static let Duration = "duration"
         static let Location = "location"
         static let Attendees = "attendees"
     }
@@ -30,7 +30,7 @@ class Meeting: NSManagedObject {
     @NSManaged var name: String
     @NSManaged var notes: String
     @NSManaged var starttime: NSDate
-    @NSManaged var duration: NSNumber
+    @NSManaged var endtime: NSDate
     @NSManaged var location: String
     @NSManaged var attendees: [Participant]?
     
@@ -46,14 +46,31 @@ class Meeting: NSManagedObject {
         name = dictionary[Keys.Name] as! String
         notes = dictionary[Keys.Notes] as! String
         starttime = dictionary[Keys.StartTime] as! NSDate
+        endtime = dictionary[Keys.EndTime] as! NSDate
         location = dictionary[Keys.Location] as! String
-        duration = dictionary[Keys.Duration] as! NSNumber
+    }
+    
+    // Mark: - Overloaded initializer being able to convert from an EKEvent
+    init(event: EKEvent, context: NSManagedObjectContext) {
+        let entity =  NSEntityDescription.entityForName(statics.entityName, inManagedObjectContext: context)!
+        super.init(entity: entity, insertIntoManagedObjectContext: context)
         
-        //path = dictionary[Keys.Path] as? String
-        /*
-        if dictionary[Keys.Pin] != nil {
-        pin = dictionary[Keys.Pin] as! Pin
+        name = event.title
+        notes = event.description
+        starttime = event.startDate
+        endtime = event.endDate
+        location = event.location!
+        
+        if let eventAttendees = event.attendees {
+            for eventAttendee in eventAttendees {
+                
+            }
         }
-        */
+        
+    }
+    
+    
+    func fromEvent(event: EKEvent) {
+        
     }
 }

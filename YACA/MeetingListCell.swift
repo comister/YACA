@@ -9,6 +9,7 @@
 import Foundation
 import UIKit
 import EventKit
+import CoreData
 
 class MeetingListCell: UICollectionViewCell, UITableViewDelegate, UITableViewDataSource {
     
@@ -30,6 +31,11 @@ class MeetingListCell: UICollectionViewCell, UITableViewDelegate, UITableViewDat
                 taskToCancel.cancel()
             }
         }
+    }
+    
+    // MARK: - Core Data
+    var sharedContext: NSManagedObjectContext {
+        return CoreDataStackManager.sharedInstance().managedObjectContext
     }
     
     private func updateContent() {
@@ -76,13 +82,13 @@ class MeetingListCell: UICollectionViewCell, UITableViewDelegate, UITableViewDat
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        print( "using identifier " + cellIdentifier! )
         // MARK: - Create cells programmatically - try to dequeue, if not possible create new cell with new identifier
         let identifier = cellIdentifier!
         var cell = tableView.dequeueReusableCellWithIdentifier(identifier)
         if cell == nil {
             cell = UITableViewCell(style: UITableViewCellStyle.Value1, reuseIdentifier: identifier)
         }
+        _ = Participant(attendee: event?.attendees?[indexPath.row], context: self.sharedContext)
         //let cell = tableView.dequeueReusableCellWithIdentifier("meetingParticipants", forIndexPath: indexPath) as! UITableViewCell
         cell!.textLabel?.text = event?.attendees?[indexPath.row].name
         return cell!

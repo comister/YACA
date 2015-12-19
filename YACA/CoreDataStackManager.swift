@@ -10,7 +10,7 @@ import Foundation
 import CoreData
 
 private let SQLITE_FILE_NAME = "yaca.sqlite"
-private let MODEL_NAME = "yaca"
+private let MODEL_NAME = "YACA"
 
 class CoreDataStackManager {
     
@@ -38,6 +38,9 @@ class CoreDataStackManager {
     
     lazy var managedObjectModel: NSManagedObjectModel = {
         // The managed object model for the application. This property is not optional. It is a fatal error for the application not to be able to find and load its model.
+        
+        print("Instantiating the managedObjectModel property")
+        
         let modelURL = NSBundle.mainBundle().URLForResource(MODEL_NAME, withExtension: "momd")!
         return NSManagedObjectModel(contentsOfURL: modelURL)!
     }()

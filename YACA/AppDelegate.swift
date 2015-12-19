@@ -7,12 +7,15 @@
 //
 
 import UIKit
+import Contacts
+import EventKit
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-
+    let contactStore = CNContactStore()
+    let eventStore = EKEventStore()
 
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         return true
@@ -40,6 +43,59 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
         // Saves changes in the application's managed object context before the application terminates.
         CoreDataStackManager.sharedInstance().saveContext()
+    }
+    
+    // MARK: - Adding this function to AppDelegate to have access from everywhere
+    func checkContactsAuthorizationStatus(completionHandler: (accessGranted: Bool) -> Void) {
+        let status = CNContactStore.authorizationStatusForEntityType(CNEntityType.Contacts)
+        
+        switch(status) {
+        case CNAuthorizationStatus.Authorized:
+            completionHandler(accessGranted: true)
+            
+        case CNAuthorizationStatus.Denied, CNAuthorizationStatus.NotDetermined:
+            self.contactStore.requestAccessForEntityType(CNEntityType.Contacts, completionHandler: { (access, accessError) -> Void in
+                if access {
+                    completionHandler(accessGranted: access)
+                }
+                else {
+                    if status == CNAuthorizationStatus.Denied {
+                        dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                            //show dialog to transition to screen to allow access to contacts
+                        })
+                    }
+                }
+            })
+            
+        default:
+            completionHandler(accessGranted: false)
+        }
+    }
+    
+    func checkCalendarAuthorizationStatus(completionHandler: (accessGranted: Bool) -> Void) {
+        let status = EKEventStore.authorizationStatusForEntityType(EKEntityType.Event)
+        
+        switch(status) {
+        case EKAuthorizationStatus.Authorized:
+            completionHandler(accessGranted: true)
+            
+        case EKAuthorizationStatus.Denied, EKAuthorizationStatus.NotDetermined:
+            self.eventStore.requestAccessToEntityType(EKEntityType.Event, completion: {(access, accessError) -> Void in
+                if access {
+                    completionHandler(accessGranted: access)
+                }
+                else {
+                    if status == EKAuthorizationStatus.Denied {
+                        dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                            //show dialog and transition to settings
+                        })
+                    }
+                }
+            })
+            
+        default:
+            completionHandler(accessGranted: false)
+        }
     }
 }
 

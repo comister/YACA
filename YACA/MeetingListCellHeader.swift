@@ -19,7 +19,6 @@ class MeetingListCellHeader: UICollectionReusableView {
 
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-        print("having a header")
         rotateLabel()
     }
     

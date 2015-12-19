@@ -19,7 +19,6 @@ class MeetingsViewController: UIViewController {
     var meeting: Meeting!
     var events: [EKEvent]?
     let eventStore = EKEventStore()
-    let contactStore = CNContactStore()
     var calendars: [EKCalendar]?
     var selectedCalendar: String?
     @IBOutlet weak var meetingCollectionView: UICollectionView!
@@ -46,14 +45,13 @@ class MeetingsViewController: UIViewController {
         }
         
         loadEvents()
-        
     }
     
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         if segue.identifier == "showSettings" {
             if let controller = segue.destinationViewController as? SettingsViewController {
                 if self.selectedCalendar == nil {
-                    controller.firstRun = true
+                    print("first run")
                 }
             }
         }
@@ -155,31 +153,7 @@ extension MeetingsViewController {
 // MARK: - Contact related actions
 extension MeetingsViewController {
     
-    func checkContactsAuthorizationStatus(completionHandler: (accessGranted: Bool) -> Void) {
-        let status = CNContactStore.authorizationStatusForEntityType(CNEntityType.Contacts)
-        
-        switch(status) {
-        case CNAuthorizationStatus.Authorized:
-            completionHandler(accessGranted: true)
-            
-        case CNAuthorizationStatus.Denied, CNAuthorizationStatus.NotDetermined:
-            self.contactStore.requestAccessForEntityType(CNEntityType.Contacts, completionHandler: { (access, accessError) -> Void in
-                if access {
-                    completionHandler(accessGranted: access)
-                }
-                else {
-                    if status == CNAuthorizationStatus.Denied {
-                        dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                            //show dialog to transition to screen to allow access to contacts
-                        })
-                    }
-                }
-            })
-            
-        default:
-            completionHandler(accessGranted: false)
-        }
-    }
+    
     
 }
 
@@ -193,14 +167,13 @@ extension MeetingsViewController {
                     self.events = events
                     self.meetingCollectionView.hidden = false
                     self.meetingCollectionView.reloadData()
+
                 })
             }
         }
     }
     
     func fetchEvents(eventStore: EKEventStore, calendarIdentity: String, completed: ([EKEvent]) -> ()) {
-        print(self.eventStore.calendarWithIdentifier(calendarIdentity)!.calendarIdentifier)
-        
         let endDate = NSDate(timeIntervalSinceNow: 604800);   //This is 1 week in seconds
         let predicate = eventStore.predicateForEventsWithStartDate(NSDate(), endDate: endDate, calendars: [self.eventStore.calendarWithIdentifier(calendarIdentity)!])
         

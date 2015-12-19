@@ -9,16 +9,24 @@
 import Foundation
 import UIKit
 import EventKit
+import Contacts
 
 class SettingsViewController: UIViewController {
 
     let eventStore = EKEventStore()
+    let contactStore = CNContactStore()
     var calendars: [EKCalendar]?
-    var firstRun: Bool = false
+    var contacts: [CNContainer]?
+    var groups: [CNGroup]?
     var selectedCalendar: String?
+    var selectedContactGroup: String?
+    let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+    var showCalendars = true
     
     @IBOutlet weak var calendarPicker: UIPickerView!
     @IBOutlet weak var pickCalendarButton: UIButton!
+    @IBOutlet weak var pickContactsButton: UIButton!
+    @IBOutlet weak var durationSegments: UISegmentedControl!
     
     override func viewDidLoad() {
         calendarPicker.delegate = self
@@ -28,12 +36,15 @@ class SettingsViewController: UIViewController {
     
     override func viewWillAppear(animated: Bool) {
         loadCalendars()
-        if !firstRun {
+        loadContactGroups()
+        if NSUserDefaults.standardUserDefaults().stringForKey("selectedCalendar") != nil {
             selectedCalendar = NSUserDefaults.standardUserDefaults().stringForKey("selectedCalendar")
-            pickCalendarButton.titleLabel?.text = eventStore.calendarWithIdentifier(selectedCalendar!)?.title
+            pickCalendarButton.titleLabel?.text = NSUserDefaults.standardUserDefaults().stringForKey("selectedCalendarName")
+            selectedContactGroup = NSUserDefaults.standardUserDefaults().stringForKey("selectedContactGroup")
+            pickContactsButton.titleLabel?.text = NSUserDefaults.standardUserDefaults().stringForKey("selectedContactGroupName")
         } else {
-            NSUserDefaults.standardUserDefaults().setValue(self.calendars![0].calendarIdentifier, forKey: "selectedCalendar")
-            selectedCalendar = self.calendars![0].calendarIdentifier
+            NSUserDefaults.standardUserDefaults().setValue(self.calendars!.first!.calendarIdentifier, forKey: "selectedCalendar")
+            selectedCalendar = self.calendars!.first!.calendarIdentifier
         }
     }
     
@@ -62,6 +73,14 @@ extension SettingsViewController: UIPickerViewDelegate, UIPickerViewDataSource {
 
     @IBAction func clickCalendar(sender: UIButton) {
         calendarPicker.hidden = false
+        showCalendars = true
+        self.calendarPicker.reloadAllComponents()
+    }
+    
+    @IBAction func clickContacts(sender: AnyObject) {
+        calendarPicker.hidden = false
+        showCalendars = false
+        self.calendarPicker.reloadAllComponents()
     }
     
     func numberOfComponentsInPickerView(pickerView: UIPickerView) -> Int {
@@ -69,22 +88,40 @@ extension SettingsViewController: UIPickerViewDelegate, UIPickerViewDataSource {
     }
     
     func pickerView(pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        if let calendars = self.calendars {
-            return calendars.count
+        if showCalendars {
+            if let calendars = self.calendars {
+                return calendars.count
+            }
         } else {
-            return 0
+            if let contacts = self.contacts {
+                return contacts.count
+            }
         }
+        return 0
     }
     
     func pickerView(pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        return self.calendars![row].title
+        if showCalendars {
+            return self.calendars![row].title
+        } else {
+            return self.contacts![row].name
+            
+            
+        }
     }
     
     func pickerView(pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         //select calendar, store identifier in user defaults and hide pickerView !
-        pickCalendarButton.titleLabel?.text = self.calendars![row].title
-        NSUserDefaults.standardUserDefaults().setValue(self.calendars![row].calendarIdentifier, forKey: "selectedCalendar")
-        print(self.calendars![row].calendarIdentifier)
+        if showCalendars {
+            pickCalendarButton.titleLabel?.text = self.calendars![row].title
+            NSUserDefaults.standardUserDefaults().setValue(self.calendars![row].calendarIdentifier, forKey: "selectedCalendar")
+            NSUserDefaults.standardUserDefaults().setValue(self.calendars![row].title, forKey: "selectedCalendarName")
+        } else {
+            pickContactsButton.titleLabel?.text = self.contacts![row].name
+            NSUserDefaults.standardUserDefaults().setValue(self.contacts![row].identifier, forKey: "selectedContactGroup")
+            NSUserDefaults.standardUserDefaults().setValue(self.contacts![row].name, forKey: "selectedContactGroupName")
+            
+        }
         pickerView.hidden = true
     }
 }
@@ -93,10 +130,9 @@ extension SettingsViewController: UIPickerViewDelegate, UIPickerViewDataSource {
 extension SettingsViewController {
     
     func loadCalendars() {
-        checkCalendarAuthorizationStatus { (accessGranted) -> Void in
+        appDelegate.checkCalendarAuthorizationStatus { (accessGranted) -> Void in
             if accessGranted {
                 self.calendars = self.eventStore.calendarsForEntityType(EKEntityType.Event)
-                self.calendarPicker.reloadAllComponents()
                 var x = 0
                 for var calendar in self.calendars! {
                     if calendar.calendarIdentifier == self.selectedCalendar {
@@ -107,30 +143,24 @@ extension SettingsViewController {
             }
         }
     }
+}
+
+// MARK: - Contact related actions
+extension SettingsViewController {
     
-    func checkCalendarAuthorizationStatus(completionHandler: (accessGranted: Bool) -> Void) {
-        let status = EKEventStore.authorizationStatusForEntityType(EKEntityType.Event)
-        
-        switch(status) {
-        case EKAuthorizationStatus.Authorized:
-            completionHandler(accessGranted: true)
-            
-        case EKAuthorizationStatus.Denied, EKAuthorizationStatus.NotDetermined:
-            self.eventStore.requestAccessToEntityType(EKEntityType.Event, completion: {(access, accessError) -> Void in
-                if access {
-                    completionHandler(accessGranted: access)
+    func loadContactGroups() {
+        appDelegate.checkContactsAuthorizationStatus { (accessGranted) -> Void in
+            if accessGranted {
+                do {
+                    self.contacts = try self.contactStore.containersMatchingPredicate(nil)
+                    self.groups = try self.contactStore.groupsMatchingPredicate(nil)
+                    print(self.groups)
+                } catch {
+                    print("Error fetching Contact groups")
                 }
-                else {
-                    if status == EKAuthorizationStatus.Denied {
-                        dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                            self.showMessage("Your settings disallowing access to the Calendar ! You can change it here !", title: "No access")
-                        })
-                    }
-                }
-            })
-            
-        default:
-            completionHandler(accessGranted: false)
+
+            }
         }
     }
+    
 }
