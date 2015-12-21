@@ -21,10 +21,13 @@ class MeetingsViewController: UIViewController {
     let eventStore = EKEventStore()
     var calendars: [EKCalendar]?
     var selectedCalendar: String?
+    var duration: Int = 0
+    var eventSource: Datasource?
     let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
     @IBOutlet weak var meetingCollectionView: UICollectionView!
     @IBOutlet weak var settingsButton: UIButton!
     @IBOutlet weak var calendarName: UILabel!
+    @IBOutlet weak var durationSgements: CustomSegmentedControl!
     
     override func viewDidLoad() {
         self.meetingCollectionView?.registerNib(UINib(nibName: "MeetingListCellHeader", bundle: nil), forSupplementaryViewOfKind:UICollectionElementKindSectionHeader, withReuseIdentifier: "meetingCellHeader")
@@ -33,7 +36,6 @@ class MeetingsViewController: UIViewController {
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
         configureUI()
-        //loadCalendars()
         
         // MARK: - Load Events from selected Calendar
         if (NSUserDefaults.standardUserDefaults().stringForKey("selectedCalendar") != nil) {
@@ -44,8 +46,20 @@ class MeetingsViewController: UIViewController {
             performSegueWithIdentifier("showSettings", sender: self)
             return
         }
+        // MARK: - Adjust custom control and set duration
+        durationSgements.items = ["1 day", "1 week", "1 month"]
+        durationSgements.font = UIFont(name: "Roboto-Regular", size: 12)
+        durationSgements.borderColor = UIColor(white: 1.0, alpha: 0.3)
+        durationSgements.addTarget(self, action: "changeDuration:", forControlEvents: .ValueChanged)
         
+        self.duration = getDurationOfIndex(NSUserDefaults.standardUserDefaults().integerForKey("durationIndex"))
         loadEvents()
+    }
+    
+    override func viewDidAppear(animated: Bool) {
+        super.viewDidAppear(animated)
+        // MARK: - Apply value to segmented control after view is visible, otherwise uiview.animate is not working
+        durationSgements.selectedIndex = NSUserDefaults.standardUserDefaults().integerForKey("durationIndex")
     }
     
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
@@ -56,6 +70,30 @@ class MeetingsViewController: UIViewController {
                 }
             }
         }
+    }
+    
+    // MARK: - Returns seconds for 1 day (index=0), 1 week (index=1) and 1 month (index=2)
+    func getDurationOfIndex(index: Int) -> Int {
+        var duration = 0
+        switch index {
+        case 0:
+            duration = 86400
+        case 1:
+            duration = 604800
+        case 2:
+            duration = 2419200
+        default:
+            duration = 0
+        }
+        return duration
+    }
+    
+    func changeDuration(sender: AnyObject?) {
+        let localDuration = getDurationOfIndex(durationSgements.selectedIndex)
+        NSUserDefaults.standardUserDefaults().setValue(durationSgements.selectedIndex, forKey: "durationIndex")
+        NSUserDefaults.standardUserDefaults().setValue(localDuration, forKey: "duration")
+        self.duration = localDuration
+        loadEvents()
     }
     
     // MARK: - Core Data
@@ -81,8 +119,7 @@ class MeetingsViewController: UIViewController {
 extension MeetingsViewController: UICollectionViewDataSource {
     
     func numberOfSectionsInCollectionView(collectionView: UICollectionView) -> Int {
-        
-        return 1
+        return (eventSource?.weekStructure?.count)!
     }
     
     func collectionView(collectionView: UICollectionView, didDeselectItemAtIndexPath indexPath: NSIndexPath) {
@@ -92,7 +129,7 @@ extension MeetingsViewController: UICollectionViewDataSource {
     func collectionView(collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, atIndexPath indexPath: NSIndexPath) -> UICollectionReusableView {
         
         let headerCell = collectionView.dequeueReusableSupplementaryViewOfKind(kind, withReuseIdentifier: "meetingCellHeader", forIndexPath: indexPath) as? MeetingListCellHeader
-        
+        headerCell?.dayLabel.text = eventSource?.structureKeys?[indexPath.row]
         return headerCell!
     }
     
@@ -102,19 +139,35 @@ extension MeetingsViewController: UICollectionViewDataSource {
         print(String(sectionInfo.numberOfObjects) + " Objects to show")
         return sectionInfo.numberOfObjects
         */
-        if let events = self.events {
-            return events.count
+        
+        if let sourceCount = eventSource?.weekStructure?[(eventSource?.structureKeys?[section])!]!.count {
+            return sourceCount
         } else {
             return 1
         }
     }
     
-    
+
     
     func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
         
         let cell = collectionView.dequeueReusableCellWithReuseIdentifier("meetingViewCell", forIndexPath: indexPath) as! MeetingListCell
         
+        if let currentObject = eventSource?.weekStructure?[(eventSource?.structureKeys?[indexPath.section])!]![indexPath.row] {
+            cell.calendarName.text = currentObject.name
+            
+            let dateFormatter = NSDateFormatter()
+            dateFormatter.dateFormat = "HH:mm"
+            cell.timingLabel?.text = dateFormatter.stringFromDate(currentObject.starttime) + " - " + dateFormatter.stringFromDate(currentObject.endtime)
+            cell.cellIdentifier = "meetingParticipant_" + String(indexPath.row)
+            
+            // TODO: Replace this, redundant information, can all be handled through actual Meeting object
+            cell.event = events![indexPath.row] as EKEvent!
+            cell.events = events
+            
+            cell.participantTable.reloadData()
+        }
+        /*
         if let events = self.events {
             cell.event = events[indexPath.row] as EKEvent!
             cell.events = events
@@ -131,7 +184,7 @@ extension MeetingsViewController: UICollectionViewDataSource {
         } else {
             cell.calendarName?.text = "No Events to show"
         }
-        
+        */
         return cell
         
     }
@@ -166,8 +219,12 @@ extension MeetingsViewController {
             if accessGranted {
                 self.fetchEvents(self.eventStore, calendarIdentity: self.selectedCalendar!, completed: { (events: [EKEvent]) -> Void in
                     self.events = events
+                    
+                    // MARK: - Feed datasource and let it do the job to structure probably for CollectionView
+                    self.eventSource = Datasource(events: self.events!)
+                    
                     self.meetingCollectionView.hidden = false
-                    self.meetingCollectionView.reloadData()
+                    //self.meetingCollectionView.reloadData()
 
                 })
             }
@@ -175,7 +232,7 @@ extension MeetingsViewController {
     }
     
     func fetchEvents(eventStore: EKEventStore, calendarIdentity: String, completed: ([EKEvent]) -> ()) {
-        let endDate = NSDate(timeIntervalSinceNow: 604800);   //This is 1 week in seconds
+        let endDate = NSDate(timeIntervalSinceNow: NSTimeInterval(self.duration))
         let predicate = eventStore.predicateForEventsWithStartDate(NSDate(), endDate: endDate, calendars: [self.eventStore.calendarWithIdentifier(calendarIdentity)!])
         
         //let events = NSMutableArray(array: eventStore.eventsMatchingPredicate(predicate))
@@ -183,4 +240,10 @@ extension MeetingsViewController {
         completed(eventStore.eventsMatchingPredicate(predicate) as [EKEvent]!)
         
     }
+}
+
+extension MeetingsViewController: UICollectionViewDelegate {
+    
+    
+    
 }

@@ -2,6 +2,8 @@
 //  Datasource.swift
 //  YACA
 //
+//  Handles interaction between CoreData and Calendar fetching to cache effectively
+//
 //  Created by Andreas Pfister on 18/12/15.
 //  Copyright © 2015 AP. All rights reserved.
 //
@@ -9,24 +11,35 @@
 import Foundation
 import CoreData
 import UIKit
+import EventKit
 
 class Datasource {
     
     var meetings: [Meeting]? {
-        get {
+        /*get {
             return self.meetings
-        }
-        set {
+        }*/
+        didSet {
+            print("didSet executed")
             structureMeetings()
             CoreDataStackManager.sharedInstance().saveContext()
         }
     }
     var dates: [NSDate]?
     var weekStructure: [String:[Meeting]]?
+    var structureKeys: [String]?
     
     init(meetings: [Meeting]?) {
         self.meetings = meetings
         print(weekStructure)
+    }
+    
+    init(events: [EKEvent]) {
+        var localMeetings = [Meeting]()
+        for event in events {
+            localMeetings.append(Meeting(event: event, context: self.sharedContext))
+        }
+        self.meetings = localMeetings
     }
     
     // MARK: - Core Data
@@ -36,7 +49,7 @@ class Datasource {
     
     lazy var fetchedResultsController: NSFetchedResultsController = {
         
-        let fetchRequest = NSFetchRequest(entityName: Meeting.statics.entityName)
+        let fetchRequest = NSFetchRequest(entityName: Notes.statics.entityName)
         //fetchRequest.predicate = NSPredicate(format: "meeting == %@", self.meeting)
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: Meeting.Keys.Name, ascending: true)]
         
@@ -48,6 +61,9 @@ class Datasource {
     
     func getMeetings() {
         
+        // fetch Notes from CoreData, fetch Meetings & participants from system Calendar
+        // Meeting will be related to Notes, with that we have a proper reference to get proper notes of meetings
+        
         do {
             try fetchedResultsController.performFetch()
         } catch let error as NSError {
@@ -56,6 +72,7 @@ class Datasource {
             errorMessage.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
             myViewController.presentViewController(errorMessage, animated: true, completion: nil)
         }
+        
     }
     
     
@@ -65,7 +82,9 @@ class Datasource {
             for item in items {
                 if dates?.contains(item.starttime) == false {
                     dates?.append(item.starttime)
-                    weekStructure![getSpecialWeekdayOfDate(item.starttime)]?.append(item)
+                    let weekDayName = getSpecialWeekdayOfDate(item.starttime)
+                    weekStructure![weekDayName]?.append(item)
+                    structureKeys?.append(weekDayName)
                 }
             }
         }

@@ -1,14 +1,14 @@
 //
-//  TimezdbClient.swift
+//  RestCountriesClient.swift
 //  YACA
 //
-//  Created by Andreas Pfister on 18/12/15.
+//  Created by Andreas Pfister on 21/12/15.
 //  Copyright © 2015 AP. All rights reserved.
 //
 
 import Foundation
 
-class TimezdbClient : NSObject {
+class RestCountriesClient : NSObject {
     
     /* Shared session */
     var session: NSURLSession
@@ -21,28 +21,30 @@ class TimezdbClient : NSObject {
     
     // MARK: - GET
     
-    func taskForGETMethod(parameters: [String : AnyObject], completionHandler: (result: AnyObject!, error: NSError?) -> Void) -> NSURLSessionDataTask {
+    func taskForGETMethod(method: String, completionHandler: (result: AnyObject!, error: NSError?) -> Void) -> NSURLSessionDataTask {
         
         /* 1. Set the parameters */
-        var mutableParameters = parameters
-        mutableParameters[ParameterKeys.ApiKey] = Constants.ApiKey
+        
         
         /* 2/3. Build the URL and configure the request */
-        let urlString = Constants.BaseURL + TimezdbClient.escapedParameters(mutableParameters)
+        let urlString = Constants.BaseURL + method
         let url = NSURL(string: urlString)!
         let request = NSMutableURLRequest(URL: url)
+        
         print("")
         print(urlString)
-        print("")        
+        print("")
+        
         /* 4. Make the request */
         let task = session.dataTaskWithRequest(request) {data, response, downloadError in
             
             /* 5/6. Parse the data and use the data (happens in completion handler) */
             if let error = downloadError {
-                let newError = TimezdbClient.errorForData(data, response: response, error: error)
+                let newError = RestCountriesClient.errorForData(data, response: response, error: error)
                 completionHandler(result: nil, error: newError)
             } else {
-                TimezdbClient.parseJSONWithCompletionHandler(data!, completionHandler: completionHandler)
+                var strData = NSString(data: data!, encoding: NSUTF8StringEncoding)
+                RestCountriesClient.parseJSONWithCompletionHandler(data!, completionHandler: completionHandler)
             }
         }
         
@@ -107,29 +109,35 @@ class TimezdbClient : NSObject {
     class func escapedParameters(parameters: [String : AnyObject]) -> String {
         
         var urlVars = [String]()
+        var isSimple = false
         
         for (key, value) in parameters {
             
             /* Make sure that it is a string value */
             let stringValue = "\(value)"
             
-            /* Escape it */
-            let escapedValue = stringValue.stringByAddingPercentEncodingWithAllowedCharacters(NSCharacterSet.URLQueryAllowedCharacterSet())
+            if stringValue != "" {
+                /* Escape it */
+                let escapedValue = stringValue.stringByAddingPercentEncodingWithAllowedCharacters(NSCharacterSet.URLQueryAllowedCharacterSet())
             
-            /* Append it */
-            urlVars += [key + "=" + "\(escapedValue!)"]
+                /* Append it */
+                urlVars += [key + "=" + "\(escapedValue!)"]
+            } else {
+                urlVars += ["\(key)"]
+                isSimple = true
+            }
             
         }
         
-        return (!urlVars.isEmpty ? "?" : "") + urlVars.joinWithSeparator("&")
+        return (!urlVars.isEmpty ? isSimple ? "":"?" : "") + ( isSimple ? urlVars.joinWithSeparator("/"):urlVars.joinWithSeparator("&") )
     }
     
     // MARK: - Shared Instance
     
-    class func sharedInstance() -> TimezdbClient {
+    class func sharedInstance() -> RestCountriesClient {
         
         struct Singleton {
-            static var sharedInstance = TimezdbClient()
+            static var sharedInstance = RestCountriesClient()
         }
         
         return Singleton.sharedInstance

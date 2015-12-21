@@ -29,12 +29,16 @@
 		3E3BEC321C243999008BC0CF /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E3BEC1E1C243999008BC0CF /* SettingsViewController.swift */; };
 		3E3BEC351C2439B1008BC0CF /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3E3BEC331C2439B1008BC0CF /* Main.storyboard */; };
 		3E3BEC361C2439B1008BC0CF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3E3BEC341C2439B1008BC0CF /* LaunchScreen.storyboard */; };
+		3EA80B311C28470C00E96AF3 /* Notes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EA80B301C28470C00E96AF3 /* Notes.swift */; };
 		3EBAF76E1C24429C009A49F6 /* Datasource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EBAF76D1C24429C009A49F6 /* Datasource.swift */; };
 		3EBAF7711C244D5D009A49F6 /* NSDate.extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EBAF7701C244D5D009A49F6 /* NSDate.extension.swift */; };
 		3EBAF7741C248F5F009A49F6 /* TimezdbClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EBAF7731C248F5F009A49F6 /* TimezdbClient.swift */; };
 		3EBAF7761C248F6E009A49F6 /* TimezdbConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EBAF7751C248F6E009A49F6 /* TimezdbConstants.swift */; };
 		3EBAF7781C248F7B009A49F6 /* TimezdbConvenience.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EBAF7771C248F7B009A49F6 /* TimezdbConvenience.swift */; };
 		3EBAF77E1C27D6F7009A49F6 /* CustomSegmentedControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EBAF77D1C27D6F7009A49F6 /* CustomSegmentedControl.swift */; };
+		3EBAF7811C2813C3009A49F6 /* RestCountriesClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EBAF7801C2813C3009A49F6 /* RestCountriesClient.swift */; };
+		3EBAF7831C2813D6009A49F6 /* RestCountriesConvenience.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EBAF7821C2813D6009A49F6 /* RestCountriesConvenience.swift */; };
+		3EBAF7851C2813E8009A49F6 /* RestCountriesConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EBAF7841C2813E8009A49F6 /* RestCountriesConstants.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -62,6 +66,7 @@
 		3E3BEC1E1C243999008BC0CF /* SettingsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
 		3E3BEC331C2439B1008BC0CF /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		3E3BEC341C2439B1008BC0CF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
+		3EA80B301C28470C00E96AF3 /* Notes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Notes.swift; sourceTree = "<group>"; };
 		3EBAF76D1C24429C009A49F6 /* Datasource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Datasource.swift; sourceTree = "<group>"; };
 		3EBAF7701C244D5D009A49F6 /* NSDate.extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSDate.extension.swift; sourceTree = "<group>"; };
 		3EBAF7731C248F5F009A49F6 /* TimezdbClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimezdbClient.swift; sourceTree = "<group>"; };
@@ -69,6 +74,9 @@
 		3EBAF7771C248F7B009A49F6 /* TimezdbConvenience.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimezdbConvenience.swift; sourceTree = "<group>"; };
 		3EBAF7791C2730C7009A49F6 /* YACA.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = YACA.entitlements; sourceTree = "<group>"; };
 		3EBAF77D1C27D6F7009A49F6 /* CustomSegmentedControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomSegmentedControl.swift; sourceTree = "<group>"; };
+		3EBAF7801C2813C3009A49F6 /* RestCountriesClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RestCountriesClient.swift; sourceTree = "<group>"; };
+		3EBAF7821C2813D6009A49F6 /* RestCountriesConvenience.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RestCountriesConvenience.swift; sourceTree = "<group>"; };
+		3EBAF7841C2813E8009A49F6 /* RestCountriesConstants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RestCountriesConstants.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -102,6 +110,7 @@
 				3E3BEC0D1C243999008BC0CF /* Meeting.swift */,
 				3E3BEC0B1C243999008BC0CF /* YACA.xcdatamodeld */,
 				3EBAF76D1C24429C009A49F6 /* Datasource.swift */,
+				3EA80B301C28470C00E96AF3 /* Notes.swift */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -109,6 +118,7 @@
 		3E190EAD1C243CE800B80B6B /* Clients */ = {
 			isa = PBXGroup;
 			children = (
+				3EBAF77F1C280D8F009A49F6 /* restcountries */,
 				3EBAF7721C248F24009A49F6 /* timezdb */,
 				3E190EAE1C243CEF00B80B6B /* openweather */,
 			);
@@ -142,6 +152,7 @@
 		3E190EB01C243D3700B80B6B /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				3EBAF7791C2730C7009A49F6 /* YACA.entitlements */,
 				3E3BEC181C243999008BC0CF /* Assets.xcassets */,
 				3E3BEC191C243999008BC0CF /* BorderedButton.swift */,
 				3E3BEC1A1C243999008BC0CF /* Roboto-Medium.ttf */,
@@ -172,7 +183,6 @@
 			isa = PBXGroup;
 			children = (
 				3EBAF77A1C27D6D1009A49F6 /* Controls */,
-				3EBAF7791C2730C7009A49F6 /* YACA.entitlements */,
 				3E190EAB1C243CBE00B80B6B /* Storyboard */,
 				3E190EAC1C243CDE00B80B6B /* Model */,
 				3E190EAF1C243D2C00B80B6B /* Controller */,
@@ -205,6 +215,16 @@
 				3EBAF77D1C27D6F7009A49F6 /* CustomSegmentedControl.swift */,
 			);
 			name = Controls;
+			sourceTree = "<group>";
+		};
+		3EBAF77F1C280D8F009A49F6 /* restcountries */ = {
+			isa = PBXGroup;
+			children = (
+				3EBAF7801C2813C3009A49F6 /* RestCountriesClient.swift */,
+				3EBAF7821C2813D6009A49F6 /* RestCountriesConvenience.swift */,
+				3EBAF7841C2813E8009A49F6 /* RestCountriesConstants.swift */,
+			);
+			name = restcountries;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -289,12 +309,16 @@
 			buildActionMask = 2147483647;
 			files = (
 				3E3BEC281C243999008BC0CF /* OpenWeatherConstants.swift in Sources */,
+				3EA80B311C28470C00E96AF3 /* Notes.swift in Sources */,
 				3E3BEC251C243999008BC0CF /* AppDelegate.swift in Sources */,
 				3EBAF7711C244D5D009A49F6 /* NSDate.extension.swift in Sources */,
 				3E3BEC221C243999008BC0CF /* MeetingListCellHeader.swift in Sources */,
 				3EBAF7761C248F6E009A49F6 /* TimezdbConstants.swift in Sources */,
 				3E3BEC201C243999008BC0CF /* YACA.xcdatamodeld in Sources */,
+				3EBAF7851C2813E8009A49F6 /* RestCountriesConstants.swift in Sources */,
 				3E3BEC311C243999008BC0CF /* MeetingViewParticipantTableViewCell.swift in Sources */,
+				3EBAF7831C2813D6009A49F6 /* RestCountriesConvenience.swift in Sources */,
+				3EBAF7811C2813C3009A49F6 /* RestCountriesClient.swift in Sources */,
 				3E3BEC291C243999008BC0CF /* OpenWeatherConvenience.swift in Sources */,
 				3EBAF76E1C24429C009A49F6 /* Datasource.swift in Sources */,
 				3E3BEC271C243999008BC0CF /* OpenWeatherClient.swift in Sources */,

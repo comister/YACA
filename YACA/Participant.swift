@@ -62,22 +62,37 @@ class Participant: NSManagedObject {
         let entity =  NSEntityDescription.entityForName(statics.entityName, inManagedObjectContext: context)!
         super.init(entity: entity, insertIntoManagedObjectContext: context)
         
+        print("")
+        print("---------------------------------------")
+        print(attendee)
+        print("---------------------------------------")
+        print("")
+        
         name = attendee!.name
         myself = attendee!.currentUser
         
         // Mark: - Try to find additional information based on available Contact information --- FINDING: this may be rarely used because of unavailability of Contactdata --- ADDITIONAL FUTURE TODO: Implement LDAP lookup instead for Contact lookup (Exchange)
         if let contact = self.findContactofAttendee(attendee!) {
-            let location = contact.postalAddresses.first!.value as! CNPostalAddress
-            self.location = location.city
-            TimezdbClient.sharedInstance().getTimezoneByCity(location.city + ", " + location.country)  { data, error in
-                print("Searched for timezone information of city " + location.city + ", " + location.country)
+            if let address = contact.postalAddresses.first {
+                let location = address.value as! CNPostalAddress
+                self.location = location.city
+                RestCountriesClient.sharedInstance().getTimezoneByCountryCode(location.country) { data, error in
+                    if let serverData = data {
+                        self.timezone = serverData as? String
+                    }
+                }
+                /* Obsolete REST API Call - unsufficient functionality of timezdb Service
+                TimezdbClient.sharedInstance().getTimezoneByCity(location.city + ", " + location.country)  { data, error in }
+                */
             }
         } else {
+            /*
             print("")
             print("Nothing found")
             print("")
             print(attendee)
             print("")
+            */
         }
         
     }
@@ -109,9 +124,4 @@ class Participant: NSManagedObject {
         }
         return eligibleContact
     }
-    
-    func updateParticipant(participant: CNContact) {
-        print(participant.postalAddresses)
-    }
-    
 }

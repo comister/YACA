@@ -17,6 +17,10 @@ class MeetingListCell: UICollectionViewCell, UITableViewDelegate, UITableViewDat
     @IBOutlet weak var participantTable: UITableView!
     @IBOutlet weak var timingLabel: UILabel!
     @IBOutlet weak var notesText: UITextView!
+    @IBOutlet weak var notesButton: UIButton!
+    @IBOutlet weak var participantsButton: UIButton!
+    
+    var tapRecognizer: UITapGestureRecognizer? = nil
     var event: EKEvent?
     var events: [EKEvent]?
     var cellIdentifier: String?
@@ -64,8 +68,14 @@ class MeetingListCell: UICollectionViewCell, UITableViewDelegate, UITableViewDat
         participantTable.reloadData()
         //collectionView.registerClass(UICollectionViewCell.self, forCellWithReuseIdentifier: "CollectionViewCell")
         participantTable.registerClass(UITableView.self, forCellReuseIdentifier: "meetingParticipants")
+        tapRecognizer = UITapGestureRecognizer(target: self, action: "handleSingleTap:")
+        tapRecognizer?.numberOfTapsRequired = 1
     }
 
+    func handleSingleTap(recognizer: UITapGestureRecognizer) {
+        self.notesText.endEditing(true)
+    }
+    
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
     }
@@ -109,11 +119,15 @@ extension MeetingListCell {
     @IBAction func participantsButton(sender: UIButton) {
         participantTable.hidden = false
         notesText.hidden = true
+        participantsButton.backgroundColor = UIColor.whiteColor()
+        notesButton.backgroundColor = .None
     }
     
     @IBAction func notesButton(sender: UIButton) {
         participantTable.hidden = true
         notesText.hidden = false
+        notesButton.backgroundColor = UIColor.whiteColor()
+        participantsButton.backgroundColor = .None
     }
     
 }
