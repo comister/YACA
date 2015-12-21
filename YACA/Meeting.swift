@@ -16,7 +16,7 @@ class Meeting: NSManagedObject {
     
     struct Keys {
         static let Name = "name"
-        static let Notes = "notes"
+        static let Details = "details"
         static let StartTime = "starttime"
         static let EndTime = "starttime"
         static let Location = "location"
@@ -28,7 +28,7 @@ class Meeting: NSManagedObject {
     }
     
     @NSManaged var name: String
-    @NSManaged var notes: String
+    @NSManaged var details: String
     @NSManaged var starttime: NSDate
     @NSManaged var endtime: NSDate
     @NSManaged var location: String
@@ -38,13 +38,14 @@ class Meeting: NSManagedObject {
         super.init(entity: entity, insertIntoManagedObjectContext: context)
     }
     
+    // Mark: - Standard initializer using dictionary
     init(dictionary: [String : AnyObject], context: NSManagedObjectContext) {
         // Core Data
         let entity =  NSEntityDescription.entityForName(statics.entityName, inManagedObjectContext: context)!
         super.init(entity: entity, insertIntoManagedObjectContext: context)
         // Dictionary
         name = dictionary[Keys.Name] as! String
-        notes = dictionary[Keys.Notes] as! String
+        details = dictionary[Keys.Details] as! String
         starttime = dictionary[Keys.StartTime] as! NSDate
         endtime = dictionary[Keys.EndTime] as! NSDate
         location = dictionary[Keys.Location] as! String
@@ -56,21 +57,16 @@ class Meeting: NSManagedObject {
         super.init(entity: entity, insertIntoManagedObjectContext: context)
         
         name = event.title
-        notes = event.description
+        details = event.description
         starttime = event.startDate
         endtime = event.endDate
         location = event.location!
         
+        // Mark: - Convert EKParticipant to Participant and add to attendees
         if let eventAttendees = event.attendees {
             for eventAttendee in eventAttendees {
-                
+                self.attendees?.append(Participant(attendee: eventAttendee, context: CoreDataStackManager.sharedInstance().managedObjectContext))
             }
         }
-        
-    }
-    
-    
-    func fromEvent(event: EKEvent) {
-        
     }
 }

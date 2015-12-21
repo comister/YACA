@@ -15,6 +15,8 @@ class MeetingListCell: UICollectionViewCell, UITableViewDelegate, UITableViewDat
     
     @IBOutlet weak var calendarName: UILabel!
     @IBOutlet weak var participantTable: UITableView!
+    @IBOutlet weak var timingLabel: UILabel!
+    @IBOutlet weak var notesText: UITextView!
     var event: EKEvent?
     var events: [EKEvent]?
     var cellIdentifier: String?
@@ -40,6 +42,11 @@ class MeetingListCell: UICollectionViewCell, UITableViewDelegate, UITableViewDat
     
     private func updateContent() {
         calendarName.text = meeting.name
+        //timingLabel.text = meeting.starttime
+        let dateFormatter = NSDateFormatter()
+        dateFormatter.dateFormat = "HH:mm"
+        timingLabel.text = dateFormatter.stringFromDate(meeting.starttime) + " - " + dateFormatter.stringFromDate(meeting.endtime)
+        
     }
     
     // MARK: - apply some radius to the Cell
@@ -96,8 +103,17 @@ class MeetingListCell: UICollectionViewCell, UITableViewDelegate, UITableViewDat
     
 }
 
+// MARK: - Toolbarbuttons
 extension MeetingListCell {
     
+    @IBAction func participantsButton(sender: UIButton) {
+        participantTable.hidden = false
+        notesText.hidden = true
+    }
     
+    @IBAction func notesButton(sender: UIButton) {
+        participantTable.hidden = true
+        notesText.hidden = false
+    }
     
 }

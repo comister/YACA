@@ -11,7 +11,6 @@ import UIKit
 import CoreData
 import EventKit
 import Contacts
-//import AddressBook
 
 @objc(Participant)
 
@@ -66,12 +65,19 @@ class Participant: NSManagedObject {
         name = attendee!.name
         myself = attendee!.currentUser
         
+        // Mark: - Try to find additional information based on available Contact information --- FINDING: this may be rarely used because of unavailability of Contactdata --- ADDITIONAL FUTURE TODO: Implement LDAP lookup instead for Contact lookup (Exchange)
         if let contact = self.findContactofAttendee(attendee!) {
             let location = contact.postalAddresses.first!.value as! CNPostalAddress
             self.location = location.city
-            TimezdbClient.sharedInstance().getTimezoneByCity(location.city)  { data, error in
-                print("Searched for timezone information of city " + location.city)
+            TimezdbClient.sharedInstance().getTimezoneByCity(location.city + ", " + location.country)  { data, error in
+                print("Searched for timezone information of city " + location.city + ", " + location.country)
             }
+        } else {
+            print("")
+            print("Nothing found")
+            print("")
+            print(attendee)
+            print("")
         }
         
     }
@@ -83,24 +89,10 @@ class Participant: NSManagedObject {
         appDelegate.checkContactsAuthorizationStatus { (accessGranted) -> Void in
             if accessGranted {
                 let store = CNContactStore()
-                /*
-                var allContainers: [CNContainer] = []
-                do {
-                    allContainers = try store.containersMatchingPredicate(nil)
-                    print(allContainers)
-                } catch {
-                    print("Error fetching containers")
-                }
-                */
                 do {
                     let keysToFetch = [CNContactGivenNameKey, CNContactFamilyNameKey, CNContactPhoneNumbersKey, CNContactEmailAddressesKey, CNContactPostalAddressesKey]
                     if let name = attendee.name {
-                        var predicates = [NSPredicate]()
-                        predicates.append(CNContact.predicateForContactsInContainerWithIdentifier(NSUserDefaults.standardUserDefaults().stringForKey("selectedContactGroup")!))
-                        predicates.append(CNContact.predicateForContactsMatchingName(name))
-                        
-                        let predicateCompound = NSCompoundPredicate.init(andPredicateWithSubpredicates: predicates)
-                        
+
                         let contacts = try store.unifiedContactsMatchingPredicate(CNContact.predicateForContactsMatchingName(name), keysToFetch: keysToFetch)
 
                         if let contact = contacts.first {
@@ -108,7 +100,7 @@ class Participant: NSManagedObject {
                             if (contact.isKeyAvailable(CNContactPostalAddressesKey)) {
                                 eligibleContact = contact
                             } else {
-                                // no address found, we are not able to determine where the person is coming from and can not show timezone as well as other infomration related to the location
+                                // no address found, we are not able to determine where the person is coming from and can not show timezone as well as other information related to the location
                             }
                         }
                     }

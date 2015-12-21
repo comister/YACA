@@ -21,6 +21,7 @@ class MeetingsViewController: UIViewController {
     let eventStore = EKEventStore()
     var calendars: [EKCalendar]?
     var selectedCalendar: String?
+    let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
     @IBOutlet weak var meetingCollectionView: UICollectionView!
     @IBOutlet weak var settingsButton: UIButton!
     @IBOutlet weak var calendarName: UILabel!
@@ -118,6 +119,12 @@ extension MeetingsViewController: UICollectionViewDataSource {
             cell.event = events[indexPath.row] as EKEvent!
             cell.events = events
             cell.calendarName?.text = cell.event!.title
+            
+            let dateFormatter = NSDateFormatter()
+            dateFormatter.dateFormat = "HH:mm"
+            cell.timingLabel?.text = dateFormatter.stringFromDate(cell.event!.startDate) + " - " + dateFormatter.stringFromDate(cell.event!.endDate)
+            
+            cell.timingLabel?.text
             //cell.contentView.tag = indexPath.row
             cell.cellIdentifier = "meetingParticipant_" + String(indexPath.row)
             cell.participantTable.reloadData()
@@ -150,18 +157,12 @@ extension MeetingsViewController {
     
 }
 
-// MARK: - Contact related actions
-extension MeetingsViewController {
-    
-    
-    
-}
-
 // MARK: - Calendar related actions
 extension MeetingsViewController {
     
     func loadEvents() {
-        checkCalendarAuthorizationStatus { (accessGranted) -> Void in
+        
+        appDelegate.checkCalendarAuthorizationStatus { (accessGranted) -> Void in
             if accessGranted {
                 self.fetchEvents(self.eventStore, calendarIdentity: self.selectedCalendar!, completed: { (events: [EKEvent]) -> Void in
                     self.events = events
@@ -181,31 +182,5 @@ extension MeetingsViewController {
         
         completed(eventStore.eventsMatchingPredicate(predicate) as [EKEvent]!)
         
-    }
-    
-    func checkCalendarAuthorizationStatus(completionHandler: (accessGranted: Bool) -> Void) {
-        let status = EKEventStore.authorizationStatusForEntityType(EKEntityType.Event)
-        
-        switch(status) {
-        case EKAuthorizationStatus.Authorized:
-            completionHandler(accessGranted: true)
-            
-        case EKAuthorizationStatus.Denied, EKAuthorizationStatus.NotDetermined:
-            self.eventStore.requestAccessToEntityType(EKEntityType.Event, completion: {(access, accessError) -> Void in
-                if access {
-                    completionHandler(accessGranted: access)
-                }
-                else {
-                    if status == EKAuthorizationStatus.Denied {
-                        dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                            self.performSegueWithIdentifier("showSettings", sender: self)
-                        })
-                    }
-                }
-            })
-            
-        default:
-            completionHandler(accessGranted: false)
-        }
     }
 }

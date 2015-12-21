@@ -7,18 +7,57 @@
 //
 
 import Foundation
+import CoreData
+import UIKit
 
 class Datasource {
     
-    var meetings: [Meeting]?
+    var meetings: [Meeting]? {
+        get {
+            return self.meetings
+        }
+        set {
+            structureMeetings()
+            CoreDataStackManager.sharedInstance().saveContext()
+        }
+    }
     var dates: [NSDate]?
-    var weekStructure: [String:[NSDate]]?
+    var weekStructure: [String:[Meeting]]?
     
     init(meetings: [Meeting]?) {
         self.meetings = meetings
-        structureMeetings()
         print(weekStructure)
     }
+    
+    // MARK: - Core Data
+    var sharedContext: NSManagedObjectContext {
+        return CoreDataStackManager.sharedInstance().managedObjectContext
+    }
+    
+    lazy var fetchedResultsController: NSFetchedResultsController = {
+        
+        let fetchRequest = NSFetchRequest(entityName: Meeting.statics.entityName)
+        //fetchRequest.predicate = NSPredicate(format: "meeting == %@", self.meeting)
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: Meeting.Keys.Name, ascending: true)]
+        
+        let fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: self.sharedContext, sectionNameKeyPath: nil, cacheName: nil)
+        
+        return fetchedResultsController
+        
+    }()
+    
+    func getMeetings() {
+        
+        do {
+            try fetchedResultsController.performFetch()
+        } catch let error as NSError {
+            let myViewController = UIViewController()
+            let errorMessage = UIAlertController(title: nil, message: error.localizedDescription, preferredStyle: UIAlertControllerStyle.Alert)
+            errorMessage.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
+            myViewController.presentViewController(errorMessage, animated: true, completion: nil)
+        }
+    }
+    
     
     // MARK: - iterate through each Event and fill up dates, afterwards sort
     func structureMeetings() {
@@ -26,7 +65,7 @@ class Datasource {
             for item in items {
                 if dates?.contains(item.starttime) == false {
                     dates?.append(item.starttime)
-                    weekStructure![getSpecialWeekdayOfDate(item.starttime)]?.append(item.starttime)
+                    weekStructure![getSpecialWeekdayOfDate(item.starttime)]?.append(item)
                 }
             }
         }
@@ -46,6 +85,5 @@ class Datasource {
             dateFormatter.dateFormat = "EEEE"
             return dateFormatter.stringFromDate(date)
         }
-        return ""
     }
 }

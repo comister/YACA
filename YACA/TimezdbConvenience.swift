@@ -13,7 +13,6 @@ extension TimezdbClient {
     func getTimezoneByCity(cityName: String, completionHandler: (result: Int?, error: NSError?) -> Void) {
         
         let parameters = [
-            ParameterKeys.ApiKey : Constants.ApiKey,
             ParameterKeys.Method : Methods.byCityName,
             ParameterKeys.CityName : cityName
         ]
