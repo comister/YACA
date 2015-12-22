@@ -19,7 +19,6 @@ class Participant: NSManagedObject {
     struct Keys {
         static let Name = "name"
         static let Location = "location"
-        static let Meeting = "meeting"
         static let Weather = "weather"
         static let Timezone = "timezone"
         static let MySelf = "myself"
@@ -36,7 +35,6 @@ class Participant: NSManagedObject {
     @NSManaged var weather: String?
     @NSManaged var timezone: String?
     @NSManaged var myself: Bool
-    @NSManaged var meeting: Meeting!
     
     override init(entity: NSEntityDescription, insertIntoManagedObjectContext context: NSManagedObjectContext?) {
         super.init(entity: entity, insertIntoManagedObjectContext: context)
@@ -54,18 +52,9 @@ class Participant: NSManagedObject {
         weather = dictionary[Keys.Weather] as? String
         timezone = dictionary[Keys.Timezone] as? String
         myself = dictionary[Keys.MySelf] as! Bool
-        
-        if dictionary[Keys.Meeting] != nil {
-            meeting = dictionary[Keys.Meeting] as! Meeting
-        }
-        
     }
 
-    init(attendee: EKParticipant?, context: NSManagedObjectContext) {
-        // Core Data
-        let entity =  NSEntityDescription.entityForName(statics.entityName, inManagedObjectContext: context)!
-        super.init(entity: entity, insertIntoManagedObjectContext: context)
-        
+    static func getEmailFromEKParticipantDescription( attendee: EKParticipant? ) -> String? {
         let descriptionDictionary = attendee!.description.componentsSeparatedByString("{")[1].componentsSeparatedByString("}")[0].componentsSeparatedByString("; ")
         var resultDict = [String:String]()
         
@@ -73,6 +62,7 @@ class Participant: NSManagedObject {
             let components = descriptionComponent.componentsSeparatedByString(" = ")
             resultDict[components[0]] = components[1]
         }
+        
         
         print("")
         print("---------------------------------------")
@@ -84,9 +74,16 @@ class Participant: NSManagedObject {
         print("---------------------------------------")
         print("")
         
+        return resultDict["email"]
+    }
+    
+    init(attendee: EKParticipant?, context: NSManagedObjectContext) {
+        // Core Data
+        let entity =  NSEntityDescription.entityForName(statics.entityName, inManagedObjectContext: context)!
+        super.init(entity: entity, insertIntoManagedObjectContext: context)
         
         name = attendee!.name
-        email = resultDict["email"]! as String
+        email = Participant.getEmailFromEKParticipantDescription(attendee)!
         myself = attendee!.currentUser
         
         // Mark: - Try to find additional information based on available Contact information --- FINDING: this may be rarely used because of unavailability of Contactdata --- ADDITIONAL FUTURE TODO: Implement LDAP lookup instead for Contact lookup (Exchange)
@@ -104,32 +101,26 @@ class Participant: NSManagedObject {
                 */
             }
         } else {
-            /*
-            print("")
-            print("Nothing found")
-            print("")
-            print(attendee)
-            print("")
-            */
+            // No information in Contacts found, this would be the place to refine search with other services/protocols ...
         }
         
     }
     
+    // MARK: - Getting additional information from Contacts like country
     func findContactofAttendee(attendee: EKParticipant) -> CNContact? {
         let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
         var eligibleContact: CNContact? = nil
         
+        // if access allowed to Contacts, going to search for an eligible contact with same name than in event
         appDelegate.checkContactsAuthorizationStatus { (accessGranted) -> Void in
             if accessGranted {
                 let store = CNContactStore()
                 do {
+                    // Fetching interesting information, whereat we only use PostalAddress at the moment
                     let keysToFetch = [CNContactGivenNameKey, CNContactFamilyNameKey, CNContactPhoneNumbersKey, CNContactEmailAddressesKey, CNContactPostalAddressesKey]
                     if let name = attendee.name {
-
                         let contacts = try store.unifiedContactsMatchingPredicate(CNContact.predicateForContactsMatchingName(name), keysToFetch: keysToFetch)
-
                         if let contact = contacts.first {
-                            print(contact)
                             if (contact.isKeyAvailable(CNContactPostalAddressesKey)) {
                                 eligibleContact = contact
                             } else {

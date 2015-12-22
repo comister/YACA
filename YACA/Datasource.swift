@@ -29,6 +29,7 @@ class Datasource {
     var weekOfSection = [Int:Int]()
     var dayOfSection = [Int:String]()
     var sectionsRequired = 0
+    var meetingId: String = ""
     
     
     init(meetings: [Meeting]?) {
@@ -39,46 +40,12 @@ class Datasource {
     init(events: [EKEvent]) {
         var localMeetings = [Meeting]()
         for event in events {
-            localMeetings.append(Meeting(event: event, context: self.sharedContext))
+            localMeetings.append(Meeting(event: event))
         }
         self.meetings = localMeetings
         structureMeetings()
         CoreDataStackManager.sharedInstance().saveContext()
     }
-    
-    // MARK: - Core Data
-    var sharedContext: NSManagedObjectContext {
-        return CoreDataStackManager.sharedInstance().managedObjectContext
-    }
-    
-    lazy var fetchedResultsController: NSFetchedResultsController = {
-        
-        let fetchRequest = NSFetchRequest(entityName: Note.statics.entityName)
-        //fetchRequest.predicate = NSPredicate(format: "meeting == %@", self.meeting)
-        fetchRequest.sortDescriptors = [NSSortDescriptor(key: Meeting.Keys.Name, ascending: true)]
-        
-        let fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: self.sharedContext, sectionNameKeyPath: nil, cacheName: nil)
-        
-        return fetchedResultsController
-        
-    }()
-    
-    func getMeetings() {
-        
-        // fetch Notes from CoreData, fetch Meetings & participants from system Calendar
-        // Meeting will be related to Notes, with that we have a proper reference to get proper notes of meetings
-        
-        do {
-            try fetchedResultsController.performFetch()
-        } catch let error as NSError {
-            let myViewController = UIViewController()
-            let errorMessage = UIAlertController(title: nil, message: error.localizedDescription, preferredStyle: UIAlertControllerStyle.Alert)
-            errorMessage.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
-            myViewController.presentViewController(errorMessage, animated: true, completion: nil)
-        }
-        
-    }
-    
     
     // MARK: - iterate through each Event and fill up dates, afterwards sort
     func structureMeetings() {
@@ -104,7 +71,7 @@ class Datasource {
                     }
                 }
                 // NEED TO create weekDayName with first access !!!!
-                
+                //item.note = getNote(item.meetingId)
                 weekStructure[week]![weekDayName]!.append(item)
             }
         }
@@ -126,7 +93,7 @@ class Datasource {
             dateFormatter.dateFormat = "EEEE"
             dateFormatter.locale = NSLocale(localeIdentifier: "en")
             print(String(date) + " = " + dateFormatter.stringFromDate(date))
-            return dateFormatter.stringFromDate(date)
+            return dateFormatter.stringFromDate(date).uppercaseString
         }
     }
     func getCalendarWeek(date: NSDate) -> Int {

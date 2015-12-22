@@ -1,19 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model userDefinedModelVersionIdentifier="YACA Version 2" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="9525" systemVersion="14F1509" minimumToolsVersion="Automatic">
-    <entity name="Meeting" representedClassName="Meeting" syncable="YES">
-        <attribute name="details" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="endtime" optional="YES" attributeType="Date" syncable="YES"/>
-        <attribute name="location" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="meetingId" attributeType="String" syncable="YES"/>
-        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="starttime" optional="YES" attributeType="Date" syncable="YES"/>
-        <relationship name="note" optional="YES" maxCount="1" deletionRule="Nullify" ordered="YES" destinationEntity="Note" inverseName="meeting" inverseEntity="Note" syncable="YES"/>
-        <relationship name="participants" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Participant" inverseName="meetings" inverseEntity="Participant" syncable="YES"/>
-    </entity>
     <entity name="Note" syncable="YES">
         <attribute name="createdAt" optional="YES" attributeType="Date" syncable="YES"/>
+        <attribute name="meetingId" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="note" optional="YES" attributeType="String" syncable="YES"/>
-        <relationship name="meeting" optional="YES" maxCount="1" deletionRule="Deny" destinationEntity="Meeting" inverseName="note" inverseEntity="Meeting" syncable="YES"/>
     </entity>
     <entity name="Participant" representedClassName="Participant" syncable="YES">
         <attribute name="email" attributeType="String" syncable="YES"/>
@@ -22,11 +12,9 @@
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="timezone" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="weather" optional="YES" attributeType="String" syncable="YES"/>
-        <relationship name="meetings" toMany="YES" deletionRule="Cascade" destinationEntity="Meeting" inverseName="participants" inverseEntity="Meeting" syncable="YES"/>
     </entity>
     <elements>
-        <element name="Meeting" positionX="72" positionY="-126" width="128" height="163"/>
         <element name="Note" positionX="250" positionY="-180" width="128" height="88"/>
-        <element name="Participant" positionX="250" positionY="-18" width="128" height="148"/>
+        <element name="Participant" positionX="250" positionY="-18" width="128" height="133"/>
     </elements>
 </model>
