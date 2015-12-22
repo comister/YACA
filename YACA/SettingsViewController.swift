@@ -56,11 +56,7 @@ class SettingsViewController: UIViewController {
             descriptionLabel.hidden = false
         }
     }
-    
-    @IBAction func dismissSettings(sender: UIBarButtonItem) {
-        self.dismissViewControllerAnimated(true, completion: nil)
-    }
-    
+
     @IBAction func durationClicked(sender: UISegmentedControl) {
         print(String(sender.selectedSegmentIndex))
         NSUserDefaults.standardUserDefaults().setValue(sender.selectedSegmentIndex, forKey: "durationIndex")

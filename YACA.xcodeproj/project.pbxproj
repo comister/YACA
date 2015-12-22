@@ -30,6 +30,9 @@
 		3E3BEC361C2439B1008BC0CF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3E3BEC341C2439B1008BC0CF /* LaunchScreen.storyboard */; };
 		3EA80B311C28470C00E96AF3 /* Note.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EA80B301C28470C00E96AF3 /* Note.swift */; };
 		3EA80B331C297E4100E96AF3 /* Meeting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EA80B321C297E4100E96AF3 /* Meeting.swift */; };
+		3EA80B351C29CDDD00E96AF3 /* TabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EA80B341C29CDDD00E96AF3 /* TabBarController.swift */; };
+		3EA80B371C29CF8600E96AF3 /* NotesTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EA80B361C29CF8600E96AF3 /* NotesTableViewController.swift */; };
+		3EA80B391C29D4CE00E96AF3 /* README.md in Sources */ = {isa = PBXBuildFile; fileRef = 3EA80B381C29D4CE00E96AF3 /* README.md */; };
 		3EBAF76E1C24429C009A49F6 /* Datasource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EBAF76D1C24429C009A49F6 /* Datasource.swift */; };
 		3EBAF7711C244D5D009A49F6 /* NSDate.extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EBAF7701C244D5D009A49F6 /* NSDate.extension.swift */; };
 		3EBAF7741C248F5F009A49F6 /* TimezdbClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EBAF7731C248F5F009A49F6 /* TimezdbClient.swift */; };
@@ -67,6 +70,9 @@
 		3E3BEC341C2439B1008BC0CF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		3EA80B301C28470C00E96AF3 /* Note.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Note.swift; sourceTree = "<group>"; };
 		3EA80B321C297E4100E96AF3 /* Meeting.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Meeting.swift; sourceTree = "<group>"; };
+		3EA80B341C29CDDD00E96AF3 /* TabBarController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TabBarController.swift; sourceTree = "<group>"; };
+		3EA80B361C29CF8600E96AF3 /* NotesTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotesTableViewController.swift; sourceTree = "<group>"; };
+		3EA80B381C29D4CE00E96AF3 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		3EBAF76D1C24429C009A49F6 /* Datasource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Datasource.swift; sourceTree = "<group>"; };
 		3EBAF7701C244D5D009A49F6 /* NSDate.extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSDate.extension.swift; sourceTree = "<group>"; };
 		3EBAF7731C248F5F009A49F6 /* TimezdbClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimezdbClient.swift; sourceTree = "<group>"; };
@@ -145,6 +151,8 @@
 				3E3BEC171C243999008BC0CF /* UIViewExtension.swift */,
 				3E3BEC1D1C243999008BC0CF /* MeetingViewParticipantTableViewCell.swift */,
 				3E3BEC1E1C243999008BC0CF /* SettingsViewController.swift */,
+				3EA80B341C29CDDD00E96AF3 /* TabBarController.swift */,
+				3EA80B361C29CF8600E96AF3 /* NotesTableViewController.swift */,
 			);
 			name = Controller;
 			sourceTree = "<group>";
@@ -166,6 +174,7 @@
 		3E3BEBEC1C243956008BC0CF = {
 			isa = PBXGroup;
 			children = (
+				3EA80B381C29D4CE00E96AF3 /* README.md */,
 				3E3BEBF71C243956008BC0CF /* YACA */,
 				3E3BEBF61C243956008BC0CF /* Products */,
 			);
@@ -309,6 +318,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				3E3BEC281C243999008BC0CF /* OpenWeatherConstants.swift in Sources */,
+				3EA80B351C29CDDD00E96AF3 /* TabBarController.swift in Sources */,
+				3EA80B371C29CF8600E96AF3 /* NotesTableViewController.swift in Sources */,
 				3EA80B311C28470C00E96AF3 /* Note.swift in Sources */,
 				3E3BEC251C243999008BC0CF /* AppDelegate.swift in Sources */,
 				3EBAF7711C244D5D009A49F6 /* NSDate.extension.swift in Sources */,
@@ -316,6 +327,7 @@
 				3EA80B331C297E4100E96AF3 /* Meeting.swift in Sources */,
 				3EBAF7761C248F6E009A49F6 /* TimezdbConstants.swift in Sources */,
 				3E3BEC201C243999008BC0CF /* YACA.xcdatamodeld in Sources */,
+				3EA80B391C29D4CE00E96AF3 /* README.md in Sources */,
 				3EBAF7851C2813E8009A49F6 /* RestCountriesConstants.swift in Sources */,
 				3E3BEC311C243999008BC0CF /* MeetingViewParticipantTableViewCell.swift in Sources */,
 				3EBAF7831C2813D6009A49F6 /* RestCountriesConvenience.swift in Sources */,

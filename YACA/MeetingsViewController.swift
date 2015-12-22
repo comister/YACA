@@ -42,9 +42,11 @@ class MeetingsViewController: UIViewController {
             calendarName.text = self.eventStore.calendarWithIdentifier(self.selectedCalendar!)?.title
         } else {
             //transition to settings
+            /*
             dispatch_async(dispatch_get_main_queue()){
                 self.performSegueWithIdentifier("showSettings", sender: self)
             }
+            */
             return
         }
         // MARK: - Adjust custom control and set duration
@@ -135,6 +137,9 @@ extension MeetingsViewController: UICollectionViewDataSource {
     }
     
     func collectionView(collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, atIndexPath indexPath: NSIndexPath) -> UICollectionReusableView {
+        
+        
+        if kind ==
         
         let headerCell = collectionView.dequeueReusableSupplementaryViewOfKind(kind, withReuseIdentifier: "meetingCellHeader", forIndexPath: indexPath) as? MeetingListCellHeader
         
