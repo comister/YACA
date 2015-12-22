@@ -2,6 +2,8 @@
 //  Meeting.swift
 //  YACA
 //
+//  DEPRECATED, Meetings always coming from Calendar !!
+//
 //  Created by Andreas Pfister on 13/12/15.
 //  Copyright © 2015 Andy P. All rights reserved.
 //

@@ -47,6 +47,7 @@ class Participant: NSManagedObject {
         let entity =  NSEntityDescription.entityForName(statics.entityName, inManagedObjectContext: context)!
         super.init(entity: entity, insertIntoManagedObjectContext: context)
         // Dictionary
+        
         name = dictionary[Keys.Name] as? String
         email = dictionary[Keys.Email] as! String
         location = dictionary[Keys.Location] as? String
@@ -72,7 +73,7 @@ class Participant: NSManagedObject {
             let components = descriptionComponent.componentsSeparatedByString(" = ")
             resultDict[components[0]] = components[1]
         }
-        /*
+        
         print("")
         print("---------------------------------------")
         print(resultDict)
@@ -82,7 +83,7 @@ class Participant: NSManagedObject {
         
         print("---------------------------------------")
         print("")
-        */
+        
         
         name = attendee!.name
         email = resultDict["email"]! as String

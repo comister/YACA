@@ -25,7 +25,6 @@ class MeetingsViewController: UIViewController {
     var eventSource: Datasource?
     let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
     @IBOutlet weak var meetingCollectionView: UICollectionView!
-    @IBOutlet weak var settingsButton: UIButton!
     @IBOutlet weak var calendarName: UILabel!
     @IBOutlet weak var durationSgements: CustomSegmentedControl!
     
@@ -43,7 +42,9 @@ class MeetingsViewController: UIViewController {
             calendarName.text = self.eventStore.calendarWithIdentifier(self.selectedCalendar!)?.title
         } else {
             //transition to settings
-            performSegueWithIdentifier("showSettings", sender: self)
+            dispatch_async(dispatch_get_main_queue()){
+                self.performSegueWithIdentifier("showSettings", sender: self)
+            }
             return
         }
         // MARK: - Adjust custom control and set duration
@@ -67,6 +68,7 @@ class MeetingsViewController: UIViewController {
             if let controller = segue.destinationViewController as? SettingsViewController {
                 if self.selectedCalendar == nil {
                     print("first run")
+                    segue.perform()
                 }
             }
         }
@@ -151,6 +153,7 @@ extension MeetingsViewController: UICollectionViewDataSource {
         */
         
         headerCell?.dayLabel.text = eventSource?.dayOfSection[indexPath.section]!.uppercaseString
+
         
         return headerCell!
     }

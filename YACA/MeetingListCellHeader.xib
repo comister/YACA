@@ -3,7 +3,13 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9529"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
+    <customFonts key="customFonts">
+        <mutableArray key="Roboto-Thin.ttf">
+            <string>Roboto-Thin</string>
+        </mutableArray>
+    </customFonts>
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
@@ -11,13 +17,37 @@
             <rect key="frame" x="0.0" y="0.0" width="66" height="456"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <subviews>
-                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="TODAY" textAlignment="natural" lineBreakMode="characterWrap" numberOfLines="0" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" adjustsLetterSpacingToFitWidth="YES" translatesAutoresizingMaskIntoConstraints="NO" id="cFy-1c-dig">
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="1000" verticalCompressionResistancePriority="1000" fixedFrame="YES" text="TODAY" textAlignment="center" lineBreakMode="characterWrap" numberOfLines="0" minimumScaleFactor="0.10000000000000001" adjustsLetterSpacingToFitWidth="YES" translatesAutoresizingMaskIntoConstraints="NO" id="cFy-1c-dig">
                     <rect key="frame" x="31" y="0.0" width="35" height="456"/>
-                    <fontDescription key="fontDescription" type="system" pointSize="44"/>
+                    <fontDescription key="fontDescription" name="Roboto-Thin" family="Roboto" pointSize="30"/>
                     <color key="textColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                     <nil key="highlightedColor"/>
+                    <color key="shadowColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
+                    <size key="shadowOffset" width="1" height="1"/>
                 </label>
             </subviews>
+            <constraints>
+                <constraint firstItem="cFy-1c-dig" firstAttribute="top" secondItem="4ES-H0-gWP" secondAttribute="topMargin" id="6M3-Ml-Xlk"/>
+                <constraint firstItem="cFy-1c-dig" firstAttribute="leading" secondItem="4ES-H0-gWP" secondAttribute="leadingMargin" constant="23" id="Wgk-WR-ZDU"/>
+                <constraint firstAttribute="trailingMargin" secondItem="cFy-1c-dig" secondAttribute="trailing" id="fqW-8D-qPT"/>
+                <constraint firstAttribute="bottomMargin" secondItem="cFy-1c-dig" secondAttribute="bottom" id="zWK-wa-PGl"/>
+            </constraints>
+            <variation key="default">
+                <mask key="constraints">
+                    <exclude reference="6M3-Ml-Xlk"/>
+                    <exclude reference="Wgk-WR-ZDU"/>
+                    <exclude reference="fqW-8D-qPT"/>
+                    <exclude reference="zWK-wa-PGl"/>
+                </mask>
+            </variation>
+            <variation key="widthClass=compact">
+                <mask key="constraints">
+                    <include reference="6M3-Ml-Xlk"/>
+                    <include reference="Wgk-WR-ZDU"/>
+                    <include reference="fqW-8D-qPT"/>
+                    <include reference="zWK-wa-PGl"/>
+                </mask>
+            </variation>
             <connections>
                 <outlet property="dayLabel" destination="cFy-1c-dig" id="9Pz-lc-WIX"/>
             </connections>

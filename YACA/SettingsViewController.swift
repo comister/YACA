@@ -22,6 +22,8 @@ class SettingsViewController: UIViewController {
     var selectedContactGroup: String?
     let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
     var showCalendars = true
+    @IBOutlet weak var welcomeLabel: UILabel!
+    @IBOutlet weak var descriptionLabel: UILabel!
     
     @IBOutlet weak var calendarPicker: UIPickerView!
     @IBOutlet weak var pickCalendarButton: UIButton!
@@ -37,17 +39,21 @@ class SettingsViewController: UIViewController {
     
     override func viewWillAppear(animated: Bool) {
         loadCalendars()
-        loadContactGroups()
+        //loadContactGroups() // <<-- obsolete, no contactgroups to select
         if NSUserDefaults.standardUserDefaults().stringForKey("selectedCalendar") != nil {
+            dispatch_async(dispatch_get_main_queue()){
+                self.pickCalendarButton.titleLabel?.text = NSUserDefaults.standardUserDefaults().stringForKey("selectedCalendarName")
+            }
             selectedCalendar = NSUserDefaults.standardUserDefaults().stringForKey("selectedCalendar")
-            pickCalendarButton.titleLabel?.text = NSUserDefaults.standardUserDefaults().stringForKey("selectedCalendarName")
             selectedContactGroup = NSUserDefaults.standardUserDefaults().stringForKey("selectedContactGroup")
             pickContactsButton.titleLabel?.text = NSUserDefaults.standardUserDefaults().stringForKey("selectedContactGroupName")
             durationSegments.selectedSegmentIndex = NSUserDefaults.standardUserDefaults().integerForKey("durationIndex")
             storeIniCloud.selected = NSUserDefaults.standardUserDefaults().boolForKey("iCloudOn")
         } else {
-            NSUserDefaults.standardUserDefaults().setValue(self.calendars!.first!.calendarIdentifier, forKey: "selectedCalendar")
-            selectedCalendar = self.calendars!.first!.calendarIdentifier
+            //NSUserDefaults.standardUserDefaults().setValue(self.calendars!.first!.calendarIdentifier, forKey: "selectedCalendar")
+            //selectedCalendar = self.calendars!.first!.calendarIdentifier
+            welcomeLabel.hidden = false
+            descriptionLabel.hidden = false
         }
     }
     
@@ -100,6 +106,13 @@ extension SettingsViewController: UIPickerViewDelegate, UIPickerViewDataSource {
         calendarPicker.hidden = false
         showCalendars = true
         self.calendarPicker.reloadAllComponents()
+        var x = 0
+        for var calendar in self.calendars! {
+            if calendar.calendarIdentifier == self.selectedCalendar {
+                calendarPicker.selectRow(x, inComponent: 0, animated: true)
+            }
+            x++
+        }
     }
     
     @IBAction func clickContacts(sender: AnyObject) {
@@ -141,6 +154,8 @@ extension SettingsViewController: UIPickerViewDelegate, UIPickerViewDataSource {
             pickCalendarButton.titleLabel?.text = self.calendars![row].title
             NSUserDefaults.standardUserDefaults().setValue(self.calendars![row].calendarIdentifier, forKey: "selectedCalendar")
             NSUserDefaults.standardUserDefaults().setValue(self.calendars![row].title, forKey: "selectedCalendarName")
+            welcomeLabel.hidden = true
+            descriptionLabel.hidden = true
         } else {
             pickContactsButton.titleLabel?.text = self.contacts![row].name
             NSUserDefaults.standardUserDefaults().setValue(self.contacts![row].identifier, forKey: "selectedContactGroup")
@@ -158,19 +173,12 @@ extension SettingsViewController {
         appDelegate.checkCalendarAuthorizationStatus { (accessGranted) -> Void in
             if accessGranted {
                 self.calendars = self.eventStore.calendarsForEntityType(EKEntityType.Event)
-                var x = 0
-                for var calendar in self.calendars! {
-                    if calendar.calendarIdentifier == self.selectedCalendar {
-                        self.calendarPicker.selectRow(x, inComponent: 0, animated: true)
-                    }
-                    x++
-                }
             }
         }
     }
 }
 
-// MARK: - Contact related actions
+// MARK: - Contact related actions (obsolete, not used anymore)
 extension SettingsViewController {
     
     func loadContactGroups() {
