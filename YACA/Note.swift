@@ -11,7 +11,7 @@ import EventKit
 
 @objc(Notes)
 
-class Notes: NSManagedObject {
+class Note: NSManagedObject {
     
     struct Keys {
         static let Notes = "notes"
@@ -19,7 +19,7 @@ class Notes: NSManagedObject {
     }
     
     struct statics {
-        static let entityName = "Notes"
+        static let entityName = "Note"
     }
     
     @NSManaged var notes: String
