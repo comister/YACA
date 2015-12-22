@@ -16,6 +16,7 @@ class Note: NSManagedObject {
     struct Keys {
         static let Notes = "notes"
         static let MeetingId = "meetingId"
+        static let MeetingTitle = "meetingTitle"
         static let CreatedAt = "createdAt"
     }
     
@@ -25,6 +26,7 @@ class Note: NSManagedObject {
     
     @NSManaged var notes: String
     @NSManaged var meetingId: String
+    @NSManaged var meetingTitle: String
     @NSManaged var createdAt: NSDate
     
     override init(entity: NSEntityDescription, insertIntoManagedObjectContext context: NSManagedObjectContext?) {
@@ -39,7 +41,7 @@ class Note: NSManagedObject {
         // Dictionary
         notes = dictionary[Keys.Notes] as! String
         meetingId = dictionary[Keys.MeetingId] as! String
-        
+        meetingTitle = dictionary[Keys.MeetingTitle] as! String
         // set createdAt to actual Date, do not have to bother about this outside of the Model !
         createdAt = NSDate()
     }

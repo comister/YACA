@@ -37,28 +37,7 @@ class Meeting: NSObject {
     var note: Note?
     
     var participantArray: [Participant]?
-    
-    // Mark: - Standard initializer using dictionary
-    init(dictionary: [String : AnyObject]) {
-        // Dictionary
-        meetingId = dictionary[Keys.MeetingId] as! String
-        name = dictionary[Keys.Name] as! String
-        details = dictionary[Keys.Details] as? String
-        starttime = dictionary[Keys.StartTime] as! NSDate
-        endtime = dictionary[Keys.EndTime] as! NSDate
-        location = dictionary[Keys.Location] as? String
         
-        // Mark: - Convert EKParticipant to Participant and add to attendees
-        if let eventAttendees = dictionary[Keys.Participants] as? [EKParticipant] {
-            for eventAttendee in eventAttendees {
-                let newParticpant = Participant(attendee: eventAttendee, context: CoreDataStackManager.sharedInstance().managedObjectContext) as Participant
-                self.participants?.addObject(newParticpant)
-                participantArray?.append(newParticpant)
-            }
-        }
-        
-    }
-    
     // Mark: - Overloaded initializer - being able to convert from an EKEvent
     init(event: EKEvent) {
         

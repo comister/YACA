@@ -3,6 +3,7 @@
     <entity name="Note" syncable="YES">
         <attribute name="createdAt" optional="YES" attributeType="Date" syncable="YES"/>
         <attribute name="meetingId" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="meetingTitle" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="note" optional="YES" attributeType="String" syncable="YES"/>
     </entity>
     <entity name="Participant" representedClassName="Participant" syncable="YES">
@@ -14,7 +15,7 @@
         <attribute name="weather" optional="YES" attributeType="String" syncable="YES"/>
     </entity>
     <elements>
-        <element name="Note" positionX="250" positionY="-180" width="128" height="88"/>
+        <element name="Note" positionX="250" positionY="-180" width="128" height="103"/>
         <element name="Participant" positionX="250" positionY="-18" width="128" height="133"/>
     </elements>
 </model>
