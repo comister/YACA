@@ -11,6 +11,7 @@ import CoreData
 
 private let SQLITE_FILE_NAME = "yaca.sqlite"
 private let MODEL_NAME = "YACA"
+private let STORE_NAME = "YACASTORE"
 
 class CoreDataStackManager {
     
@@ -54,11 +55,11 @@ class CoreDataStackManager {
         var error: NSError? = nil
         
         // iCloud store
-        var storeOptions = [NSPersistentStoreUbiquitousContentNameKey : "APPNAMEStore",NSMigratePersistentStoresAutomaticallyOption: true,
+        var storeOptions = [NSPersistentStoreUbiquitousContentNameKey : STORE_NAME,NSMigratePersistentStoresAutomaticallyOption: false,
             NSInferMappingModelAutomaticallyOption: true]
         
         do {
-            try coordinator!.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL:  NSURL.fileURLWithPath(url.path!), options: storeOptions)
+            try coordinator!.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL:  NSURL.fileURLWithPath(url.path!), options: storeOptions as! [NSObject : AnyObject])
         } catch var error1 as NSError {
             error = error1
             coordinator = nil

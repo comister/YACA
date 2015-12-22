@@ -86,8 +86,18 @@ class MeetingListCell: UICollectionViewCell, UITableViewDelegate, UITableViewDat
     }
     */
     
+    
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        //print(events![super.tag])
+        
+        if let partArray = meeting.participantArray {
+            print("---------")
+            print( "Having " + String(partArray.count) + " items for Participants" )
+            print("---------")
+            return partArray.count
+        } else {
+            return 0
+        }
+        /*
         if event?.attendees != nil {
             //print(event?.attendees?.count)
 
@@ -96,6 +106,7 @@ class MeetingListCell: UICollectionViewCell, UITableViewDelegate, UITableViewDat
             //print(event)
             return 0
         }
+        */
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
@@ -105,9 +116,19 @@ class MeetingListCell: UICollectionViewCell, UITableViewDelegate, UITableViewDat
         if cell == nil {
             cell = UITableViewCell(style: UITableViewCellStyle.Value1, reuseIdentifier: identifier)
         }
-        _ = Participant(attendee: event?.attendees?[indexPath.row], context: self.sharedContext)
+        //_ = Participant(attendee: event?.attendees?[indexPath.row], context: self.sharedContext)
         //let cell = tableView.dequeueReusableCellWithIdentifier("meetingParticipants", forIndexPath: indexPath) as! UITableViewCell
-        cell!.textLabel?.text = event?.attendees?[indexPath.row].name
+        
+        //let allObjects: NSArray = meeting.participants.
+        print("-----------------")
+        print(" At index " + String(indexPath.row))
+        print(meeting.participantArray)
+        print("-----------------")
+        if let participantArray = meeting.participantArray {
+            cell?.textLabel?.text = ( participantArray[indexPath.row].name != nil ? participantArray[indexPath.row].name : participantArray[indexPath.row].email )
+        }
+        
+        //cell!.textLabel?.text = event?.attendees?[indexPath.row].name
         return cell!
     }
     

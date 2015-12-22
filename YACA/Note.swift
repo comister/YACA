@@ -9,7 +9,7 @@ import Foundation
 import CoreData
 import EventKit
 
-@objc(Notes)
+@objc(Note)
 
 class Note: NSManagedObject {
     

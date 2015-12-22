@@ -29,7 +29,7 @@
 		3E3BEC321C243999008BC0CF /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E3BEC1E1C243999008BC0CF /* SettingsViewController.swift */; };
 		3E3BEC351C2439B1008BC0CF /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3E3BEC331C2439B1008BC0CF /* Main.storyboard */; };
 		3E3BEC361C2439B1008BC0CF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3E3BEC341C2439B1008BC0CF /* LaunchScreen.storyboard */; };
-		3EA80B311C28470C00E96AF3 /* Notes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EA80B301C28470C00E96AF3 /* Notes.swift */; };
+		3EA80B311C28470C00E96AF3 /* Note.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EA80B301C28470C00E96AF3 /* Note.swift */; };
 		3EBAF76E1C24429C009A49F6 /* Datasource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EBAF76D1C24429C009A49F6 /* Datasource.swift */; };
 		3EBAF7711C244D5D009A49F6 /* NSDate.extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EBAF7701C244D5D009A49F6 /* NSDate.extension.swift */; };
 		3EBAF7741C248F5F009A49F6 /* TimezdbClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EBAF7731C248F5F009A49F6 /* TimezdbClient.swift */; };
@@ -66,7 +66,7 @@
 		3E3BEC1E1C243999008BC0CF /* SettingsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
 		3E3BEC331C2439B1008BC0CF /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		3E3BEC341C2439B1008BC0CF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
-		3EA80B301C28470C00E96AF3 /* Notes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Notes.swift; sourceTree = "<group>"; };
+		3EA80B301C28470C00E96AF3 /* Note.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Note.swift; sourceTree = "<group>"; };
 		3EBAF76D1C24429C009A49F6 /* Datasource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Datasource.swift; sourceTree = "<group>"; };
 		3EBAF7701C244D5D009A49F6 /* NSDate.extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSDate.extension.swift; sourceTree = "<group>"; };
 		3EBAF7731C248F5F009A49F6 /* TimezdbClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimezdbClient.swift; sourceTree = "<group>"; };
@@ -110,7 +110,7 @@
 				3E3BEC0D1C243999008BC0CF /* Meeting.swift */,
 				3E3BEC0B1C243999008BC0CF /* YACA.xcdatamodeld */,
 				3EBAF76D1C24429C009A49F6 /* Datasource.swift */,
-				3EA80B301C28470C00E96AF3 /* Notes.swift */,
+				3EA80B301C28470C00E96AF3 /* Note.swift */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -309,7 +309,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3E3BEC281C243999008BC0CF /* OpenWeatherConstants.swift in Sources */,
-				3EA80B311C28470C00E96AF3 /* Notes.swift in Sources */,
+				3EA80B311C28470C00E96AF3 /* Note.swift in Sources */,
 				3E3BEC251C243999008BC0CF /* AppDelegate.swift in Sources */,
 				3EBAF7711C244D5D009A49F6 /* NSDate.extension.swift in Sources */,
 				3E3BEC221C243999008BC0CF /* MeetingListCellHeader.swift in Sources */,

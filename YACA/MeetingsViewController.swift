@@ -17,7 +17,7 @@ class MeetingsViewController: UIViewController {
     
     var backgroundGradient: CAGradientLayer? = nil
     var meeting: Meeting!
-    var events: [EKEvent]?
+    var events = [EKEvent]()
     let eventStore = EKEventStore()
     var calendars: [EKCalendar]?
     var selectedCalendar: String?
@@ -119,7 +119,13 @@ class MeetingsViewController: UIViewController {
 extension MeetingsViewController: UICollectionViewDataSource {
     
     func numberOfSectionsInCollectionView(collectionView: UICollectionView) -> Int {
-        return (eventSource?.weekStructure?.count)!
+        if let sections = eventSource?.sectionsRequired {
+            print("")
+            print("Having " + String(sections) + " Sections in CollectionView")
+            return sections
+        } else {
+            return 0
+        }
     }
     
     func collectionView(collectionView: UICollectionView, didDeselectItemAtIndexPath indexPath: NSIndexPath) {
@@ -129,22 +135,35 @@ extension MeetingsViewController: UICollectionViewDataSource {
     func collectionView(collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, atIndexPath indexPath: NSIndexPath) -> UICollectionReusableView {
         
         let headerCell = collectionView.dequeueReusableSupplementaryViewOfKind(kind, withReuseIdentifier: "meetingCellHeader", forIndexPath: indexPath) as? MeetingListCellHeader
-        headerCell?.dayLabel.text = eventSource?.structureKeys?[indexPath.row]
+        
+        /*
+        if let currentWeek = eventSource?.weekStructure[(eventSource?.weekOfSection[indexPath.section])!] {
+            if let currentDayObject = currentWeek[(eventSource?.dayOfSection[indexPath.section])!] {
+                
+            }
+        }
+        
+        if let dayName = eventSource?.structureKeys[(eventSource?.weekOfSection[indexPath.section])!]![indexPath.section] {
+            headerCell?.dayLabel.text = dayName.uppercaseString
+        } else {
+            headerCell?.dayLabel.text = "UNDEFINED"
+        }
+        */
+        
+        headerCell?.dayLabel.text = eventSource?.dayOfSection[indexPath.section]!.uppercaseString
+        
         return headerCell!
     }
     
     func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        /*
-        let sectionInfo = self.fetchedResultsController.sections![section]
-        print(String(sectionInfo.numberOfObjects) + " Objects to show")
-        return sectionInfo.numberOfObjects
-        */
-        
-        if let sourceCount = eventSource?.weekStructure?[(eventSource?.structureKeys?[section])!]!.count {
-            return sourceCount
-        } else {
-            return 1
+
+        if let currentWeek = eventSource?.weekStructure[(eventSource?.weekOfSection[section])!] {
+            if let currentDayObject = currentWeek[(eventSource?.dayOfSection[section])!] {
+                return currentDayObject.count
+            }
         }
+
+        return 1
     }
     
 
@@ -153,40 +172,29 @@ extension MeetingsViewController: UICollectionViewDataSource {
         
         let cell = collectionView.dequeueReusableCellWithReuseIdentifier("meetingViewCell", forIndexPath: indexPath) as! MeetingListCell
         
-        if let currentObject = eventSource?.weekStructure?[(eventSource?.structureKeys?[indexPath.section])!]![indexPath.row] {
-            cell.calendarName.text = currentObject.name
-            
-            let dateFormatter = NSDateFormatter()
-            dateFormatter.dateFormat = "HH:mm"
-            cell.timingLabel?.text = dateFormatter.stringFromDate(currentObject.starttime) + " - " + dateFormatter.stringFromDate(currentObject.endtime)
-            cell.cellIdentifier = "meetingParticipant_" + String(indexPath.row)
-            
-            // TODO: Replace this, redundant information, can all be handled through actual Meeting object
-            cell.event = events![indexPath.row] as EKEvent!
-            cell.events = events
-            
-            cell.participantTable.reloadData()
-        }
-        /*
-        if let events = self.events {
-            cell.event = events[indexPath.row] as EKEvent!
-            cell.events = events
-            cell.calendarName?.text = cell.event!.title
-            
-            let dateFormatter = NSDateFormatter()
-            dateFormatter.dateFormat = "HH:mm"
-            cell.timingLabel?.text = dateFormatter.stringFromDate(cell.event!.startDate) + " - " + dateFormatter.stringFromDate(cell.event!.endDate)
-            
-            cell.timingLabel?.text
-            //cell.contentView.tag = indexPath.row
-            cell.cellIdentifier = "meetingParticipant_" + String(indexPath.row)
-            cell.participantTable.reloadData()
-        } else {
-            cell.calendarName?.text = "No Events to show"
-        }
-        */
-        return cell
+        print( "Using section index: " + String(indexPath.section) )
+        print( "Using weekofSection: " + String((eventSource?.weekOfSection[indexPath.section])!) )
+        print( "" )
         
+        if let currentWeek = eventSource?.weekStructure[(eventSource?.weekOfSection[indexPath.section])!] {
+            if let currentDayObject = currentWeek[(eventSource?.dayOfSection[indexPath.section])!]?[indexPath.row] {
+                cell.calendarName.text = currentDayObject.name
+                
+                let dateFormatter = NSDateFormatter()
+                dateFormatter.dateFormat = "HH:mm"
+                cell.timingLabel?.text = dateFormatter.stringFromDate(currentDayObject.starttime) + " - " + dateFormatter.stringFromDate(currentDayObject.endtime)
+                cell.cellIdentifier = "meetingParticipant_" + String(indexPath.row)
+                
+                // TODO: Replace this, redundant information, can all be handled through actual Meeting object
+                //cell.event = events![indexPath.row] as EKEvent!
+                //cell.events = events
+                
+                cell.meeting = currentDayObject
+                
+                cell.participantTable.reloadData()
+            }
+        }
+        return cell
     }
 }
 
@@ -218,10 +226,19 @@ extension MeetingsViewController {
         appDelegate.checkCalendarAuthorizationStatus { (accessGranted) -> Void in
             if accessGranted {
                 self.fetchEvents(self.eventStore, calendarIdentity: self.selectedCalendar!, completed: { (events: [EKEvent]) -> Void in
-                    self.events = events
-                    
+                    for event in events{
+                        if event.recurrenceRules?.count == 0 {
+                            self.events.append(event)
+                        }
+                        
+                        print("")
+                        print("-------- " + event.title + " --------")
+                        print(event.recurrenceRules)
+                        print("-------- " + event.title + " --------")
+                        print("")
+                    }
                     // MARK: - Feed datasource and let it do the job to structure probably for CollectionView
-                    self.eventSource = Datasource(events: self.events!)
+                    self.eventSource = Datasource(events: self.events)
                     
                     self.meetingCollectionView.hidden = false
                     //self.meetingCollectionView.reloadData()

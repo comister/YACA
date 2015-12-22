@@ -7,12 +7,12 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
-        <collectionReusableView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" alpha="0.59999999999999998" contentMode="scaleAspectFill" id="4ES-H0-gWP" customClass="MeetingListCellHeader" customModule="YACA" customModuleProvider="target">
-            <rect key="frame" x="0.0" y="0.0" width="66" height="572"/>
+        <collectionReusableView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" alpha="0.5" contentMode="scaleToFill" id="4ES-H0-gWP" customClass="MeetingListCellHeader" customModule="YACA" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="66" height="456"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <subviews>
-                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="TODAY" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cFy-1c-dig">
-                    <rect key="frame" x="31" y="0.0" width="35" height="572"/>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="TODAY" textAlignment="natural" lineBreakMode="characterWrap" numberOfLines="0" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" adjustsLetterSpacingToFitWidth="YES" translatesAutoresizingMaskIntoConstraints="NO" id="cFy-1c-dig">
+                    <rect key="frame" x="31" y="0.0" width="35" height="456"/>
                     <fontDescription key="fontDescription" type="system" pointSize="44"/>
                     <color key="textColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                     <nil key="highlightedColor"/>
@@ -21,7 +21,7 @@
             <connections>
                 <outlet property="dayLabel" destination="cFy-1c-dig" id="9Pz-lc-WIX"/>
             </connections>
-            <point key="canvasLocation" x="104" y="270"/>
+            <point key="canvasLocation" x="-45" y="340"/>
         </collectionReusableView>
     </objects>
 </document>

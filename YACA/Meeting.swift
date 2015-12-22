@@ -15,24 +15,30 @@ import EventKit
 class Meeting: NSManagedObject {
     
     struct Keys {
+        static let MeetingId = "meetingId"
         static let Name = "name"
         static let Details = "details"
         static let StartTime = "starttime"
         static let EndTime = "endtime"
         static let Location = "location"
         static let Participants = "participants"
+        
     }
     
     struct statics {
         static let entityName = "Meeting"
     }
     
+    @NSManaged var meetingId: String
     @NSManaged var name: String
-    @NSManaged var details: String
+    @NSManaged var details: String?
     @NSManaged var starttime: NSDate
     @NSManaged var endtime: NSDate
-    @NSManaged var location: String
-    @NSManaged var participants: [Participant]?
+    @NSManaged var location: String?
+    @NSManaged var participants: NSMutableSet?
+    @NSManaged var note: Note?
+    
+    var participantArray: [Participant]?
     
     override init(entity: NSEntityDescription, insertIntoManagedObjectContext context: NSManagedObjectContext?) {
         super.init(entity: entity, insertIntoManagedObjectContext: context)
@@ -44,6 +50,7 @@ class Meeting: NSManagedObject {
         let entity =  NSEntityDescription.entityForName(statics.entityName, inManagedObjectContext: context)!
         super.init(entity: entity, insertIntoManagedObjectContext: context)
         // Dictionary
+        meetingId = dictionary[Keys.MeetingId] as! String
         name = dictionary[Keys.Name] as! String
         details = dictionary[Keys.Details] as! String
         starttime = dictionary[Keys.StartTime] as! NSDate
@@ -53,7 +60,10 @@ class Meeting: NSManagedObject {
         // Mark: - Convert EKParticipant to Participant and add to attendees
         if let eventAttendees = dictionary[Keys.Participants] as? [EKParticipant] {
             for eventAttendee in eventAttendees {
-                self.participants?.append(Participant(attendee: eventAttendee, context: CoreDataStackManager.sharedInstance().managedObjectContext))
+                //self.participants?.addObject(<#T##object: AnyObject##AnyObject#>)
+                let newParticpant = Participant(attendee: eventAttendee, context: CoreDataStackManager.sharedInstance().managedObjectContext) as Participant
+                self.participants?.addObject(newParticpant)
+                participantArray?.append(newParticpant)
             }
         }
         
@@ -64,6 +74,7 @@ class Meeting: NSManagedObject {
         let entity =  NSEntityDescription.entityForName(statics.entityName, inManagedObjectContext: context)!
         super.init(entity: entity, insertIntoManagedObjectContext: context)
         
+        meetingId = event.eventIdentifier
         name = event.title
         details = event.description
         starttime = event.startDate
@@ -73,7 +84,10 @@ class Meeting: NSManagedObject {
         // Mark: - Convert EKParticipant to Participant and add to attendees
         if let eventAttendees = event.attendees {
             for eventAttendee in eventAttendees {
-                self.participants?.append(Participant(attendee: eventAttendee, context: CoreDataStackManager.sharedInstance().managedObjectContext))
+                //self.participants?.append(Participant(attendee: eventAttendee, context: CoreDataStackManager.sharedInstance().managedObjectContext) as Participant)
+                let newParticpant = Participant(attendee: eventAttendee, context: CoreDataStackManager.sharedInstance().managedObjectContext) as Participant
+                self.participants?.addObject(newParticpant)
+                participantArray?.append(newParticpant)
             }
         }
     }

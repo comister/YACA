@@ -23,6 +23,7 @@ class Participant: NSManagedObject {
         static let Weather = "weather"
         static let Timezone = "timezone"
         static let MySelf = "myself"
+        static let Email = "email"
     }
     
     struct statics {
@@ -30,6 +31,7 @@ class Participant: NSManagedObject {
     }
     
     @NSManaged var name: String?
+    @NSManaged var email: String
     @NSManaged var location: String?
     @NSManaged var weather: String?
     @NSManaged var timezone: String?
@@ -46,6 +48,7 @@ class Participant: NSManagedObject {
         super.init(entity: entity, insertIntoManagedObjectContext: context)
         // Dictionary
         name = dictionary[Keys.Name] as? String
+        email = dictionary[Keys.Email] as! String
         location = dictionary[Keys.Location] as? String
         weather = dictionary[Keys.Weather] as? String
         timezone = dictionary[Keys.Timezone] as? String
@@ -56,19 +59,33 @@ class Participant: NSManagedObject {
         }
         
     }
-    
+
     init(attendee: EKParticipant?, context: NSManagedObjectContext) {
         // Core Data
         let entity =  NSEntityDescription.entityForName(statics.entityName, inManagedObjectContext: context)!
         super.init(entity: entity, insertIntoManagedObjectContext: context)
         
+        let descriptionDictionary = attendee!.description.componentsSeparatedByString("{")[1].componentsSeparatedByString("}")[0].componentsSeparatedByString("; ")
+        var resultDict = [String:String]()
+        
+        for descriptionComponent in descriptionDictionary {
+            let components = descriptionComponent.componentsSeparatedByString(" = ")
+            resultDict[components[0]] = components[1]
+        }
+        /*
         print("")
         print("---------------------------------------")
-        print(attendee)
+        print(resultDict)
         print("---------------------------------------")
         print("")
+        print(resultDict["email"])
+        
+        print("---------------------------------------")
+        print("")
+        */
         
         name = attendee!.name
+        email = resultDict["email"]! as String
         myself = attendee!.currentUser
         
         // Mark: - Try to find additional information based on available Contact information --- FINDING: this may be rarely used because of unavailability of Contactdata --- ADDITIONAL FUTURE TODO: Implement LDAP lookup instead for Contact lookup (Exchange)
@@ -82,7 +99,7 @@ class Participant: NSManagedObject {
                     }
                 }
                 /* Obsolete REST API Call - unsufficient functionality of timezdb Service
-                TimezdbClient.sharedInstance().getTimezoneByCity(location.city + ", " + location.country)  { data, error in }
+                TimezdbClient.sharedInstance().getTimezoneByCity(location.city)  { data, error in }
                 */
             }
         } else {

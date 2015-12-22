@@ -426,7 +426,7 @@
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="GBr-HC-Z2z"/>
                                     <barButtonItem image="settings" id="4Rc-EP-SP2">
                                         <connections>
-                                            <segue destination="esb-GW-D8U" kind="show" id="z4D-4D-Dwa"/>
+                                            <segue destination="esb-GW-D8U" kind="show" identifier="showSettings" id="z4D-4D-Dwa"/>
                                         </connections>
                                     </barButtonItem>
                                 </items>
