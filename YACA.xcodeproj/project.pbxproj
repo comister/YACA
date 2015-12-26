@@ -33,6 +33,10 @@
 		3EA80B351C29CDDD00E96AF3 /* TabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EA80B341C29CDDD00E96AF3 /* TabBarController.swift */; };
 		3EA80B371C29CF8600E96AF3 /* NotesTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EA80B361C29CF8600E96AF3 /* NotesTableViewController.swift */; };
 		3EA80B391C29D4CE00E96AF3 /* README.md in Sources */ = {isa = PBXBuildFile; fileRef = 3EA80B381C29D4CE00E96AF3 /* README.md */; };
+		3EB48DCF1C2B65EC0022B2F9 /* SettingsViewController.Calendar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EB48DCE1C2B65EC0022B2F9 /* SettingsViewController.Calendar.swift */; };
+		3EB48DD11C2B66240022B2F9 /* SettingsViewController.Contacts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EB48DD01C2B66240022B2F9 /* SettingsViewController.Contacts.swift */; };
+		3EB48DD31C2B666D0022B2F9 /* SettingsViewController.ConfigureUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EB48DD21C2B666D0022B2F9 /* SettingsViewController.ConfigureUI.swift */; };
+		3EB48DD51C2B66CA0022B2F9 /* SettingsViewController.PickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EB48DD41C2B66CA0022B2F9 /* SettingsViewController.PickerView.swift */; };
 		3EBAF76E1C24429C009A49F6 /* Datasource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EBAF76D1C24429C009A49F6 /* Datasource.swift */; };
 		3EBAF7711C244D5D009A49F6 /* NSDate.extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EBAF7701C244D5D009A49F6 /* NSDate.extension.swift */; };
 		3EBAF7741C248F5F009A49F6 /* TimezdbClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EBAF7731C248F5F009A49F6 /* TimezdbClient.swift */; };
@@ -42,6 +46,7 @@
 		3EBAF7811C2813C3009A49F6 /* RestCountriesClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EBAF7801C2813C3009A49F6 /* RestCountriesClient.swift */; };
 		3EBAF7831C2813D6009A49F6 /* RestCountriesConvenience.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EBAF7821C2813D6009A49F6 /* RestCountriesConvenience.swift */; };
 		3EBAF7851C2813E8009A49F6 /* RestCountriesConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EBAF7841C2813E8009A49F6 /* RestCountriesConstants.swift */; };
+		3ED3A8421C2C34D200A21A86 /* NoteViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3ED3A8411C2C34D200A21A86 /* NoteViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -73,6 +78,10 @@
 		3EA80B341C29CDDD00E96AF3 /* TabBarController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TabBarController.swift; sourceTree = "<group>"; };
 		3EA80B361C29CF8600E96AF3 /* NotesTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotesTableViewController.swift; sourceTree = "<group>"; };
 		3EA80B381C29D4CE00E96AF3 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		3EB48DCE1C2B65EC0022B2F9 /* SettingsViewController.Calendar.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsViewController.Calendar.swift; sourceTree = "<group>"; };
+		3EB48DD01C2B66240022B2F9 /* SettingsViewController.Contacts.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsViewController.Contacts.swift; sourceTree = "<group>"; };
+		3EB48DD21C2B666D0022B2F9 /* SettingsViewController.ConfigureUI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsViewController.ConfigureUI.swift; sourceTree = "<group>"; };
+		3EB48DD41C2B66CA0022B2F9 /* SettingsViewController.PickerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsViewController.PickerView.swift; sourceTree = "<group>"; };
 		3EBAF76D1C24429C009A49F6 /* Datasource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Datasource.swift; sourceTree = "<group>"; };
 		3EBAF7701C244D5D009A49F6 /* NSDate.extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSDate.extension.swift; sourceTree = "<group>"; };
 		3EBAF7731C248F5F009A49F6 /* TimezdbClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimezdbClient.swift; sourceTree = "<group>"; };
@@ -83,6 +92,7 @@
 		3EBAF7801C2813C3009A49F6 /* RestCountriesClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RestCountriesClient.swift; sourceTree = "<group>"; };
 		3EBAF7821C2813D6009A49F6 /* RestCountriesConvenience.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RestCountriesConvenience.swift; sourceTree = "<group>"; };
 		3EBAF7841C2813E8009A49F6 /* RestCountriesConstants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RestCountriesConstants.swift; sourceTree = "<group>"; };
+		3ED3A8411C2C34D200A21A86 /* NoteViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NoteViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -144,6 +154,7 @@
 		3E190EAF1C243D2C00B80B6B /* Controller */ = {
 			isa = PBXGroup;
 			children = (
+				3EB48DCD1C2B65CA0022B2F9 /* extensions */,
 				3E3BEC0E1C243999008BC0CF /* MeetingListCellHeader.swift */,
 				3E3BEC0F1C243999008BC0CF /* MeetingsViewController.swift */,
 				3E3BEC101C243999008BC0CF /* MeetingListCell.swift */,
@@ -153,6 +164,7 @@
 				3E3BEC1E1C243999008BC0CF /* SettingsViewController.swift */,
 				3EA80B341C29CDDD00E96AF3 /* TabBarController.swift */,
 				3EA80B361C29CF8600E96AF3 /* NotesTableViewController.swift */,
+				3ED3A8411C2C34D200A21A86 /* NoteViewController.swift */,
 			);
 			name = Controller;
 			sourceTree = "<group>";
@@ -198,6 +210,25 @@
 				3E190EB01C243D3700B80B6B /* Resources */,
 			);
 			path = YACA;
+			sourceTree = "<group>";
+		};
+		3EB48DCD1C2B65CA0022B2F9 /* extensions */ = {
+			isa = PBXGroup;
+			children = (
+				3EB48DD61C2B66E10022B2F9 /* SettingsViewController */,
+			);
+			name = extensions;
+			sourceTree = "<group>";
+		};
+		3EB48DD61C2B66E10022B2F9 /* SettingsViewController */ = {
+			isa = PBXGroup;
+			children = (
+				3EB48DCE1C2B65EC0022B2F9 /* SettingsViewController.Calendar.swift */,
+				3EB48DD01C2B66240022B2F9 /* SettingsViewController.Contacts.swift */,
+				3EB48DD21C2B666D0022B2F9 /* SettingsViewController.ConfigureUI.swift */,
+				3EB48DD41C2B66CA0022B2F9 /* SettingsViewController.PickerView.swift */,
+			);
+			name = SettingsViewController;
 			sourceTree = "<group>";
 		};
 		3EBAF76F1C244D4D009A49F6 /* extensions */ = {
@@ -342,9 +373,14 @@
 				3EBAF77E1C27D6F7009A49F6 /* CustomSegmentedControl.swift in Sources */,
 				3EBAF7741C248F5F009A49F6 /* TimezdbClient.swift in Sources */,
 				3E3BEC2D1C243999008BC0CF /* BorderedButton.swift in Sources */,
+				3ED3A8421C2C34D200A21A86 /* NoteViewController.swift in Sources */,
+				3EB48DD51C2B66CA0022B2F9 /* SettingsViewController.PickerView.swift in Sources */,
 				3E3BEC2A1C243999008BC0CF /* Participant.swift in Sources */,
 				3E3BEC231C243999008BC0CF /* MeetingsViewController.swift in Sources */,
 				3E3BEC241C243999008BC0CF /* MeetingListCell.swift in Sources */,
+				3EB48DD31C2B666D0022B2F9 /* SettingsViewController.ConfigureUI.swift in Sources */,
+				3EB48DCF1C2B65EC0022B2F9 /* SettingsViewController.Calendar.swift in Sources */,
+				3EB48DD11C2B66240022B2F9 /* SettingsViewController.Contacts.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

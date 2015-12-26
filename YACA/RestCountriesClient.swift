@@ -76,7 +76,7 @@ class RestCountriesClient : NSObject {
             _ = try NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions.AllowFragments)
         } catch let error as NSError {
             // TODO - do something here, figure out later, how to work with errors from Facebook API
-            print(error.localizedDescription)
+            print("client/restcountries:" + error.localizedDescription)
         }
         /*
         if let parsedResult = NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions.AllowFragments, error: nil) as? [String : AnyObject] {

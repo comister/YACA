@@ -24,29 +24,30 @@ class MeetingsViewController: UIViewController {
     var duration: Int = 0
     var eventSource: Datasource?
     let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+    var tapRecognizer: UITapGestureRecognizer? = nil
     @IBOutlet weak var meetingCollectionView: UICollectionView!
     @IBOutlet weak var calendarName: UILabel!
     @IBOutlet weak var durationSgements: CustomSegmentedControl!
+    @IBOutlet weak var loadIndicator: UIActivityIndicatorView!
     
     override func viewDidLoad() {
+        super.viewDidLoad()
         self.meetingCollectionView?.registerNib(UINib(nibName: "MeetingListCellHeader", bundle: nil), forSupplementaryViewOfKind:UICollectionElementKindSectionHeader, withReuseIdentifier: "meetingCellHeader")
+        tapRecognizer = UITapGestureRecognizer(target: self, action: "handleSingleTap:")
+        tapRecognizer?.numberOfTapsRequired = 1
     }
     
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
         configureUI()
+        addKeyboardDismissRecognizer()
         
         // MARK: - Load Events from selected Calendar
         if (NSUserDefaults.standardUserDefaults().stringForKey("selectedCalendar") != nil) {
             self.selectedCalendar = NSUserDefaults.standardUserDefaults().stringForKey("selectedCalendar")
             calendarName.text = self.eventStore.calendarWithIdentifier(self.selectedCalendar!)?.title
         } else {
-            //transition to settings
-            /*
-            dispatch_async(dispatch_get_main_queue()){
-                self.performSegueWithIdentifier("showSettings", sender: self)
-            }
-            */
+            self.tabBarController?.selectedIndex = 2
             return
         }
         // MARK: - Adjust custom control and set duration
@@ -56,24 +57,26 @@ class MeetingsViewController: UIViewController {
         durationSgements.addTarget(self, action: "changeDuration:", forControlEvents: .ValueChanged)
         
         self.duration = getDurationOfIndex(NSUserDefaults.standardUserDefaults().integerForKey("durationIndex"))
-        loadEvents()
+        loadIndicator.startAnimating()
+        appDelegate.backgroundThread(0.0, background: {
+            self.loadEvents()
+        }, completion: {
+            self.loadIndicator.stopAnimating()
+            self.meetingCollectionView.hidden = false
+            self.meetingCollectionView.reloadData()
+        })
     }
     
     override func viewDidAppear(animated: Bool) {
         super.viewDidAppear(animated)
         // MARK: - Apply value to segmented control after view is visible, otherwise uiview.animate is not working
         durationSgements.selectedIndex = NSUserDefaults.standardUserDefaults().integerForKey("durationIndex")
+        
     }
     
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        if segue.identifier == "showSettings" {
-            if let controller = segue.destinationViewController as? SettingsViewController {
-                if self.selectedCalendar == nil {
-                    print("first run")
-                    segue.perform()
-                }
-            }
-        }
+    override func viewWillDisappear(animated: Bool) {
+        super.viewWillDisappear(animated)
+        removeKeyboardDismissRecognizer()
     }
     
     // MARK: - Returns seconds for 1 day (index=0), 1 week (index=1) and 1 month (index=2)
@@ -97,12 +100,19 @@ class MeetingsViewController: UIViewController {
         NSUserDefaults.standardUserDefaults().setValue(durationSgements.selectedIndex, forKey: "durationIndex")
         NSUserDefaults.standardUserDefaults().setValue(localDuration, forKey: "duration")
         self.duration = localDuration
-        loadEvents()
+        loadIndicator.startAnimating()
+        appDelegate.backgroundThread(0.0, background: {
+            self.loadEvents()
+            }, completion: {
+                self.loadIndicator.stopAnimating()
+                self.meetingCollectionView.hidden = false
+                self.meetingCollectionView.reloadData()
+        })
     }
     
     // MARK: - Core Data
     var sharedContext: NSManagedObjectContext {
-        return CoreDataStackManager.sharedInstance().managedObjectContext
+        return CoreDataStackManager.sharedInstance().managedObjectContext!
     }
     
     lazy var fetchedResultsController: NSFetchedResultsController = {
@@ -123,13 +133,10 @@ class MeetingsViewController: UIViewController {
 extension MeetingsViewController: UICollectionViewDataSource {
     
     func numberOfSectionsInCollectionView(collectionView: UICollectionView) -> Int {
-        if let sections = eventSource?.sectionsRequired {
-            print("")
-            print("Having " + String(sections) + " Sections in CollectionView")
-            return sections
-        } else {
-            return 0
+        if eventSource != nil {
+            return (eventSource?.daysOfMeeting.count)!
         }
+        return 0
     }
     
     func collectionView(collectionView: UICollectionView, didDeselectItemAtIndexPath indexPath: NSIndexPath) {
@@ -138,68 +145,41 @@ extension MeetingsViewController: UICollectionViewDataSource {
     
     func collectionView(collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, atIndexPath indexPath: NSIndexPath) -> UICollectionReusableView {
         
-        
-        if kind ==
-        
         let headerCell = collectionView.dequeueReusableSupplementaryViewOfKind(kind, withReuseIdentifier: "meetingCellHeader", forIndexPath: indexPath) as? MeetingListCellHeader
-        
-        /*
-        if let currentWeek = eventSource?.weekStructure[(eventSource?.weekOfSection[indexPath.section])!] {
-            if let currentDayObject = currentWeek[(eventSource?.dayOfSection[indexPath.section])!] {
-                
-            }
-        }
-        
-        if let dayName = eventSource?.structureKeys[(eventSource?.weekOfSection[indexPath.section])!]![indexPath.section] {
-            headerCell?.dayLabel.text = dayName.uppercaseString
-        } else {
-            headerCell?.dayLabel.text = "UNDEFINED"
-        }
-        */
-        
-        headerCell?.dayLabel.text = eventSource?.dayOfSection[indexPath.section]!.uppercaseString
 
+        headerCell?.dayLabel.text = eventSource?.getSpecialWeekdayOfDate((eventSource?.sortedMeetingArray[indexPath.section])!)
         
         return headerCell!
     }
     
     func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
 
-        if let currentWeek = eventSource?.weekStructure[(eventSource?.weekOfSection[section])!] {
-            if let currentDayObject = currentWeek[(eventSource?.dayOfSection[section])!] {
-                return currentDayObject.count
+        if let currentDate = eventSource?.sortedMeetingArray[section] {
+            if let currentDateObjects = eventSource?.daysOfMeeting[currentDate] {
+                return currentDateObjects.count
             }
         }
-
         return 1
     }
     
 
     
     func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
-        
         let cell = collectionView.dequeueReusableCellWithReuseIdentifier("meetingViewCell", forIndexPath: indexPath) as! MeetingListCell
-        
-        print( "Using section index: " + String(indexPath.section) )
-        print( "Using weekofSection: " + String((eventSource?.weekOfSection[indexPath.section])!) )
-        print( "" )
-        
-        if let currentWeek = eventSource?.weekStructure[(eventSource?.weekOfSection[indexPath.section])!] {
-            if let currentDayObject = currentWeek[(eventSource?.dayOfSection[indexPath.section])!]?[indexPath.row] {
-                cell.calendarName.text = currentDayObject.name
-                
-                let dateFormatter = NSDateFormatter()
-                dateFormatter.dateFormat = "HH:mm"
-                cell.timingLabel?.text = dateFormatter.stringFromDate(currentDayObject.starttime) + " - " + dateFormatter.stringFromDate(currentDayObject.endtime)
-                cell.cellIdentifier = "meetingParticipant_" + String(indexPath.row)
-                
-                // TODO: Replace this, redundant information, can all be handled through actual Meeting object
-                //cell.event = events![indexPath.row] as EKEvent!
-                //cell.events = events
-                
-                cell.meeting = currentDayObject
-                
-                cell.participantTable.reloadData()
+        if let currentDate = eventSource?.sortedMeetingArray[indexPath.section] {
+            if let currentDateObjects = eventSource?.daysOfMeeting[currentDate] {
+                if let meetingObject = currentDateObjects[indexPath.row] as? Meeting {
+                    cell.calendarName.text = meetingObject.name
+                    cell.timingLabel?.text = (eventSource?.getTimeOfDate(meetingObject.starttime))! + " - " + (eventSource?.getTimeOfDate(meetingObject.endtime))!
+                    cell.cellIdentifier = "meetingParticipant_" + String(indexPath.row)
+                    cell.meeting = meetingObject
+                    cell.participantTable.reloadData()
+                    if let meetingNote = meetingObject.note {
+                        cell.notesText.text = meetingNote.note
+                    } else {
+                        cell.notesText.text = ""
+                    }
+                }
             }
         }
         return cell
@@ -226,31 +206,25 @@ extension MeetingsViewController {
     
 }
 
-// MARK: - Calendar related actions
+// MARK: - Calendar background actions (will/should be called in a backgroundThread)
 extension MeetingsViewController {
     
     func loadEvents() {
-        
         appDelegate.checkCalendarAuthorizationStatus { (accessGranted) -> Void in
             if accessGranted {
                 self.fetchEvents(self.eventStore, calendarIdentity: self.selectedCalendar!, completed: { (events: [EKEvent]) -> Void in
-                    for event in events{
-                        if event.recurrenceRules?.count == 0 {
-                            self.events.append(event)
+                    // We are going to empty the events array first
+                    self.events = [EKEvent]()
+                    for event in events {
+                        // Only add events which do not have a Reccurence rule (YACA cannot deal with that (yet))
+                        if let recRules = event.recurrenceRules {
+                            if recRules.count == 0 {
+                                self.events.append(event)
+                            }
                         }
-                        
-                        print("")
-                        print("-------- " + event.title + " --------")
-                        print(event.recurrenceRules)
-                        print("-------- " + event.title + " --------")
-                        print("")
                     }
                     // MARK: - Feed datasource and let it do the job to structure probably for CollectionView
                     self.eventSource = Datasource(events: self.events)
-                    
-                    self.meetingCollectionView.hidden = false
-                    //self.meetingCollectionView.reloadData()
-
                 })
             }
         }
@@ -267,8 +241,19 @@ extension MeetingsViewController {
     }
 }
 
-extension MeetingsViewController: UICollectionViewDelegate {
+// MARK: - functions for keyboard dismiss
+extension MeetingsViewController {
     
+    func addKeyboardDismissRecognizer() {
+        view.addGestureRecognizer(tapRecognizer!)
+    }
     
+    func removeKeyboardDismissRecognizer() {
+        view.removeGestureRecognizer(tapRecognizer!)
+    }
+    
+    func handleSingleTap(recognizer: UITapGestureRecognizer) {
+        view.endEditing(true)
+    }
     
 }

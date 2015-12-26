@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model userDefinedModelVersionIdentifier="YACA Version 2" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="9525" systemVersion="14F1509" minimumToolsVersion="Automatic">
-    <entity name="Note" syncable="YES">
+    <entity name="Note" representedClassName="Note" syncable="YES">
         <attribute name="createdAt" optional="YES" attributeType="Date" syncable="YES"/>
         <attribute name="meetingId" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="meetingTitle" optional="YES" attributeType="String" syncable="YES"/>
@@ -15,7 +15,7 @@
         <attribute name="weather" optional="YES" attributeType="String" syncable="YES"/>
     </entity>
     <elements>
-        <element name="Note" positionX="250" positionY="-180" width="128" height="103"/>
+        <element name="Note" positionX="250" positionY="-180" width="128" height="105"/>
         <element name="Participant" positionX="250" positionY="-18" width="128" height="133"/>
     </elements>
 </model>

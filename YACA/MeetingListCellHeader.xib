@@ -17,7 +17,7 @@
             <rect key="frame" x="0.0" y="0.0" width="66" height="456"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <subviews>
-                <label opaque="NO" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="1000" verticalCompressionResistancePriority="1000" fixedFrame="YES" text="TODAY" textAlignment="center" lineBreakMode="characterWrap" numberOfLines="0" minimumScaleFactor="0.10000000000000001" adjustsLetterSpacingToFitWidth="YES" translatesAutoresizingMaskIntoConstraints="NO" id="cFy-1c-dig">
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="1000" verticalCompressionResistancePriority="1000" ambiguous="YES" misplaced="YES" text="TODAY" textAlignment="center" lineBreakMode="characterWrap" numberOfLines="0" minimumScaleFactor="0.10000000000000001" adjustsLetterSpacingToFitWidth="YES" translatesAutoresizingMaskIntoConstraints="NO" id="cFy-1c-dig">
                     <rect key="frame" x="31" y="0.0" width="35" height="456"/>
                     <fontDescription key="fontDescription" name="Roboto-Thin" family="Roboto" pointSize="30"/>
                     <color key="textColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>

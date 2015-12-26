@@ -22,7 +22,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView userInteractionEnabled="NO" alpha="0.40000000000000002" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="yaca_logo" translatesAutoresizingMaskIntoConstraints="NO" id="LBM-pb-0s9">
+                            <imageView opaque="NO" userInteractionEnabled="NO" alpha="0.5" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="yaca_logo" translatesAutoresizingMaskIntoConstraints="NO" id="LBM-pb-0s9">
                                 <rect key="frame" x="0.0" y="0.0" width="240" height="128"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="282" id="BW0-sE-bWM"/>
@@ -48,7 +48,7 @@
                                     <constraint firstAttribute="width" constant="191" id="bcU-VN-sHB"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" name="Roboto-Regular" family="Roboto" pointSize="17"/>
-                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                                 <variation key="default">
                                     <mask key="constraints">
@@ -77,10 +77,10 @@
                                 <exclude reference="iho-ui-Dwh"/>
                             </mask>
                             <mask key="constraints">
-                                <exclude reference="bkM-ux-90s"/>
-                                <exclude reference="cmw-Y7-7Wv"/>
                                 <exclude reference="ONB-8c-N4v"/>
                                 <exclude reference="kju-xo-G7v"/>
+                                <exclude reference="bkM-ux-90s"/>
+                                <exclude reference="cmw-Y7-7Wv"/>
                             </mask>
                         </variation>
                         <variation key="widthClass=compact">
@@ -89,10 +89,10 @@
                                 <include reference="iho-ui-Dwh"/>
                             </mask>
                             <mask key="constraints">
-                                <include reference="bkM-ux-90s"/>
-                                <include reference="cmw-Y7-7Wv"/>
                                 <include reference="ONB-8c-N4v"/>
                                 <include reference="kju-xo-G7v"/>
+                                <include reference="bkM-ux-90s"/>
+                                <include reference="cmw-Y7-7Wv"/>
                             </mask>
                         </variation>
                     </view>

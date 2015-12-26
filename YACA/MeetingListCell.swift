@@ -19,8 +19,8 @@ class MeetingListCell: UICollectionViewCell, UITableViewDelegate, UITableViewDat
     @IBOutlet weak var notesText: UITextView!
     @IBOutlet weak var notesButton: UIButton!
     @IBOutlet weak var participantsButton: UIButton!
+    @IBOutlet weak var saveButton: UIButton!
     
-    var tapRecognizer: UITapGestureRecognizer? = nil
     var event: EKEvent?
     var events: [EKEvent]?
     var cellIdentifier: String?
@@ -41,7 +41,7 @@ class MeetingListCell: UICollectionViewCell, UITableViewDelegate, UITableViewDat
     
     // MARK: - Core Data
     var sharedContext: NSManagedObjectContext {
-        return CoreDataStackManager.sharedInstance().managedObjectContext
+        return CoreDataStackManager.sharedInstance().managedObjectContext!
     }
     
     private func updateContent() {
@@ -63,21 +63,75 @@ class MeetingListCell: UICollectionViewCell, UITableViewDelegate, UITableViewDat
     override init(frame: CGRect) {
         // do something
         super.init(frame: frame)
-        participantTable.delegate = self
-        participantTable.dataSource = self
         participantTable.reloadData()
         //collectionView.registerClass(UICollectionViewCell.self, forCellWithReuseIdentifier: "CollectionViewCell")
         participantTable.registerClass(UITableView.self, forCellReuseIdentifier: "meetingParticipants")
-        tapRecognizer = UITapGestureRecognizer(target: self, action: "handleSingleTap:")
-        tapRecognizer?.numberOfTapsRequired = 1
+        participantsButton.imageView!.image!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+        notesButton.imageView!.image!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
+        notesButton.imageView!.tintColor = UIColor.blueColor()
     }
 
-    func handleSingleTap(recognizer: UITapGestureRecognizer) {
-        self.notesText.endEditing(true)
-    }
-    
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
+        print("HERE we are with a MeetingListCell")
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "handleStoresWillChange:", name: NSPersistentStoreCoordinatorStoresWillChangeNotification, object: self.sharedContext.persistentStoreCoordinator)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "handleStoresDidChange:", name: NSPersistentStoreCoordinatorStoresDidChangeNotification, object: self.sharedContext.persistentStoreCoordinator)
+        NSNotificationCenter.defaultCenter().addObserver( self, selector: "mergeChanges:", name: NSManagedObjectContextDidSaveNotification,object: self.sharedContext.persistentStoreCoordinator)
+    }
+    
+    func handleStoresWillChange(notification: NSNotification) {
+        print("==============")
+        print("willChange")
+        print("==============")
+        CoreDataStackManager.sharedInstance().saveContext()
+    }
+    
+    
+    
+    func handleStoresDidChange(notification: NSNotification) {
+        print("==============")
+        print("didChange")
+        print("==============")
+        stopSaveAnimation()
+    }
+    
+    func mergeChanges(notification: NSNotification) {
+        print("-----=========-----")
+        print("mergeChanges notif:\(notification)")
+        print("-----=========-----")
+        self.sharedContext.performBlock {
+            self.sharedContext.mergeChangesFromContextDidSaveNotification(notification)
+            self.postRefetchDatabaseNotification()
+        }
+    }
+    
+    func postRefetchDatabaseNotification() {
+        dispatch_async(dispatch_get_main_queue(), { () -> Void in
+            NSNotificationCenter.defaultCenter().postNotificationName(
+                "kRefetchDatabaseNotification", // Replace with your constant of the refetch name, and add observer in the proper place - e.g. RootViewController
+                object: nil);
+        })
+    }
+    
+    func persistentStoreDidImportUbiquitousContentChanges(notification: NSNotification) {
+        self.mergeChanges(notification);
+    }
+    
+    func startSaveAnimation() {
+        let animation = CABasicAnimation(keyPath: "opacity")
+        animation.duration = 0.4
+        animation.repeatCount = 9999
+        animation.autoreverses = true
+        animation.fromValue = 1.0
+        animation.toValue = 0.1
+        saveButton.hidden = false
+        saveButton.layer.addAnimation(animation, forKey: "animateOpacity")
+    }
+    
+    func stopSaveAnimation() {
+        saveButton.layer.removeAnimationForKey("animateOpacity")
+        saveButton.hidden = true
+        print("animation removed and button hidden")
     }
     
     /*
@@ -88,25 +142,7 @@ class MeetingListCell: UICollectionViewCell, UITableViewDelegate, UITableViewDat
     
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        
-        if let partArray = meeting.participantArray {
-            print("---------")
-            print( "Having " + String(partArray.count) + " items for Participants" )
-            print("---------")
-            return partArray.count
-        } else {
-            return 0
-        }
-        /*
-        if event?.attendees != nil {
-            //print(event?.attendees?.count)
-
-            return (event?.attendees?.count)!
-        } else {
-            //print(event)
-            return 0
-        }
-        */
+        return meeting.participantArray.count
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
@@ -116,19 +152,17 @@ class MeetingListCell: UICollectionViewCell, UITableViewDelegate, UITableViewDat
         if cell == nil {
             cell = UITableViewCell(style: UITableViewCellStyle.Value1, reuseIdentifier: identifier)
         }
-        //_ = Participant(attendee: event?.attendees?[indexPath.row], context: self.sharedContext)
-        //let cell = tableView.dequeueReusableCellWithIdentifier("meetingParticipants", forIndexPath: indexPath) as! UITableViewCell
         
-        //let allObjects: NSArray = meeting.participants.
-        print("-----------------")
-        print(" At index " + String(indexPath.row))
-        print(meeting.participantArray)
-        print("-----------------")
-        if let participantArray = meeting.participantArray {
-            cell?.textLabel?.text = ( participantArray[indexPath.row].name != nil ? participantArray[indexPath.row].name : participantArray[indexPath.row].email )
+        // Use Name to display, use email if name does not exist
+        cell?.textLabel?.text = ( meeting.participantArray[indexPath.row].name != nil ? meeting.participantArray[indexPath.row].name : meeting.participantArray[indexPath.row].email )
+
+        // show yourself in blue color, all others in black
+        if meeting.participantArray[indexPath.row].myself {
+            cell?.textLabel?.textColor = UIColor.blueColor()
+        } else {
+            cell?.textLabel?.textColor = UIColor.blackColor()
         }
         
-        //cell!.textLabel?.text = event?.attendees?[indexPath.row].name
         return cell!
     }
     
@@ -142,6 +176,8 @@ extension MeetingListCell {
         notesText.hidden = true
         participantsButton.backgroundColor = UIColor.whiteColor()
         notesButton.backgroundColor = .None
+        notesButton.imageView!.tintColor = .None
+        participantsButton.imageView!.tintColor = UIColor.blueColor()
     }
     
     @IBAction func notesButton(sender: UIButton) {
@@ -149,6 +185,39 @@ extension MeetingListCell {
         notesText.hidden = false
         notesButton.backgroundColor = UIColor.whiteColor()
         participantsButton.backgroundColor = .None
+        notesButton.imageView!.tintColor = UIColor.blueColor()
+        participantsButton.imageView!.tintColor = .None
     }
     
+}
+
+extension MeetingListCell: UITextViewDelegate {
+    
+    @IBAction func saveNote(sender: UIButton) {
+        self.endEditing(true)
+    }
+    
+    func doSaveNote() {
+        let noteDictionary = [
+            Note.Keys.Note: notesText.text,
+            Note.Keys.MeetingId: self.meeting.meetingId,
+            Note.Keys.MeetingTitle: self.meeting.name
+        ]
+
+        self.meeting.note = Note(dictionary: noteDictionary, context: self.sharedContext)
+        print("Note instance created, now saving the context!")
+        print("=================")
+        CoreDataStackManager.sharedInstance().saveContext()
+        startSaveAnimation()
+    }
+    
+    func textViewDidChange(textView: UITextView) { }
+    
+    func textViewDidBeginEditing(textView: UITextView) {
+        saveButton.hidden = false
+    }
+    
+    func textViewDidEndEditing(textView: UITextView) {
+        doSaveNote()
+    }
 }

@@ -22,13 +22,9 @@ class Datasource {
             //CoreDataStackManager.sharedInstance().saveContext()
         }
     }
-    var dates = [NSDate]()
-    var weekStructure = [Int:[String:[Meeting]]]()
-    var structureKeys = [Int:[String]]()
-    var weeks = [Int]()
-    var weekOfSection = [Int:Int]()
-    var dayOfSection = [Int:String]()
-    var sectionsRequired = 0
+    
+    var daysOfMeeting = [NSDate:[Meeting]]()
+    var sortedMeetingArray = [NSDate]()
     var meetingId: String = ""
     
     
@@ -48,54 +44,53 @@ class Datasource {
     }
     
     // MARK: - iterate through each Event and fill up dates, afterwards sort
+    // OPTIMIZATION REQUIRED --- VERY SLOW --- ORDERING OF DAYS NEED TO BE FIXED
     func structureMeetings() {
+        
+        // new day, new structure ...
+        daysOfMeeting = [NSDate:[Meeting]]()
+        sortedMeetingArray = [NSDate]()
+        
         if let items = meetings {
             for item in items {
-                let week = getCalendarWeek(item.starttime)
-                
-                if weeks.contains(week) == false {
-                    weeks.append(week)
-                    weekStructure[week] = [String:[Meeting]]()
-                    structureKeys[week] = [String]()
+                let day = getDayOfDate(item.starttime)
+                if daysOfMeeting[day] == nil {
+                    daysOfMeeting[day] = [Meeting]()
                 }
-                
-                let weekDayName = getSpecialWeekdayOfDate(item.starttime)
-                if dates.contains(item.starttime) == false {
-                    dates.append(item.starttime)
-                    if structureKeys[week]!.contains(weekDayName) == false {
-                        structureKeys[week]!.append(weekDayName)
-                        weekStructure[week]![weekDayName] = [Meeting]()
-                        weekOfSection[sectionsRequired] = week
-                        dayOfSection[sectionsRequired] = weekDayName
-                        sectionsRequired++
-                    }
-                }
-                // NEED TO create weekDayName with first access !!!!
-                //item.note = getNote(item.meetingId)
-                weekStructure[week]![weekDayName]!.append(item)
+                daysOfMeeting[day]?.append(item)
             }
+            self.sortedMeetingArray = Array(daysOfMeeting.keys).sort({ $0.timeIntervalSinceReferenceDate < $1.timeIntervalSinceReferenceDate })
         }
         
-        dates.sortInPlace({ $0.timeIntervalSinceReferenceDate < $1.timeIntervalSinceReferenceDate })
     }
     
     // MARK: - returns the weekday of a date, the special is because it does return the string today and tomorrow
     func getSpecialWeekdayOfDate(date: NSDate) -> String {
         
         if NSDate.areDatesSameDay(NSDate(), dateTwo: date) {
-            print(String(date) + " = TODAY")
             return "TODAY"
         } else if NSDate.areDatesSameDay(NSDate(timeIntervalSinceNow: 86400), dateTwo: date) {
-            print(String(date) + " = TOMORROW")
             return "TOMORROW"
         } else {
             let dateFormatter = NSDateFormatter()
             dateFormatter.dateFormat = "EEEE"
             dateFormatter.locale = NSLocale(localeIdentifier: "en")
-            print(String(date) + " = " + dateFormatter.stringFromDate(date))
             return dateFormatter.stringFromDate(date).uppercaseString
         }
     }
+    
+    func getDayOfDate(date: NSDate) -> NSDate {
+        let calendar = NSCalendar.currentCalendar()
+        let components = calendar.components([NSCalendarUnit.Day, NSCalendarUnit.Month, NSCalendarUnit.Year], fromDate: date)
+        return calendar.dateFromComponents(components)!
+    }
+    
+    func getTimeOfDate(date: NSDate) -> String {
+        let calendar = NSCalendar.currentCalendar()
+        let components = calendar.components([NSCalendarUnit.Hour, NSCalendarUnit.Minute], fromDate: date)
+        return String(components.hour) + ":" + String(components.minute)
+    }
+    
     func getCalendarWeek(date: NSDate) -> Int {
         
         let calendar = NSCalendar(calendarIdentifier: NSCalendarIdentifierGregorian)

@@ -14,7 +14,7 @@ import EventKit
 class Note: NSManagedObject {
     
     struct Keys {
-        static let Notes = "notes"
+        static let Note = "note"
         static let MeetingId = "meetingId"
         static let MeetingTitle = "meetingTitle"
         static let CreatedAt = "createdAt"
@@ -24,7 +24,7 @@ class Note: NSManagedObject {
         static let entityName = "Note"
     }
     
-    @NSManaged var notes: String
+    @NSManaged var note: String
     @NSManaged var meetingId: String
     @NSManaged var meetingTitle: String
     @NSManaged var createdAt: NSDate
@@ -39,7 +39,7 @@ class Note: NSManagedObject {
         let entity =  NSEntityDescription.entityForName(statics.entityName, inManagedObjectContext: context)!
         super.init(entity: entity, insertIntoManagedObjectContext: context)
         // Dictionary
-        notes = dictionary[Keys.Notes] as! String
+        note = dictionary[Keys.Note] as! String
         meetingId = dictionary[Keys.MeetingId] as! String
         meetingTitle = dictionary[Keys.MeetingTitle] as! String
         // set createdAt to actual Date, do not have to bother about this outside of the Model !

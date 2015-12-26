@@ -55,26 +55,19 @@ class Participant: NSManagedObject {
     }
 
     static func getEmailFromEKParticipantDescription( attendee: EKParticipant? ) -> String? {
-        let descriptionDictionary = attendee!.description.componentsSeparatedByString("{")[1].componentsSeparatedByString("}")[0].componentsSeparatedByString("; ")
-        var resultDict = [String:String]()
         
-        for descriptionComponent in descriptionDictionary {
-            let components = descriptionComponent.componentsSeparatedByString(" = ")
-            resultDict[components[0]] = components[1]
+        if let currentParticipant = attendee {
+            let descriptionDictionary = currentParticipant.description.componentsSeparatedByString("{")[1].componentsSeparatedByString("}")[0].componentsSeparatedByString("; ")
+            var resultDict = [String:String]()
+        
+            for descriptionComponent in descriptionDictionary {
+                let components = descriptionComponent.componentsSeparatedByString(" = ")
+                resultDict[components[0]] = components[1]
+            }
+            return resultDict["email"]
+        } else {
+            return ""
         }
-        
-        
-        print("")
-        print("---------------------------------------")
-        print(resultDict)
-        print("---------------------------------------")
-        print("")
-        print(resultDict["email"])
-        
-        print("---------------------------------------")
-        print("")
-        
-        return resultDict["email"]
     }
     
     init(attendee: EKParticipant?, context: NSManagedObjectContext) {
@@ -92,6 +85,9 @@ class Participant: NSManagedObject {
                 let location = address.value as! CNPostalAddress
                 self.location = location.city
                 RestCountriesClient.sharedInstance().getTimezoneByCountryCode(location.country) { data, error in
+                    if let _ = error {
+                        print("restcountriesclient throwed an error")
+                    }
                     if let serverData = data {
                         self.timezone = serverData as? String
                     }
@@ -117,7 +113,8 @@ class Participant: NSManagedObject {
                 let store = CNContactStore()
                 do {
                     // Fetching interesting information, whereat we only use PostalAddress at the moment
-                    let keysToFetch = [CNContactGivenNameKey, CNContactFamilyNameKey, CNContactPhoneNumbersKey, CNContactEmailAddressesKey, CNContactPostalAddressesKey]
+                    //let keysToFetch = [CNContactGivenNameKey, CNContactFamilyNameKey, CNContactPhoneNumbersKey, CNContactEmailAddressesKey, CNContactPostalAddressesKey]
+                    let keysToFetch = [CNContactPostalAddressesKey]
                     if let name = attendee.name {
                         let contacts = try store.unifiedContactsMatchingPredicate(CNContact.predicateForContactsMatchingName(name), keysToFetch: keysToFetch)
                         if let contact = contacts.first {
@@ -129,6 +126,8 @@ class Participant: NSManagedObject {
                         }
                     }
                 } catch _ {}
+            } else {
+                print("no access to Contacts allowed")
             }
         }
         return eligibleContact

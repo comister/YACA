@@ -66,7 +66,8 @@ import UIKit
     }
     
     func setupView() {
-        layer.cornerRadius = frame.height / CGFloat( items.count * 2 )
+        layer.cornerRadius = layer.frame.height / 6
+        
         layer.borderColor = UIColor(white: 1.0, alpha:  1.0).CGColor
         layer.borderWidth = 2
         

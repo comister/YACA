@@ -11,7 +11,7 @@ import UIKit
 
 extension UIView {
     func fadeIn() {
-        // Move our fade out code from earlier
+
         UIView.animateWithDuration(1.0, delay: 0.0, options: UIViewAnimationOptions.CurveEaseIn, animations: {
             self.alpha = 1.0 // Instead of a specific instance of, say, birdTypeLabel, we simply set [thisInstance] (ie, self)'s alpha
             }, completion: nil)
