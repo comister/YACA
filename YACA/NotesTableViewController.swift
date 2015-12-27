@@ -13,15 +13,22 @@ class NotesTableViewController: UITableViewController {
     
     var meetingId: String = ""
     var allNotes = [Note]()
+    var meetingTitle: String?
+    var meetingNotes: String?
+    var selectedNote: Note?
     
     override func viewDidLoad() {
+
+    }
+    
+    override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated)
         do {
             try self.fetchedResultsController.performFetch()
         } catch _ { }
         self.allNotes = fetchedResultsController.fetchedObjects as! [Note]
-        for var note in self.allNotes {
-            print(note)
-        }
+        self.tableView.reloadData()
+        
     }
     
     // MARK: - Core Data
@@ -33,13 +40,23 @@ class NotesTableViewController: UITableViewController {
         
         let fetchRequest = NSFetchRequest(entityName: Note.statics.entityName)
         //fetchRequest.predicate = NSPredicate(format: "meetingId == %@", self.meetingId)
-        fetchRequest.sortDescriptors = [NSSortDescriptor(key: Note.Keys.CreatedAt, ascending: true)]
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: Note.Keys.CreatedAt, ascending: false)]
         
         let fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: self.sharedContext, sectionNameKeyPath: nil, cacheName: nil)
         
         return fetchedResultsController
         
     }()
+    
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        if segue.identifier == "showNote" {
+            if let controller = segue.destinationViewController as? NoteViewController {
+                controller.meetingName = self.meetingTitle
+                controller.meetingNote = self.meetingNotes
+                controller.note = self.selectedNote
+            }
+        }
+    }
     
 }
 
@@ -58,6 +75,33 @@ extension NotesTableViewController {
     
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         // Show Notes, give opportunity to delete
+        self.meetingNotes = allNotes[indexPath.row].note
+        self.meetingTitle = allNotes[indexPath.row].meetingTitle
+        self.selectedNote = allNotes[indexPath.row]
+        performSegueWithIdentifier("showNote", sender: self)
+    }
+    
+    override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
+        
+        //delete a note
+        //confirmation required
+        if editingStyle == UITableViewCellEditingStyle.Delete {
+            
+            let confirmation = UIAlertController(title: "Delete Note", message: "Are you sure you want to permantently delete this note?", preferredStyle: UIAlertControllerStyle.ActionSheet)
+            let cancelAction: UIAlertAction = UIAlertAction(title: "Cancel", style: .Cancel) { action -> Void in
+                
+            }
+            let confirmAction: UIAlertAction = UIAlertAction(title: "OK", style: .Default) { action -> Void in
+                self.sharedContext.deleteObject(self.allNotes[indexPath.row])
+                self.allNotes.removeAtIndex(indexPath.row)
+                self.tableView.reloadData()
+            }
+            confirmation.addAction(confirmAction)
+            confirmation.addAction(cancelAction)
+            
+            self.presentViewController(confirmation, animated: true, completion: nil)
+        }
+        
     }
     
 }

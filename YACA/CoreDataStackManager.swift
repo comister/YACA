@@ -69,14 +69,20 @@ class CoreDataStackManager {
         var coordinator: NSPersistentStoreCoordinator? = NSPersistentStoreCoordinator(managedObjectModel: self.managedObjectModel)
         let url = self.applicationDocumentsDirectory.URLByAppendingPathComponent(SQLITE_FILE_NAME)
         
-        let storeOptions = [
+        var storeOptions: [NSObject:AnyObject]?
+        
+        if NSUserDefaults.standardUserDefaults().boolForKey("iCloudOn") == true {
+            storeOptions = [
                 NSPersistentStoreUbiquitousContentNameKey    : STORE_NAME,
                 NSMigratePersistentStoresAutomaticallyOption : true,
                 NSInferMappingModelAutomaticallyOption       : true
-        ]
+            ]
+        } else {
+            storeOptions = nil
+        }
         
         do {
-            try coordinator!.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: url, options: storeOptions as! [NSObject : AnyObject])
+            try coordinator!.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: url, options: storeOptions)
         } catch var error as NSError {
             var dict = [NSObject : AnyObject]()
             dict[NSLocalizedDescriptionKey] = "Failed to initialize the application's saved data"
@@ -100,6 +106,7 @@ class CoreDataStackManager {
         }
         var managedObjectContext = NSManagedObjectContext(concurrencyType: NSManagedObjectContextConcurrencyType.MainQueueConcurrencyType)
         managedObjectContext.persistentStoreCoordinator = coordinator
+        
         return managedObjectContext
     }()
     
@@ -121,63 +128,4 @@ class CoreDataStackManager {
             }
         }
     }
-    
-    // MARK: - iCloud
-    // This handles the updates to the data via iCloud updates
-    
-    func registerCoordinatorForStoreNotifications (coordinator : NSPersistentStoreCoordinator) {
-        
-        let nc : NSNotificationCenter = NSNotificationCenter.defaultCenter();
-        
-        nc.addObserver(self, selector: "handleStoresWillChange",
-            name: NSPersistentStoreCoordinatorStoresWillChangeNotification,
-            object: coordinator)
-        
-        nc.addObserver(self, selector: "handleStoresDidChange:",
-            name: NSPersistentStoreCoordinatorStoresDidChangeNotification,
-            object: coordinator)
-        
-        nc.addObserver(self, selector: "handleStoresWillRemove:",
-            name: NSPersistentStoreCoordinatorWillRemoveStoreNotification,
-            object: coordinator)
-        
-        nc.addObserver(self, selector: "handleStoreChangedUbiquitousContent:",
-            name: NSPersistentStoreDidImportUbiquitousContentChangesNotification,
-            object: coordinator)
-    }
-    
-    func handleStoresWillChange(notification: NSNotification) {
-        print("==============")
-        print("willChange")
-        print("==============")
-    }
-    
-    func handleStoresDidChange(notification: NSNotification) {
-        print("==============")
-        print("didChange")
-        print("==============")
-    }
-    
-    func handleStoresWillRemove(notification: NSNotification) {
-        print("==============")
-        print("willRemove")
-        print("==============")
-    }
-    
-    func handleStoreChangedUbiquitousContent(notification: NSNotification) {
-        print("==============")
-        print("handleStoreChangedUbiquitousContent --> there is something new in iCloud")
-        print("==============")
-    }
-    
-    
-    
-    
-    func persistentStoreWillChange(notification: NSNotification) {
-        print("Something to be changed, in CoreDataStackManager !!")
-        saveContext()
-    }
-    
-    
-    
 }

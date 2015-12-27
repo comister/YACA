@@ -56,6 +56,8 @@ class MeetingsViewController: UIViewController {
         durationSgements.borderColor = UIColor(white: 1.0, alpha: 0.3)
         durationSgements.addTarget(self, action: "changeDuration:", forControlEvents: .ValueChanged)
         
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "iCloudUpdated:", name: "kRefetchDatabaseNotification", object: nil)
+        
         self.duration = getDurationOfIndex(NSUserDefaults.standardUserDefaults().integerForKey("durationIndex"))
         loadIndicator.startAnimating()
         appDelegate.backgroundThread(0.0, background: {
@@ -65,6 +67,11 @@ class MeetingsViewController: UIViewController {
             self.meetingCollectionView.hidden = false
             self.meetingCollectionView.reloadData()
         })
+    }
+    
+    // MARK: - There was something updated in iCloud and this new information got received, updating the meetings !
+    func iCloudUpdated (notification: NSNotification) {
+        meetingCollectionView.reloadData()
     }
     
     override func viewDidAppear(animated: Bool) {
@@ -77,6 +84,7 @@ class MeetingsViewController: UIViewController {
     override func viewWillDisappear(animated: Bool) {
         super.viewWillDisappear(animated)
         removeKeyboardDismissRecognizer()
+        NSNotificationCenter.defaultCenter().removeObserver(self, name: "kRefetchDatabaseNotification",object: nil )
     }
     
     // MARK: - Returns seconds for 1 day (index=0), 1 week (index=1) and 1 month (index=2)

@@ -50,6 +50,7 @@ class MeetingListCell: UICollectionViewCell, UITableViewDelegate, UITableViewDat
         let dateFormatter = NSDateFormatter()
         dateFormatter.dateFormat = "HH:mm"
         timingLabel.text = dateFormatter.stringFromDate(meeting.starttime) + " - " + dateFormatter.stringFromDate(meeting.endtime)
+        notesArea()
         
     }
     
@@ -63,52 +64,54 @@ class MeetingListCell: UICollectionViewCell, UITableViewDelegate, UITableViewDat
     override init(frame: CGRect) {
         // do something
         super.init(frame: frame)
-        participantTable.reloadData()
         //collectionView.registerClass(UICollectionViewCell.self, forCellWithReuseIdentifier: "CollectionViewCell")
         participantTable.registerClass(UITableView.self, forCellReuseIdentifier: "meetingParticipants")
         participantsButton.imageView!.image!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
         notesButton.imageView!.image!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
         notesButton.imageView!.tintColor = UIColor.blueColor()
+        addStoreNotifications()
     }
 
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-        print("HERE we are with a MeetingListCell")
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "handleStoresWillChange:", name: NSPersistentStoreCoordinatorStoresWillChangeNotification, object: self.sharedContext.persistentStoreCoordinator)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "handleStoresDidChange:", name: NSPersistentStoreCoordinatorStoresDidChangeNotification, object: self.sharedContext.persistentStoreCoordinator)
-        NSNotificationCenter.defaultCenter().addObserver( self, selector: "mergeChanges:", name: NSManagedObjectContextDidSaveNotification,object: self.sharedContext.persistentStoreCoordinator)
+        addStoreNotifications()
     }
     
+    func addStoreNotifications() {
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "handleStoresWillChange:", name: NSPersistentStoreCoordinatorStoresWillChangeNotification, object: self.sharedContext)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "handleStoresDidChange:", name: NSPersistentStoreCoordinatorStoresDidChangeNotification, object: self.sharedContext)
+        NSNotificationCenter.defaultCenter().addObserver( self, selector: "mergeChanges:", name: NSManagedObjectContextDidSaveNotification,object: self.sharedContext)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "handleStoresWillRemove:",
+            name: NSPersistentStoreCoordinatorWillRemoveStoreNotification,
+            object: self.sharedContext)
+    }
+    
+    func removeStoreNotifications() {
+        
+    }
+    
+    func handleStoresWillRemove(notification: NSNotification) { }
+    
     func handleStoresWillChange(notification: NSNotification) {
-        print("==============")
-        print("willChange")
-        print("==============")
         CoreDataStackManager.sharedInstance().saveContext()
     }
     
-    
-    
     func handleStoresDidChange(notification: NSNotification) {
-        print("==============")
-        print("didChange")
-        print("==============")
-        stopSaveAnimation()
+        self.stopSaveAnimation()
     }
     
     func mergeChanges(notification: NSNotification) {
-        print("-----=========-----")
-        print("mergeChanges notif:\(notification)")
-        print("-----=========-----")
         self.sharedContext.performBlock {
             self.sharedContext.mergeChangesFromContextDidSaveNotification(notification)
             self.postRefetchDatabaseNotification()
         }
+        self.stopSaveAnimation()
     }
     
     func postRefetchDatabaseNotification() {
         dispatch_async(dispatch_get_main_queue(), { () -> Void in
             NSNotificationCenter.defaultCenter().postNotificationName(
-                "kRefetchDatabaseNotification", // Replace with your constant of the refetch name, and add observer in the proper place - e.g. RootViewController
+                "kRefetchDatabaseNotification", // can be observed in any other ViewController
                 object: nil);
         })
     }
@@ -131,14 +134,7 @@ class MeetingListCell: UICollectionViewCell, UITableViewDelegate, UITableViewDat
     func stopSaveAnimation() {
         saveButton.layer.removeAnimationForKey("animateOpacity")
         saveButton.hidden = true
-        print("animation removed and button hidden")
     }
-    
-    /*
-    func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-        return super.tag
-    }
-    */
     
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -171,7 +167,7 @@ class MeetingListCell: UICollectionViewCell, UITableViewDelegate, UITableViewDat
 // MARK: - Toolbarbuttons
 extension MeetingListCell {
     
-    @IBAction func participantsButton(sender: UIButton) {
+    func participantArea() {
         participantTable.hidden = false
         notesText.hidden = true
         participantsButton.backgroundColor = UIColor.whiteColor()
@@ -180,13 +176,21 @@ extension MeetingListCell {
         participantsButton.imageView!.tintColor = UIColor.blueColor()
     }
     
-    @IBAction func notesButton(sender: UIButton) {
+    func notesArea() {
         participantTable.hidden = true
         notesText.hidden = false
         notesButton.backgroundColor = UIColor.whiteColor()
         participantsButton.backgroundColor = .None
         notesButton.imageView!.tintColor = UIColor.blueColor()
         participantsButton.imageView!.tintColor = .None
+    }
+    
+    @IBAction func participantsButton(sender: UIButton) {
+        participantArea()
+    }
+    
+    @IBAction func notesButton(sender: UIButton) {
+        notesArea()
     }
     
 }
@@ -198,15 +202,17 @@ extension MeetingListCell: UITextViewDelegate {
     }
     
     func doSaveNote() {
-        let noteDictionary = [
-            Note.Keys.Note: notesText.text,
-            Note.Keys.MeetingId: self.meeting.meetingId,
-            Note.Keys.MeetingTitle: self.meeting.name
-        ]
-
-        self.meeting.note = Note(dictionary: noteDictionary, context: self.sharedContext)
-        print("Note instance created, now saving the context!")
-        print("=================")
+        if self.meeting.note == nil {
+            let noteDictionary = [
+                Note.Keys.Note: notesText.text,
+                Note.Keys.MeetingId: self.meeting.meetingId,
+                Note.Keys.MeetingTitle: self.meeting.name
+            ]
+            self.meeting.note = Note(dictionary: noteDictionary, context: self.sharedContext)
+        } else {
+            self.meeting.note?.note = notesText.text
+            self.meeting.note?.meetingTitle = self.meeting.name
+        }
         CoreDataStackManager.sharedInstance().saveContext()
         startSaveAnimation()
     }

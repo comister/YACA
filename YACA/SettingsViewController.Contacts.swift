@@ -15,7 +15,6 @@ extension SettingsViewController {
                 do {
                     self.contacts = try self.contactStore.containersMatchingPredicate(nil)
                     self.groups = try self.contactStore.groupsMatchingPredicate(nil)
-                    print(self.groups)
                 } catch {
                     print("Error fetching Contact groups")
                 }

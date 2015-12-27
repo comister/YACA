@@ -39,8 +39,8 @@ class Meeting: NSObject {
         }
         set {}
     }
-    var currentParticipant: EKParticipant?
     
+    var currentParticipant: EKParticipant?
     var participantArray = [Participant]()
         
     // Mark: - Overloaded initializer - being able to convert from an EKEvent
@@ -56,29 +56,22 @@ class Meeting: NSObject {
         
         // Mark: - Convert EKParticipant to Participant and add to attendees
         if let eventAttendees = event.attendees {
-            
-            //self.participants?.addObjectsFromArray(eventAttendees)
-            /*
-            do {
-                try self.fetchedResultsController.performFetch()
-            } catch _ {}
-            */
             // TODO - marriage between core-data and attendee
             // Check for availability of contact in Core Data
             // In case not found, create new Participant + SAVE!
             // refresh API gathered data (they may have changed meanwhile)
             for eventAttendee in eventAttendees {
-
-                
-                //TODO: BUG !!! uses always the same participant ....
-                self.currentParticipant = eventAttendee
+    
+                let fetchRequest = NSFetchRequest(entityName: Participant.statics.entityName)
+                fetchRequest.predicate = NSPredicate(format: "email == %@", Participant.getEmailFromEKParticipantDescription( eventAttendee )!)
+                fetchRequest.sortDescriptors = [NSSortDescriptor(key: Participant.Keys.Email, ascending: true)]
+                let fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: self.sharedContext, sectionNameKeyPath: nil, cacheName: nil)
                 
                 do {
-                    try self.fetchedResultsController.performFetch()
+                    try fetchedResultsController.performFetch()
                 } catch _ {}
                 
                 if let storedParticipants = fetchedResultsController.fetchedObjects?.first as? Participant {
-                    print("Found participant in Core Data (\(storedParticipants.email) --- \(eventAttendee.name))")
                     participantArray.append(storedParticipants)
                 } else {
                     let newParticpant = Participant(attendee: eventAttendee, context: self.sharedContext) as Participant
@@ -93,26 +86,7 @@ class Meeting: NSObject {
     var sharedContext: NSManagedObjectContext {
         return CoreDataStackManager.sharedInstance().managedObjectContext!
     }
-    
-    lazy var fetchedResultsController: NSFetchedResultsController = {
-        // Would be possible to fetch all necessary participants from Coredata at once by using compoundPredicate, decided to switch back, there is no direct impact on performance and one-by-one facilitates the Object idea in a better manner (IMO)
-        /*
-        var compoundPredicates = [NSPredicate]()
-        for participant in self.participants! {
-            compoundPredicates.append( NSPredicate(format: Participant.Keys.Email + " == %@", Participant.getEmailFromEKParticipantDescription( participant as? EKParticipant )! ) )
-        }
-        */
-        
-        let fetchRequest = NSFetchRequest(entityName: Participant.statics.entityName)
-        fetchRequest.predicate = NSPredicate(format: "email == %@", Participant.getEmailFromEKParticipantDescription( self.currentParticipant )!)
-        //fetchRequest.predicate = NSCompoundPredicate(orPredicateWithSubpredicates: compoundPredicates)
-        fetchRequest.sortDescriptors = [NSSortDescriptor(key: Participant.Keys.Email, ascending: true)]
-        
-        let fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: self.sharedContext, sectionNameKeyPath: nil, cacheName: nil)
-        
-        return fetchedResultsController
-        
-    }()
+
     
     lazy var fetchedResultsControllerForNote: NSFetchedResultsController = {
         

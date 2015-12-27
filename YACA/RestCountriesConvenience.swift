@@ -10,6 +10,11 @@ import Foundation
 
 extension RestCountriesClient {
     
+    func getTimezoneByCountryCode(countryCode: String) -> String {
+        
+    }
+    
+    // Mark: - Overloaded closure
     func getTimezoneByCountryCode(countryCode: String, completionHandler: (result: AnyObject?, error: NSError?) -> Void) {
         taskForGETMethod(Methods.byCountryCode + "/" + countryCode) { JSONResult, error in
             if let error = error {
@@ -19,7 +24,7 @@ extension RestCountriesClient {
                 if let timezones = JSONResult.valueForKey(RestCountriesClient.JSONResponseKeys.TimeZone) as? [AnyObject] {
                     completionHandler(result: timezones.first as! String, error: nil)
                 } else {
-                    completionHandler(result: nil, error: NSError(domain: "No timezones delivered", code: 0, userInfo: nil))
+                    completionHandler(result: nil, error: NSError(domain: "No timezones delivered: \(JSONResult):" + Methods.byCountryCode + "/" + countryCode, code: 0, userInfo: nil))
                 }
             }
         }

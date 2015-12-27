@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="9531" systemVersion="14F1509" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="Wa7-xn-o5r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="9531" systemVersion="15B42" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="Wa7-xn-o5r">
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9529"/>
@@ -9,9 +9,9 @@
     <customFonts key="customFonts">
         <mutableArray key="Roboto-Medium.ttf">
             <string>Roboto-Medium</string>
+            <string>Roboto-Medium</string>
         </mutableArray>
         <mutableArray key="Roboto-Regular.ttf">
-            <string>Roboto-Regular</string>
             <string>Roboto-Regular</string>
             <string>Roboto-Regular</string>
             <string>Roboto-Regular</string>
@@ -22,19 +22,19 @@
         </mutableArray>
     </customFonts>
     <scenes>
-        <!--Tab Bar Controller-->
+        <!--YACA-->
         <scene sceneID="peO-Vm-NDQ">
             <objects>
-                <tabBarController id="Wa7-xn-o5r" sceneMemberID="viewController">
-                    <tabBar key="tabBar" contentMode="scaleToFill" id="z7Z-8e-fgl">
+                <tabBarController title="YACA" id="Wa7-xn-o5r" sceneMemberID="viewController">
+                    <tabBar key="tabBar" contentMode="scaleToFill" translucent="NO" id="z7Z-8e-fgl">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="49"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                     </tabBar>
                     <connections>
                         <segue destination="4Pi-XJ-cIs" kind="relationship" relationship="viewControllers" id="r5K-nU-vti"/>
-                        <segue destination="eyJ-RL-nle" kind="relationship" relationship="viewControllers" id="C9V-yK-Wii"/>
-                        <segue destination="esb-GW-D8U" kind="relationship" relationship="viewControllers" id="5Jm-Z6-DT4"/>
+                        <segue destination="TjN-2x-3nk" kind="relationship" relationship="viewControllers" id="PdS-a2-iEc"/>
+                        <segue destination="esb-GW-D8U" kind="relationship" relationship="viewControllers" id="v9f-eC-kzg"/>
                     </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="hSh-HN-osl" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -53,9 +53,6 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView userInteractionEnabled="NO" alpha="0.29999999999999999" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="mountains" translatesAutoresizingMaskIntoConstraints="NO" id="geM-dx-61p">
-                                <rect key="frame" x="0.0" y="0.0" width="240" height="128"/>
-                            </imageView>
                             <visualEffectView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ASg-Qr-hp8">
                                 <rect key="frame" x="0.0" y="0.0" width="240" height="128"/>
                                 <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="9zp-5S-LBP">
@@ -565,17 +562,13 @@
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="vgh-7p-rdw" firstAttribute="leading" secondItem="fsM-a8-g6M" secondAttribute="trailing" constant="2" id="7wB-am-nfx"/>
-                            <constraint firstItem="geM-dx-61p" firstAttribute="top" secondItem="Wfu-iU-GVS" secondAttribute="top" id="C5s-1x-Ry5"/>
                             <constraint firstItem="fsM-a8-g6M" firstAttribute="leading" secondItem="Wfu-iU-GVS" secondAttribute="leading" constant="20" id="Lgd-Zm-qYH"/>
                             <constraint firstItem="Veu-Gb-lsT" firstAttribute="top" secondItem="ASg-Qr-hp8" secondAttribute="bottom" id="QVS-TP-caX"/>
-                            <constraint firstItem="geM-dx-61p" firstAttribute="leading" secondItem="Wfu-iU-GVS" secondAttribute="leading" id="Sia-Uu-2Cr"/>
                             <constraint firstItem="vgh-7p-rdw" firstAttribute="top" secondItem="aAf-ht-Odj" secondAttribute="bottom" constant="23" id="Ugg-Ti-2zg"/>
                             <constraint firstItem="NW1-VY-rt0" firstAttribute="leading" secondItem="Wfu-iU-GVS" secondAttribute="leading" constant="20" id="W0u-SV-7rW"/>
-                            <constraint firstAttribute="trailing" secondItem="geM-dx-61p" secondAttribute="trailing" id="Y5F-eZ-4mF"/>
                             <constraint firstItem="NW1-VY-rt0" firstAttribute="top" relation="greaterThanOrEqual" secondItem="fUd-sj-YgY" secondAttribute="bottom" constant="15" id="c1T-pv-53F">
                                 <variation key="widthClass=compact" constant="9"/>
                             </constraint>
-                            <constraint firstItem="Veu-Gb-lsT" firstAttribute="top" secondItem="geM-dx-61p" secondAttribute="bottom" id="dzw-hC-yHg"/>
                             <constraint firstAttribute="trailing" secondItem="ASg-Qr-hp8" secondAttribute="trailing" id="fGQ-el-eMP"/>
                             <constraint firstItem="fsM-a8-g6M" firstAttribute="top" secondItem="Wfu-iU-GVS" secondAttribute="top" constant="18" id="jpG-sJ-jbz">
                                 <variation key="widthClass=compact" constant="44"/>
@@ -590,58 +583,48 @@
                         </constraints>
                         <variation key="default">
                             <mask key="subviews">
-                                <exclude reference="geM-dx-61p"/>
                                 <exclude reference="ASg-Qr-hp8"/>
                                 <exclude reference="fsM-a8-g6M"/>
                                 <exclude reference="NW1-VY-rt0"/>
                                 <exclude reference="vgh-7p-rdw"/>
                             </mask>
                             <mask key="constraints">
-                                <exclude reference="QVS-TP-caX"/>
-                                <exclude reference="dzw-hC-yHg"/>
-                                <exclude reference="pfq-vd-qwt"/>
-                                <exclude reference="7wB-am-nfx"/>
-                                <exclude reference="Ugg-Ti-2zg"/>
-                                <exclude reference="odx-nI-AWe"/>
-                                <exclude reference="Lgd-Zm-qYH"/>
-                                <exclude reference="jpG-sJ-jbz"/>
                                 <exclude reference="fGQ-el-eMP"/>
                                 <exclude reference="re5-dQ-SOC"/>
                                 <exclude reference="xf9-oP-xGv"/>
+                                <exclude reference="Lgd-Zm-qYH"/>
+                                <exclude reference="jpG-sJ-jbz"/>
+                                <exclude reference="7wB-am-nfx"/>
+                                <exclude reference="Ugg-Ti-2zg"/>
+                                <exclude reference="odx-nI-AWe"/>
                                 <exclude reference="W0u-SV-7rW"/>
                                 <exclude reference="c1T-pv-53F"/>
                                 <exclude reference="mra-TQ-SmG"/>
-                                <exclude reference="C5s-1x-Ry5"/>
-                                <exclude reference="Sia-Uu-2Cr"/>
-                                <exclude reference="Y5F-eZ-4mF"/>
+                                <exclude reference="QVS-TP-caX"/>
+                                <exclude reference="pfq-vd-qwt"/>
                             </mask>
                         </variation>
                         <variation key="widthClass=compact">
                             <mask key="subviews">
-                                <include reference="geM-dx-61p"/>
                                 <include reference="ASg-Qr-hp8"/>
                                 <include reference="fsM-a8-g6M"/>
                                 <include reference="NW1-VY-rt0"/>
                                 <include reference="vgh-7p-rdw"/>
                             </mask>
                             <mask key="constraints">
-                                <include reference="QVS-TP-caX"/>
-                                <include reference="dzw-hC-yHg"/>
-                                <include reference="pfq-vd-qwt"/>
-                                <include reference="7wB-am-nfx"/>
-                                <include reference="Ugg-Ti-2zg"/>
-                                <include reference="odx-nI-AWe"/>
-                                <include reference="Lgd-Zm-qYH"/>
-                                <include reference="jpG-sJ-jbz"/>
                                 <include reference="fGQ-el-eMP"/>
                                 <include reference="re5-dQ-SOC"/>
                                 <include reference="xf9-oP-xGv"/>
+                                <include reference="Lgd-Zm-qYH"/>
+                                <include reference="jpG-sJ-jbz"/>
+                                <include reference="7wB-am-nfx"/>
+                                <include reference="Ugg-Ti-2zg"/>
+                                <include reference="odx-nI-AWe"/>
                                 <include reference="W0u-SV-7rW"/>
                                 <include reference="c1T-pv-53F"/>
                                 <include reference="mra-TQ-SmG"/>
-                                <include reference="C5s-1x-Ry5"/>
-                                <include reference="Sia-Uu-2Cr"/>
-                                <include reference="Y5F-eZ-4mF"/>
+                                <include reference="QVS-TP-caX"/>
+                                <include reference="pfq-vd-qwt"/>
                             </mask>
                         </variation>
                     </view>
@@ -658,6 +641,23 @@
             <point key="canvasLocation" x="466.5" y="-109"/>
         </scene>
         <!--All Notes-->
+        <scene sceneID="EbL-7u-BfS">
+            <objects>
+                <navigationController id="TjN-2x-3nk" sceneMemberID="viewController">
+                    <tabBarItem key="tabBarItem" title="All Notes" image="edit" id="ks7-fC-nNn"/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="eU2-RV-a9J">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <connections>
+                        <segue destination="eyJ-RL-nle" kind="relationship" relationship="rootViewController" id="p8X-Mw-Hc5"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="wx0-5Y-I6y" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-988.5" y="502"/>
+        </scene>
+        <!--Notes History-->
         <scene sceneID="aiL-8y-5Sj">
             <objects>
                 <tableViewController id="eyJ-RL-nle" customClass="NotesTableViewController" customModule="YACA" customModuleProvider="target" sceneMemberID="viewController">
@@ -665,16 +665,9 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                        <navigationBar key="tableHeaderView" contentMode="scaleToFill" id="EvK-Th-YhR">
-                            <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
-                            <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
-                            <items>
-                                <navigationItem title="Notes History" id="4wb-JH-M0D"/>
-                            </items>
-                        </navigationBar>
                         <prototypes>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="notesViewCell" id="qBH-Pa-0FQ">
-                                <rect key="frame" x="0.0" y="28" width="600" height="44"/>
+                                <rect key="frame" x="0.0" y="72" width="600" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="qBH-Pa-0FQ" id="Y48-l7-PcN">
                                     <rect key="frame" x="0.0" y="0.0" width="600" height="43.5"/>
@@ -688,13 +681,14 @@
                         </connections>
                     </tableView>
                     <tabBarItem key="tabBarItem" title="All Notes" image="edit" id="5nb-uj-Y6u"/>
+                    <navigationItem key="navigationItem" title="Notes History" id="WST-Y4-DCG"/>
                     <connections>
                         <segue destination="I77-tj-EzG" kind="presentation" identifier="showNote" id="Rg8-sK-0hE"/>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="xMN-ZX-Nnh" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-187.5" y="416"/>
+            <point key="canvasLocation" x="-187.5" y="502"/>
         </scene>
         <!--Note View Controller-->
         <scene sceneID="DHl-u3-jby">
@@ -715,13 +709,13 @@
                                 <fontDescription key="fontDescription" name="Roboto-Regular" family="Roboto" pointSize="14"/>
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                             </textView>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ojt-ch-o4P">
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ojt-ch-o4P">
                                 <rect key="frame" x="-42" y="-21" width="42" height="21"/>
                                 <color key="backgroundColor" red="0.93725490199999995" green="0.93725490199999995" blue="0.93725490199999995" alpha="1" colorSpace="calibratedRGB"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="40" id="RrB-Eu-yRP"/>
                                 </constraints>
-                                <fontDescription key="fontDescription" name="Roboto-Regular" family="Roboto" pointSize="20"/>
+                                <fontDescription key="fontDescription" name="Roboto-Medium" family="Roboto" pointSize="16"/>
                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                                 <variation key="default">
@@ -789,8 +783,12 @@
                                     <constraint firstItem="EOg-wS-8QW" firstAttribute="top" secondItem="NTn-gB-7L0" secondAttribute="top" id="XdH-p2-zeW"/>
                                     <constraint firstItem="avE-pb-Uzc" firstAttribute="top" secondItem="NTn-gB-7L0" secondAttribute="top" id="cPv-67-g06"/>
                                     <constraint firstAttribute="height" constant="40" id="gen-wU-9eV"/>
-                                    <constraint firstAttribute="trailing" secondItem="avE-pb-Uzc" secondAttribute="trailing" id="huO-8W-HUx"/>
-                                    <constraint firstItem="EOg-wS-8QW" firstAttribute="leading" secondItem="NTn-gB-7L0" secondAttribute="leading" id="zOB-xM-7Ap"/>
+                                    <constraint firstAttribute="trailing" secondItem="avE-pb-Uzc" secondAttribute="trailing" id="huO-8W-HUx">
+                                        <variation key="widthClass=compact" constant="10"/>
+                                    </constraint>
+                                    <constraint firstItem="EOg-wS-8QW" firstAttribute="leading" secondItem="NTn-gB-7L0" secondAttribute="leading" id="zOB-xM-7Ap">
+                                        <variation key="widthClass=compact" constant="10"/>
+                                    </constraint>
                                 </constraints>
                                 <variation key="default">
                                     <mask key="subviews">
@@ -884,7 +882,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Ztz-iI-tCs" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-187.5" y="1181"/>
+            <point key="canvasLocation" x="-1.5" y="1333"/>
         </scene>
         <!--Settings-->
         <scene sceneID="JIc-dn-1sW">
@@ -1460,7 +1458,6 @@ It is required to select a Calendar from the Default Calendar section !</string>
     <resources>
         <image name="edit" width="22" height="22"/>
         <image name="list" width="22" height="22"/>
-        <image name="mountains" width="600" height="357"/>
         <image name="participant" width="22" height="22"/>
         <image name="save" width="22" height="22"/>
         <image name="settings" width="22" height="22"/>

@@ -15,22 +15,14 @@ import EventKit
 
 class Datasource {
     
-    var meetings: [Meeting]? {
-        didSet {
-            print("didSet executed")
-            //structureMeetings()
-            //CoreDataStackManager.sharedInstance().saveContext()
-        }
-    }
+    var meetings: [Meeting]?
     
     var daysOfMeeting = [NSDate:[Meeting]]()
     var sortedMeetingArray = [NSDate]()
     var meetingId: String = ""
     
-    
     init(meetings: [Meeting]?) {
         self.meetings = meetings
-        //print(weekStructure)
     }
     
     init(events: [EKEvent]) {
@@ -44,7 +36,6 @@ class Datasource {
     }
     
     // MARK: - iterate through each Event and fill up dates, afterwards sort
-    // OPTIMIZATION REQUIRED --- VERY SLOW --- ORDERING OF DAYS NEED TO BE FIXED
     func structureMeetings() {
         
         // new day, new structure ...
@@ -92,10 +83,8 @@ class Datasource {
     }
     
     func getCalendarWeek(date: NSDate) -> Int {
-        
         let calendar = NSCalendar(calendarIdentifier: NSCalendarIdentifierGregorian)
         calendar!.minimumDaysInFirstWeek = 4 // iso-week !
         return (calendar?.components(NSCalendarUnit.WeekOfYear, fromDate: date).weekOfYear)!
-        
     }
 }

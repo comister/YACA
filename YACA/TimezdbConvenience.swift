@@ -26,7 +26,6 @@ extension TimezdbClient {
             }
             
         }
-        
         completionHandler(result: nil, error: nil)
     }
     

@@ -84,9 +84,15 @@ class Participant: NSManagedObject {
             if let address = contact.postalAddresses.first {
                 let location = address.value as! CNPostalAddress
                 self.location = location.city
-                RestCountriesClient.sharedInstance().getTimezoneByCountryCode(location.country) { data, error in
-                    if let _ = error {
-                        print("restcountriesclient throwed an error")
+                print("============\(name)============")
+                print(location)
+                print("===============================")
+                
+                self.timezone = getTimezone(location.ISOCountryCode)
+                
+                RestCountriesClient.sharedInstance().getTimezoneByCountryCode(location.ISOCountryCode) { data, error in
+                    if let myError = error {
+                        print("restcountriesclient throwed an error: \(myError)")
                     }
                     if let serverData = data {
                         self.timezone = serverData as? String
@@ -99,7 +105,18 @@ class Participant: NSManagedObject {
         } else {
             // No information in Contacts found, this would be the place to refine search with other services/protocols ...
         }
-        
+        print(self)
+    }
+    
+    func getTimezone(isoCode: String) -> String {
+        RestCountriesClient.sharedInstance().getTimezoneByCountryCode(isoCode) { data, error in
+            if let myError = error {
+                self.return error
+            }
+            if let serverData = data {
+                return serverData as? String
+            }
+        }
     }
     
     // MARK: - Getting additional information from Contacts like country

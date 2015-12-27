@@ -49,7 +49,7 @@ class SettingsViewController: UIViewController {
             selectedContactGroup = NSUserDefaults.standardUserDefaults().stringForKey("selectedContactGroup")
             pickContactsButton.titleLabel?.text = NSUserDefaults.standardUserDefaults().stringForKey("selectedContactGroupName")
             durationSegments.selectedSegmentIndex = NSUserDefaults.standardUserDefaults().integerForKey("durationIndex")
-            storeIniCloud.selected = NSUserDefaults.standardUserDefaults().boolForKey("iCloudOn")
+            storeIniCloud.on = NSUserDefaults.standardUserDefaults().boolForKey("iCloudOn")
         } else {
             //NSUserDefaults.standardUserDefaults().setValue(self.calendars!.first!.calendarIdentifier, forKey: "selectedCalendar")
             //selectedCalendar = self.calendars!.first!.calendarIdentifier
@@ -59,7 +59,6 @@ class SettingsViewController: UIViewController {
     }
 
     @IBAction func durationClicked(sender: UISegmentedControl) {
-        print(String(sender.selectedSegmentIndex))
         NSUserDefaults.standardUserDefaults().setValue(sender.selectedSegmentIndex, forKey: "durationIndex")
         var duration = 0
         switch sender.selectedSegmentIndex {
@@ -76,7 +75,6 @@ class SettingsViewController: UIViewController {
     }
     
     @IBAction func iCloudSwitchChanged(sender: UISwitch) {
-        print(sender.on)
         NSUserDefaults.standardUserDefaults().setValue(sender.on, forKey: "iCloudOn")
     }
     
