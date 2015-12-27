@@ -40,6 +40,7 @@ class RestCountriesClient : NSObject {
                 completionHandler(result: nil, error: newError)
             } else {
                 var strData = NSString(data: data!, encoding: NSUTF8StringEncoding)
+                //print(strData)
                 RestCountriesClient.parseJSONWithCompletionHandler(data!, completionHandler: completionHandler)
             }
         }
@@ -92,6 +93,7 @@ class RestCountriesClient : NSObject {
     class func parseJSONWithCompletionHandler(data: NSData, completionHandler: (result: AnyObject!, error: NSError?) -> Void) {
         
         var parsedResult: AnyObject?
+        
         
         do {
             try parsedResult = NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.AllowFragments)

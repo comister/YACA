@@ -72,7 +72,10 @@ class Meeting: NSObject {
                 } catch _ {}
                 
                 if let storedParticipants = fetchedResultsController.fetchedObjects?.first as? Participant {
+                    //storedParticipants.updateAdditionalInformation()
+                    storedParticipants.getGeoInformation()
                     participantArray.append(storedParticipants)
+                    //print(storedParticipants)
                 } else {
                     let newParticpant = Participant(attendee: eventAttendee, context: self.sharedContext) as Participant
                     CoreDataStackManager.sharedInstance().saveContext()

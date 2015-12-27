@@ -11,6 +11,7 @@ import UIKit
 import CoreData
 import EventKit
 import Contacts
+import CoreLocation
 
 @objc(Participant)
 
@@ -79,8 +80,33 @@ class Participant: NSManagedObject {
         email = Participant.getEmailFromEKParticipantDescription(attendee)!
         myself = attendee!.currentUser
         
-        // Mark: - Try to find additional information based on available Contact information --- FINDING: this may be rarely used because of unavailability of Contactdata --- ADDITIONAL FUTURE TODO: Implement LDAP lookup instead for Contact lookup (Exchange)
-        if let contact = self.findContactofAttendee(attendee!) {
+        //updateAdditionalInformation()
+        
+    }
+    
+    func getGeoInformation() {
+        let geocoder = CLGeocoder()
+        if let possibleAddressObject = self.findContactofAttendee(self) {
+            if let addressObject = possibleAddressObject.postalAddresses.first {
+                let location = addressObject.value as! CNPostalAddress
+                let address = location.city + ", " + location.country
+                geocoder.geocodeAddressString(address, completionHandler: {(placemarks, error) -> Void in
+                    
+                    if let placemark = placemarks![0] as? CLPlacemark {
+                        print("----------------------")
+                        print(placemark.location!.coordinate.latitude)
+                        print(placemark.location!.coordinate.longitude)
+                        print("----------------------")
+                    }
+                
+                })
+            }
+        }
+    }
+    
+    // Mark: - Try to find additional information based on available Contact information --- FINDING: this may be rarely used because of unavailability of Contactdata --- ADDITIONAL FUTURE TODO: Implement LDAP lookup instead for Contact lookup (Exchange)
+    func updateAdditionalInformation() {
+        if let contact = self.findContactofAttendee(self) {
             if let address = contact.postalAddresses.first {
                 let location = address.value as! CNPostalAddress
                 self.location = location.city
@@ -88,14 +114,17 @@ class Participant: NSManagedObject {
                 print(location)
                 print("===============================")
                 
-                self.timezone = getTimezone(location.ISOCountryCode)
+                //self.timezone = getTimezone(location.ISOCountryCode)
                 
-                RestCountriesClient.sharedInstance().getTimezoneByCountryCode(location.ISOCountryCode) { data, error in
+                RestCountriesClient.sharedInstance().getTimezoneByCountryCode(location.ISOCountryCode, objectToAssign: self) { data, error, objectToAssign in
                     if let myError = error {
                         print("restcountriesclient throwed an error: \(myError)")
                     }
+                    
                     if let serverData = data {
-                        self.timezone = serverData as? String
+                        let objectReference = objectToAssign as! Participant
+                        objectReference.timezone = serverData as? String
+                        //CoreDataStackManager.sharedInstance().saveContext()
                     }
                 }
                 /* Obsolete REST API Call - unsufficient functionality of timezdb Service
@@ -105,22 +134,10 @@ class Participant: NSManagedObject {
         } else {
             // No information in Contacts found, this would be the place to refine search with other services/protocols ...
         }
-        print(self)
     }
     
-    func getTimezone(isoCode: String) -> String {
-        RestCountriesClient.sharedInstance().getTimezoneByCountryCode(isoCode) { data, error in
-            if let myError = error {
-                self.return error
-            }
-            if let serverData = data {
-                return serverData as? String
-            }
-        }
-    }
-    
-    // MARK: - Getting additional information from Contacts like country
-    func findContactofAttendee(attendee: EKParticipant) -> CNContact? {
+        // MARK: - Getting additional information from Contacts like country
+    func findContactofAttendee(attendee: Participant) -> CNContact? {
         let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
         var eligibleContact: CNContact? = nil
         
