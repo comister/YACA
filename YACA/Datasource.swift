@@ -28,11 +28,17 @@ class Datasource {
     init(events: [EKEvent]) {
         var localMeetings = [Meeting]()
         for event in events {
+            
+            
             localMeetings.append(Meeting(event: event))
+            
+            
         }
         self.meetings = localMeetings
-        structureMeetings()
-        CoreDataStackManager.sharedInstance().saveContext()
+        
+        //CoreDataStackManager.sharedInstance().saveContext() {
+            self.structureMeetings()
+        //}
     }
     
     // MARK: - iterate through each Event and fill up dates, afterwards sort

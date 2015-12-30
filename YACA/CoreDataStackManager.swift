@@ -9,11 +9,21 @@
 import Foundation
 import CoreData
 
-private let SQLITE_FILE_NAME = "yaca.sqlite"
-private let MODEL_NAME = "YACA"
-private let STORE_NAME = "YACA"
+protocol CoreDataStackManagerDelegate : class {
+    func CoreDataStackManagerDidSaveContext()
+}
 
 class CoreDataStackManager {
+    
+    struct Constants {
+        static let persistentStoreSqlFile       = "yaca.sqlite"
+        static let persistentStoreName          = "YACA"
+        static let persistentModelName          = "YACA"
+        static let contextSaveNotification      = "CoreDataStackManagerDidSaveContextNotification"
+    }
+    
+    private let defaultCenter = NSNotificationCenter.defaultCenter()
+    weak var delegate : CoreDataStackManagerDelegate?
     
     // MARK: - Shared Instance
     
@@ -44,7 +54,7 @@ class CoreDataStackManager {
         
         print("Instantiating the managedObjectModel property")
         
-        let modelURL = NSBundle.mainBundle().URLForResource(MODEL_NAME, withExtension: "momd")!
+        let modelURL = NSBundle.mainBundle().URLForResource(Constants.persistentModelName, withExtension: "momd")!
         return NSManagedObjectModel(contentsOfURL: modelURL)!
     }()
     
@@ -67,13 +77,13 @@ class CoreDataStackManager {
         print("Instantiating the persistentStoreCoordinator property")
         
         var coordinator: NSPersistentStoreCoordinator? = NSPersistentStoreCoordinator(managedObjectModel: self.managedObjectModel)
-        let url = self.applicationDocumentsDirectory.URLByAppendingPathComponent(SQLITE_FILE_NAME)
+        let url = self.applicationDocumentsDirectory.URLByAppendingPathComponent(Constants.persistentStoreSqlFile)
         
         var storeOptions: [NSObject:AnyObject]?
         
         if NSUserDefaults.standardUserDefaults().boolForKey("iCloudOn") == true {
             storeOptions = [
-                NSPersistentStoreUbiquitousContentNameKey    : STORE_NAME,
+                NSPersistentStoreUbiquitousContentNameKey    : Constants.persistentStoreName,
                 NSMigratePersistentStoresAutomaticallyOption : true,
                 NSInferMappingModelAutomaticallyOption       : true
             ]
@@ -104,6 +114,7 @@ class CoreDataStackManager {
         if coordinator == nil {
             return nil
         }
+        //var managedObjectContext = NSManagedObjectContext(concurrencyType: NSManagedObjectContextConcurrencyType.MainQueueConcurrencyType)
         var managedObjectContext = NSManagedObjectContext(concurrencyType: NSManagedObjectContextConcurrencyType.MainQueueConcurrencyType)
         managedObjectContext.persistentStoreCoordinator = coordinator
         
@@ -111,21 +122,57 @@ class CoreDataStackManager {
     }()
     
     // MARK: - Core Data Saving support
-    // Changed Jasons code to support Swift 2.0
-    
-    func saveContext () {
+    private
+    func saveContextSub( context: NSManagedObjectContext? = CoreDataStackManager.sharedInstance().managedObjectContext!, completition : (()->() )? ) {
         if let context = self.managedObjectContext {
-            context.performBlock { () -> Void in
+            //context.performBlockAndWait { () -> Void in
                 if context.hasChanges {
                     do {
                         try context.save()
-                        context.reset()
+                        //context.reset()
                     } catch let error as NSError {
                         NSLog("Unresolved error \(error), \(error.userInfo)")
                         abort()
                     }
                 }
+            //}
+            
+            //Call delegate method
+            delegate?.CoreDataStackManagerDidSaveContext()
+            
+            //Send notification message
+            defaultCenter.postNotificationName(Constants.contextSaveNotification, object: self)
+            
+            //Perform completition closure
+            if let closure = completition {
+                closure()
             }
         }
     }
+    
+    
+    func saveContext(context: NSManagedObjectContext? = CoreDataStackManager.sharedInstance().managedObjectContext!,completition : (()->() )? ) {
+        //Perform save on main thread
+        
+        if (NSThread.isMainThread()) {
+            saveContextSub(context,completition: completition)
+        } else {
+            NSOperationQueue.mainQueue().addOperationWithBlock(){
+                self.saveContextSub(context, completition : completition)
+            }
+        }
+    }
+    
+    func insertEntityWithClassName(className :String, andAttributes attributesDictionary : NSDictionary? = nil, andContext context : NSManagedObjectContext = MiniCoreDataStack.sharedInstance.defaultContext ) -> NSManagedObject {
+        let entity = NSEntityDescription.insertNewObjectForEntityForName(className, inManagedObjectContext: context)
+        if let attributes = attributesDictionary {
+            attributes.enumerateKeysAndObjectsUsingBlock({
+                (dictKey : AnyObject!, dictObj : AnyObject!, stopBool) -> Void in
+                entity.setValue(dictObj, forKey: dictKey as! String)
+            })
+        }
+        return entity
+    }
+    
+    
 }

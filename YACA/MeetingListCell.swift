@@ -20,6 +20,22 @@ class MeetingListCell: UICollectionViewCell, UITableViewDelegate, UITableViewDat
     @IBOutlet weak var notesButton: UIButton!
     @IBOutlet weak var participantsButton: UIButton!
     @IBOutlet weak var saveButton: UIButton!
+    @IBOutlet weak var participantDetails: UIView!
+    @IBOutlet weak var participantDetailsName: UILabel!
+    @IBOutlet weak var participantDetailsWeather: UILabel!
+    @IBOutlet weak var participantDetailsLastUpdate: UILabel!
+    @IBOutlet weak var participantDetailsLocation: UILabel!
+    
+    
+    @IBAction func closeParticipantDetails(sender: UIButton) {
+        UIView.animateWithDuration(0.5, animations: {
+            self.participantDetails.alpha = 0
+        }, completion: { (finished: Bool) -> () in
+            self.participantDetails.alpha = 1
+            self.participantDetails.hidden = true
+            
+        })
+    }
     
     var event: EKEvent?
     var events: [EKEvent]?
@@ -51,7 +67,6 @@ class MeetingListCell: UICollectionViewCell, UITableViewDelegate, UITableViewDat
         dateFormatter.dateFormat = "HH:mm"
         timingLabel.text = dateFormatter.stringFromDate(meeting.starttime) + " - " + dateFormatter.stringFromDate(meeting.endtime)
         notesArea()
-        
     }
     
     // MARK: - apply some radius to the Cell
@@ -93,10 +108,13 @@ class MeetingListCell: UICollectionViewCell, UITableViewDelegate, UITableViewDat
     func handleStoresWillRemove(notification: NSNotification) { }
     
     func handleStoresWillChange(notification: NSNotification) {
-        CoreDataStackManager.sharedInstance().saveContext()
+        CoreDataStackManager.sharedInstance().saveContext() {
+            print("StoreWillChange notification fired and context saved successfully")
+        }
     }
     
     func handleStoresDidChange(notification: NSNotification) {
+        print("!!!!!!!!! handleStoresDidChange !!!!!!!!")
         self.stopSaveAnimation()
     }
     
@@ -136,6 +154,23 @@ class MeetingListCell: UICollectionViewCell, UITableViewDelegate, UITableViewDat
         saveButton.hidden = true
     }
     
+    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+        print( "clicked participant, show some info" )
+        
+        if let location = meeting.participantArray[indexPath.row].location {
+            participantDetails.hidden = false
+            UIView.transitionWithView(participantDetails, duration: 0.5, options: UIViewAnimationOptions.TransitionFlipFromRight, animations: nil, completion: nil)
+            participantDetailsName.text = ( meeting.participantArray[indexPath.row].name != nil ? meeting.participantArray[indexPath.row].name : meeting.participantArray[indexPath.row].email )
+            participantDetailsLastUpdate.text = "Last update: " + String(Int(round(NSDate().timeIntervalSinceDate(location.lastUpdate)/60))) + " minutes ago"
+            participantDetailsLocation.text = location.city! + ", " + location.country!
+            if let weather = location.weather {
+                participantDetailsWeather.text = OWFontIcons[weather]
+            } else {
+                participantDetailsWeather.text = ""
+                print(meeting.participantArray[indexPath.row].location)
+            }
+        }
+    }
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return meeting.participantArray.count
@@ -151,7 +186,13 @@ class MeetingListCell: UICollectionViewCell, UITableViewDelegate, UITableViewDat
         
         // Use Name to display, use email if name does not exist
         cell?.textLabel?.text = ( meeting.participantArray[indexPath.row].name != nil ? meeting.participantArray[indexPath.row].name : meeting.participantArray[indexPath.row].email )
-
+        
+        if meeting.participantArray[indexPath.row].location != nil {
+            cell?.imageView?.image = UIImage(named: "pin")
+        } else {
+            cell?.imageView?.image = UIImage().blank_x1
+        }
+        
         // show yourself in blue color, all others in black
         if meeting.participantArray[indexPath.row].myself {
             cell?.textLabel?.textColor = UIColor.blueColor()
@@ -213,8 +254,11 @@ extension MeetingListCell: UITextViewDelegate {
             self.meeting.note?.note = notesText.text
             self.meeting.note?.meetingTitle = self.meeting.name
         }
-        CoreDataStackManager.sharedInstance().saveContext()
         startSaveAnimation()
+        CoreDataStackManager.sharedInstance().saveContext() {
+            self.stopSaveAnimation()
+        }
+        
     }
     
     func textViewDidChange(textView: UITextView) { }
@@ -226,4 +270,16 @@ extension MeetingListCell: UITextViewDelegate {
     func textViewDidEndEditing(textView: UITextView) {
         doSaveNote()
     }
+}
+
+extension UIImage {
+    var blank_x1: UIImage {
+        get {
+            UIGraphicsBeginImageContextWithOptions(CGRectMake(0, 0, 22, 22).size, false, 0)
+            let image: UIImage = UIGraphicsGetImageFromCurrentImageContext()
+            UIGraphicsEndImageContext()
+            return image
+        }
+    }
+
 }

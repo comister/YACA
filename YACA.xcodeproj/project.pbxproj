@@ -29,6 +29,9 @@
 		3E3BEC351C2439B1008BC0CF /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3E3BEC331C2439B1008BC0CF /* Main.storyboard */; };
 		3E3BEC361C2439B1008BC0CF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3E3BEC341C2439B1008BC0CF /* LaunchScreen.storyboard */; };
 		3E9A68801C3030860020BC7C /* Location.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E9A687E1C3030860020BC7C /* Location.swift */; };
+		3E9A68871C3046180020BC7C /* owfont_definitions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E9A68861C3046180020BC7C /* owfont_definitions.swift */; };
+		3E9A68881C306D7A0020BC7C /* owfont-regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 3E9A68821C3041B90020BC7C /* owfont-regular.otf */; };
+		3E9A688C1C31BDEC0020BC7C /* MiniCoreDataStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E9A688B1C31BDEC0020BC7C /* MiniCoreDataStack.swift */; };
 		3EA80B311C28470C00E96AF3 /* Note.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EA80B301C28470C00E96AF3 /* Note.swift */; };
 		3EA80B331C297E4100E96AF3 /* Meeting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EA80B321C297E4100E96AF3 /* Meeting.swift */; };
 		3EA80B351C29CDDD00E96AF3 /* TabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EA80B341C29CDDD00E96AF3 /* TabBarController.swift */; };
@@ -76,6 +79,11 @@
 		3E3BEC341C2439B1008BC0CF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		3E9A687C1C302FAE0020BC7C /* YACAv2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = YACAv2.xcdatamodel; sourceTree = "<group>"; };
 		3E9A687E1C3030860020BC7C /* Location.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Location.swift; sourceTree = "<group>"; };
+		3E9A68821C3041B90020BC7C /* owfont-regular.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "owfont-regular.otf"; sourceTree = "<group>"; };
+		3E9A68831C3042940020BC7C /* owfont-regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "owfont-regular.ttf"; sourceTree = "<group>"; };
+		3E9A68861C3046180020BC7C /* owfont_definitions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = owfont_definitions.swift; sourceTree = "<group>"; };
+		3E9A688A1C3078A20020BC7C /* YACAv3.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = YACAv3.xcdatamodel; sourceTree = "<group>"; };
+		3E9A688B1C31BDEC0020BC7C /* MiniCoreDataStack.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MiniCoreDataStack.swift; sourceTree = "<group>"; };
 		3EA80B301C28470C00E96AF3 /* Note.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Note.swift; sourceTree = "<group>"; };
 		3EA80B321C297E4100E96AF3 /* Meeting.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Meeting.swift; sourceTree = "<group>"; };
 		3EA80B341C29CDDD00E96AF3 /* TabBarController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TabBarController.swift; sourceTree = "<group>"; };
@@ -131,6 +139,7 @@
 				3E3BEC0B1C243999008BC0CF /* YACA.xcdatamodeld */,
 				3EBAF76D1C24429C009A49F6 /* Datasource.swift */,
 				3EA80B301C28470C00E96AF3 /* Note.swift */,
+				3E9A688B1C31BDEC0020BC7C /* MiniCoreDataStack.swift */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -176,9 +185,12 @@
 		3E190EB01C243D3700B80B6B /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				3E9A68861C3046180020BC7C /* owfont_definitions.swift */,
 				3EBAF7791C2730C7009A49F6 /* YACA.entitlements */,
 				3E3BEC181C243999008BC0CF /* Assets.xcassets */,
 				3E3BEC191C243999008BC0CF /* BorderedButton.swift */,
+				3E9A68821C3041B90020BC7C /* owfont-regular.otf */,
+				3E9A68831C3042940020BC7C /* owfont-regular.ttf */,
 				3E3BEC1A1C243999008BC0CF /* Roboto-Medium.ttf */,
 				3E3BEC1B1C243999008BC0CF /* Roboto-Regular.ttf */,
 				3E3BEC1C1C243999008BC0CF /* Roboto-Thin.ttf */,
@@ -335,6 +347,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3E9A68881C306D7A0020BC7C /* owfont-regular.otf in Resources */,
 				3E3BEC2C1C243999008BC0CF /* Assets.xcassets in Resources */,
 				3E3BEC1F1C243999008BC0CF /* MeetingListCellHeader.xib in Resources */,
 				3E3BEC2F1C243999008BC0CF /* Roboto-Regular.ttf in Resources */,
@@ -382,7 +395,9 @@
 				3EB48DD51C2B66CA0022B2F9 /* SettingsViewController.PickerView.swift in Sources */,
 				3E3BEC2A1C243999008BC0CF /* Participant.swift in Sources */,
 				3E3BEC231C243999008BC0CF /* MeetingsViewController.swift in Sources */,
+				3E9A68871C3046180020BC7C /* owfont_definitions.swift in Sources */,
 				3E3BEC241C243999008BC0CF /* MeetingListCell.swift in Sources */,
+				3E9A688C1C31BDEC0020BC7C /* MiniCoreDataStack.swift in Sources */,
 				3EB48DD31C2B666D0022B2F9 /* SettingsViewController.ConfigureUI.swift in Sources */,
 				3EB48DCF1C2B65EC0022B2F9 /* SettingsViewController.Calendar.swift in Sources */,
 				3EB48DD11C2B66240022B2F9 /* SettingsViewController.Contacts.swift in Sources */,
@@ -535,10 +550,11 @@
 		3E3BEC0B1C243999008BC0CF /* YACA.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				3E9A688A1C3078A20020BC7C /* YACAv3.xcdatamodel */,
 				3E9A687C1C302FAE0020BC7C /* YACAv2.xcdatamodel */,
 				3E3BEC0C1C243999008BC0CF /* YACA.xcdatamodel */,
 			);
-			currentVersion = 3E3BEC0C1C243999008BC0CF /* YACA.xcdatamodel */;
+			currentVersion = 3E9A688A1C3078A20020BC7C /* YACAv3.xcdatamodel */;
 			path = YACA.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;

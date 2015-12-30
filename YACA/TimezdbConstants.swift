@@ -25,6 +25,7 @@ extension TimezdbClient {
         // MARK: currently no methods, everything queried through the URL set in BaseURL
         // static let Common = "weather"
         static let byCityName = "getByCityName"
+        static let byLatLong = "getByLatLng"
     }
     
     // MARK: - Parameter Keys
@@ -32,14 +33,16 @@ extension TimezdbClient {
         static let Method = "q"
         static let ApiKey = "apiKey"
         static let CityName = "cityName"
+        static let Latitude = "lat"
+        static let Longitude = "lng"
     }
     
     struct JSONResponseKeys {
-        static let Coordinates = "coord"
-        static let Weather = "weather"
-        static let Wind = "wind"
-        static let Clouds = "clouds"
-        static let Name = "name"
+        static let dataContainer = "data"
+        static let CountryName = "countryName"
+        static let CountryCode = "countryCode"
+        static let ZoneName = "zoneName"
+        static let TZOffset = "tzOffset"
     }
     
 }

@@ -19,9 +19,6 @@ class Participant: NSManagedObject {
     
     struct Keys {
         static let Name = "name"
-        static let Location = "location"
-        static let Weather = "weather"
-        static let Timezone = "timezone"
         static let MySelf = "myself"
         static let Email = "email"
     }
@@ -32,10 +29,8 @@ class Participant: NSManagedObject {
     
     @NSManaged var name: String?
     @NSManaged var email: String
-    @NSManaged var location: String?
-    @NSManaged var weather: String?
-    @NSManaged var timezone: String?
     @NSManaged var myself: Bool
+    @NSManaged var location: Location?
     
     override init(entity: NSEntityDescription, insertIntoManagedObjectContext context: NSManagedObjectContext?) {
         super.init(entity: entity, insertIntoManagedObjectContext: context)
@@ -49,121 +44,36 @@ class Participant: NSManagedObject {
         
         name = dictionary[Keys.Name] as? String
         email = dictionary[Keys.Email] as! String
-        location = dictionary[Keys.Location] as? String
-        weather = dictionary[Keys.Weather] as? String
-        timezone = dictionary[Keys.Timezone] as? String
         myself = dictionary[Keys.MySelf] as! Bool
     }
 
-    static func getEmailFromEKParticipantDescription( attendee: EKParticipant? ) -> String? {
-        
-        if let currentParticipant = attendee {
-            let descriptionDictionary = currentParticipant.description.componentsSeparatedByString("{")[1].componentsSeparatedByString("}")[0].componentsSeparatedByString("; ")
-            var resultDict = [String:String]()
-        
-            for descriptionComponent in descriptionDictionary {
-                let components = descriptionComponent.componentsSeparatedByString(" = ")
-                resultDict[components[0]] = components[1]
-            }
-            return resultDict["email"]
-        } else {
-            return ""
-        }
-    }
-    
     init(attendee: EKParticipant?, context: NSManagedObjectContext) {
         // Core Data
         let entity =  NSEntityDescription.entityForName(statics.entityName, inManagedObjectContext: context)!
         super.init(entity: entity, insertIntoManagedObjectContext: context)
         
         name = attendee!.name
-        email = Participant.getEmailFromEKParticipantDescription(attendee)!
+        email = attendee!.getEmail()
         myself = attendee!.currentUser
         
-        //updateAdditionalInformation()
+        //getGeoInformation(context)
         
     }
-    
-    func getGeoInformation() {
-        let geocoder = CLGeocoder()
-        if let possibleAddressObject = self.findContactofAttendee(self) {
-            if let addressObject = possibleAddressObject.postalAddresses.first {
-                let location = addressObject.value as! CNPostalAddress
-                let address = location.city + ", " + location.country
-                geocoder.geocodeAddressString(address, completionHandler: {(placemarks, error) -> Void in
-                    
-                    if let placemark = placemarks![0] as? CLPlacemark {
-                        print("----------------------")
-                        print(placemark.location!.coordinate.latitude)
-                        print(placemark.location!.coordinate.longitude)
-                        print("----------------------")
-                    }
-                
-                })
+}
+
+extension EKParticipant {
+    func getEmail() -> String {
+        if let currentParticipant = self as? EKParticipant {
+            let descriptionDictionary = currentParticipant.description.componentsSeparatedByString("{")[1].componentsSeparatedByString("}")[0].componentsSeparatedByString("; ")
+            var resultDict = [String:String]()
+            
+            for descriptionComponent in descriptionDictionary {
+                let components = descriptionComponent.componentsSeparatedByString(" = ")
+                resultDict[components[0]] = components[1]
             }
-        }
-    }
-    
-    // Mark: - Try to find additional information based on available Contact information --- FINDING: this may be rarely used because of unavailability of Contactdata --- ADDITIONAL FUTURE TODO: Implement LDAP lookup instead for Contact lookup (Exchange)
-    func updateAdditionalInformation() {
-        if let contact = self.findContactofAttendee(self) {
-            if let address = contact.postalAddresses.first {
-                let location = address.value as! CNPostalAddress
-                self.location = location.city
-                print("============\(name)============")
-                print(location)
-                print("===============================")
-                
-                //self.timezone = getTimezone(location.ISOCountryCode)
-                
-                RestCountriesClient.sharedInstance().getTimezoneByCountryCode(location.ISOCountryCode, objectToAssign: self) { data, error, objectToAssign in
-                    if let myError = error {
-                        print("restcountriesclient throwed an error: \(myError)")
-                    }
-                    
-                    if let serverData = data {
-                        let objectReference = objectToAssign as! Participant
-                        objectReference.timezone = serverData as? String
-                        //CoreDataStackManager.sharedInstance().saveContext()
-                    }
-                }
-                /* Obsolete REST API Call - unsufficient functionality of timezdb Service
-                TimezdbClient.sharedInstance().getTimezoneByCity(location.city)  { data, error in }
-                */
-            }
+            return resultDict["email"]!
         } else {
-            // No information in Contacts found, this would be the place to refine search with other services/protocols ...
+            return ""
         }
-    }
-    
-        // MARK: - Getting additional information from Contacts like country
-    func findContactofAttendee(attendee: Participant) -> CNContact? {
-        let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
-        var eligibleContact: CNContact? = nil
-        
-        // if access allowed to Contacts, going to search for an eligible contact with same name than in event
-        appDelegate.checkContactsAuthorizationStatus { (accessGranted) -> Void in
-            if accessGranted {
-                let store = CNContactStore()
-                do {
-                    // Fetching interesting information, whereat we only use PostalAddress at the moment
-                    //let keysToFetch = [CNContactGivenNameKey, CNContactFamilyNameKey, CNContactPhoneNumbersKey, CNContactEmailAddressesKey, CNContactPostalAddressesKey]
-                    let keysToFetch = [CNContactPostalAddressesKey]
-                    if let name = attendee.name {
-                        let contacts = try store.unifiedContactsMatchingPredicate(CNContact.predicateForContactsMatchingName(name), keysToFetch: keysToFetch)
-                        if let contact = contacts.first {
-                            if (contact.isKeyAvailable(CNContactPostalAddressesKey)) {
-                                eligibleContact = contact
-                            } else {
-                                // no address found, we are not able to determine where the person is coming from and can not show timezone as well as other information related to the location
-                            }
-                        }
-                    }
-                } catch _ {}
-            } else {
-                print("no access to Contacts allowed")
-            }
-        }
-        return eligibleContact
     }
 }

@@ -29,4 +29,24 @@ extension TimezdbClient {
         completionHandler(result: nil, error: nil)
     }
     
+    func getTimezoneByLatLong(lat: NSNumber, long: NSNumber, completionHandler: (result: Int?, error: NSError?) -> Void) {
+        
+        let parameters = [
+            ParameterKeys.Method    : Methods.byLatLong,
+            ParameterKeys.Latitude  : lat,
+            ParameterKeys.Longitude : long
+        ]
+        
+        taskForGETMethod(parameters) { JSONResult, error in
+            
+            if let error = error {
+                completionHandler(result: nil, error: error)
+            } else {
+                print(JSONResult)
+            }
+            
+        }
+        completionHandler(result: nil, error: nil)
+    }
+    
 }

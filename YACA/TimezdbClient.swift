@@ -31,7 +31,7 @@ class TimezdbClient : NSObject {
         let urlString = Constants.BaseURL + TimezdbClient.escapedParameters(mutableParameters)
         let url = NSURL(string: urlString)!
         let request = NSMutableURLRequest(URL: url)
-      
+        
         /* 4. Make the request */
         let task = session.dataTaskWithRequest(request) {data, response, downloadError in
             

@@ -15,7 +15,8 @@ extension OpenWeatherClient {
         
         static let ApiKey : String = "3583aa542343bbd2441704b68ec44c93"
         // MARK: URLs
-        static let BaseURL : String = "api.openweathermap.org/data/2.5/weather"
+        static let BaseURL : String = "http://api.openweathermap.org/data/2.5/weather"
+        static let iconLocation: String = "http://openweathermap.org/img/w/"
     }
     
     // MARK: - Methods
@@ -35,6 +36,9 @@ extension OpenWeatherClient {
     struct JSONResponseKeys {
         static let Coordinates = "coord"
         static let Weather = "weather"
+        static let weatherDescription = "description"
+        static let weatherIcon = "icon"
+        static let weatherId = "id"
         static let Wind = "wind"
         static let Clouds = "clouds"
         static let Name = "name"

@@ -8,6 +8,7 @@
 
 import Foundation
 import CoreData
+import CoreLocation
 
 @objc(Location)
 
@@ -20,6 +21,7 @@ class Location: NSManagedObject {
         static let Timezone = "timezone"
         static let Longitude = "longitude"
         static let Latitude = "latitude"
+        static let LastUpdate = "lastUpdate"
         static let People = "people"
     }
     
@@ -33,7 +35,8 @@ class Location: NSManagedObject {
     @NSManaged var country: String?
     @NSManaged var city: String?
     @NSManaged var weather: String?
-    @NSManaged var people: Participant?
+    @NSManaged var lastUpdate: NSDate
+    @NSManaged var people: [Participant]?
 
     init(dictionary: [String : AnyObject], context: NSManagedObjectContext) {
         // Core Data
@@ -47,6 +50,10 @@ class Location: NSManagedObject {
         timezone = dictionary[Keys.Timezone] as? String
         longitude = dictionary[Keys.Longitude] as? NSNumber
         latitude = dictionary[Keys.Latitude] as? NSNumber
+        lastUpdate = NSDate()
     }
     
+    override init(entity: NSEntityDescription, insertIntoManagedObjectContext context: NSManagedObjectContext?) {
+        super.init(entity: entity, insertIntoManagedObjectContext: context)
+    }
 }

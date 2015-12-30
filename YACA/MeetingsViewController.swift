@@ -35,6 +35,7 @@ class MeetingsViewController: UIViewController {
         self.meetingCollectionView?.registerNib(UINib(nibName: "MeetingListCellHeader", bundle: nil), forSupplementaryViewOfKind:UICollectionElementKindSectionHeader, withReuseIdentifier: "meetingCellHeader")
         tapRecognizer = UITapGestureRecognizer(target: self, action: "handleSingleTap:")
         tapRecognizer?.numberOfTapsRequired = 1
+        tapRecognizer?.cancelsTouchesInView = false
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -60,17 +61,24 @@ class MeetingsViewController: UIViewController {
         
         self.duration = getDurationOfIndex(NSUserDefaults.standardUserDefaults().integerForKey("durationIndex"))
         loadIndicator.startAnimating()
-        appDelegate.backgroundThread(0.0, background: {
-            self.loadEvents()
-        }, completion: {
-            self.loadIndicator.stopAnimating()
-            self.meetingCollectionView.hidden = false
-            self.meetingCollectionView.reloadData()
-        })
+        
+        self.loadEvents() { success in
+            if success {
+                self.loadIndicator.stopAnimating()
+                self.meetingCollectionView.hidden = false
+                self.meetingCollectionView.reloadData()
+            }
+        }
+        
+        //weatherTest.text = OWFontIcons["802"]
+        //weatherTest.font = UIFont.fontOWOfSize(100)
+        //weatherTest.text = String.fontAwesomeIconWithCode("803")
+        //print(weatherTest.text?.unicodeScalars)
     }
     
     // MARK: - There was something updated in iCloud and this new information got received, updating the meetings !
     func iCloudUpdated (notification: NSNotification) {
+        print("        CoreData UPDATED, reloading collectionView")
         meetingCollectionView.reloadData()
     }
     
@@ -109,13 +117,24 @@ class MeetingsViewController: UIViewController {
         NSUserDefaults.standardUserDefaults().setValue(localDuration, forKey: "duration")
         self.duration = localDuration
         loadIndicator.startAnimating()
-        appDelegate.backgroundThread(0.0, background: {
-            self.loadEvents()
-            }, completion: {
+        
+        self.loadEvents() { success in
+            if success {
                 self.loadIndicator.stopAnimating()
                 self.meetingCollectionView.hidden = false
                 self.meetingCollectionView.reloadData()
+            } else {
+                // no access to calendar !!
+            }
+        }
+        
+        /*
+        appDelegate.backgroundThread(0.0, background: {
+            
+            }, completion: {
+                
         })
+        */
     }
     
     // MARK: - Core Data
@@ -170,8 +189,6 @@ extension MeetingsViewController: UICollectionViewDataSource {
         return 1
     }
     
-
-    
     func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCellWithReuseIdentifier("meetingViewCell", forIndexPath: indexPath) as! MeetingListCell
         if let currentDate = eventSource?.sortedMeetingArray[indexPath.section] {
@@ -181,6 +198,7 @@ extension MeetingsViewController: UICollectionViewDataSource {
                     cell.timingLabel?.text = (eventSource?.getTimeOfDate(meetingObject.starttime))! + " - " + (eventSource?.getTimeOfDate(meetingObject.endtime))!
                     cell.cellIdentifier = "meetingParticipant_" + String(indexPath.row)
                     cell.meeting = meetingObject
+                    cell.participantDetails.hidden = true
                     cell.participantTable.reloadData()
                     if let meetingNote = meetingObject.note {
                         cell.notesText.text = meetingNote.note
@@ -217,7 +235,7 @@ extension MeetingsViewController {
 // MARK: - Calendar background actions (will/should be called in a backgroundThread)
 extension MeetingsViewController {
     
-    func loadEvents() {
+    func loadEvents(completionHandler: (result: Bool) -> Void) {
         appDelegate.checkCalendarAuthorizationStatus { (accessGranted) -> Void in
             if accessGranted {
                 self.fetchEvents(self.eventStore, calendarIdentity: self.selectedCalendar!, completed: { (events: [EKEvent]) -> Void in
@@ -233,7 +251,10 @@ extension MeetingsViewController {
                     }
                     // MARK: - Feed datasource and let it do the job to structure probably for CollectionView
                     self.eventSource = Datasource(events: self.events)
+                    completionHandler(result: true)
                 })
+            } else {
+                completionHandler(result: false)
             }
         }
     }
@@ -245,7 +266,6 @@ extension MeetingsViewController {
         //let events = NSMutableArray(array: eventStore.eventsMatchingPredicate(predicate))
         
         completed(eventStore.eventsMatchingPredicate(predicate) as [EKEvent]!)
-        
     }
 }
 
