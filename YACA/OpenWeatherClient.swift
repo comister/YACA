@@ -31,7 +31,7 @@ class OpenWeatherClient : NSObject {
         let urlString = Constants.BaseURL + OpenWeatherClient.escapedParameters(mutableParameters)
         let url = NSURL(string: urlString)!
         let request = NSMutableURLRequest(URL: url)
-        
+        print(urlString)
         /* 4. Make the request */
         let task = session.dataTaskWithRequest(request) {data, response, downloadError in
             

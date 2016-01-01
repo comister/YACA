@@ -23,6 +23,7 @@ class MeetingListCell: UICollectionViewCell, UITableViewDelegate, UITableViewDat
     @IBOutlet weak var participantDetails: UIView!
     @IBOutlet weak var participantDetailsName: UILabel!
     @IBOutlet weak var participantDetailsWeather: UILabel!
+    @IBOutlet weak var participantDetailsWeatherTemperature: UILabel!
     @IBOutlet weak var participantDetailsLastUpdate: UILabel!
     @IBOutlet weak var participantDetailsLocation: UILabel!
     
@@ -79,11 +80,6 @@ class MeetingListCell: UICollectionViewCell, UITableViewDelegate, UITableViewDat
     override init(frame: CGRect) {
         // do something
         super.init(frame: frame)
-        //collectionView.registerClass(UICollectionViewCell.self, forCellWithReuseIdentifier: "CollectionViewCell")
-        participantTable.registerClass(UITableView.self, forCellReuseIdentifier: "meetingParticipants")
-        participantsButton.imageView!.image!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
-        notesButton.imageView!.image!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate)
-        notesButton.imageView!.tintColor = UIColor.blueColor()
         addStoreNotifications()
     }
 
@@ -161,10 +157,14 @@ class MeetingListCell: UICollectionViewCell, UITableViewDelegate, UITableViewDat
             participantDetails.hidden = false
             UIView.transitionWithView(participantDetails, duration: 0.5, options: UIViewAnimationOptions.TransitionFlipFromRight, animations: nil, completion: nil)
             participantDetailsName.text = ( meeting.participantArray[indexPath.row].name != nil ? meeting.participantArray[indexPath.row].name : meeting.participantArray[indexPath.row].email )
-            participantDetailsLastUpdate.text = "Last update: " + String(Int(round(NSDate().timeIntervalSinceDate(location.lastUpdate)/60))) + " minutes ago"
+            
+            participantDetailsLastUpdate.text = "Last update: " + ( Int(round(NSDate().timeIntervalSinceDate(location.lastUpdate)/60)) < 60 ? " just a moment ago":String(Int(round(NSDate().timeIntervalSinceDate(location.lastUpdate)/60))) + " minutes ago")
+            
             participantDetailsLocation.text = location.city! + ", " + location.country!
             if let weather = location.weather {
                 participantDetailsWeather.text = OWFontIcons[weather]
+                participantDetailsWeatherTemperature.text = String(location.weather_temp!.unsignedIntValue) + (location.weather_temp_unit == 0 ? "°C":"°F")
+                print(location.weather_temp_unit)
             } else {
                 participantDetailsWeather.text = ""
                 print(meeting.participantArray[indexPath.row].location)
@@ -211,19 +211,17 @@ extension MeetingListCell {
     func participantArea() {
         participantTable.hidden = false
         notesText.hidden = true
+        
         participantsButton.backgroundColor = UIColor.whiteColor()
         notesButton.backgroundColor = .None
-        notesButton.imageView!.tintColor = .None
-        participantsButton.imageView!.tintColor = UIColor.blueColor()
     }
     
     func notesArea() {
         participantTable.hidden = true
         notesText.hidden = false
+        
         notesButton.backgroundColor = UIColor.whiteColor()
         participantsButton.backgroundColor = .None
-        notesButton.imageView!.tintColor = UIColor.blueColor()
-        participantsButton.imageView!.tintColor = .None
     }
     
     @IBAction func participantsButton(sender: UIButton) {

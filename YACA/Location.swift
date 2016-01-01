@@ -18,7 +18,10 @@ class Location: NSManagedObject {
         static let Country = "country"
         static let City = "city"
         static let Weather = "weather"
-        static let Timezone = "timezone"
+        static let WeatherDescription = "weather_description"
+        static let WeatherTemperature = "weather_temp"
+        static let WeatherTemperatureUnit = "weather_temp_unit"
+        static let TimezoneOffset = "timezoneOffset"
         static let Longitude = "longitude"
         static let Latitude = "latitude"
         static let LastUpdate = "lastUpdate"
@@ -31,10 +34,13 @@ class Location: NSManagedObject {
     
     @NSManaged var longitude: NSNumber?
     @NSManaged var latitude: NSNumber?
-    @NSManaged var timezone: String?
+    @NSManaged var timezoneOffset: NSNumber?
     @NSManaged var country: String?
     @NSManaged var city: String?
     @NSManaged var weather: String?
+    @NSManaged var weather_description: String?
+    @NSManaged var weather_temp: NSNumber?
+    @NSManaged var weather_temp_unit: NSNumber?
     @NSManaged var lastUpdate: NSDate
     @NSManaged var people: [Participant]?
 
@@ -47,9 +53,12 @@ class Location: NSManagedObject {
         country = dictionary[Keys.Country] as? String
         city = dictionary[Keys.City] as? String
         weather = dictionary[Keys.Weather] as? String
-        timezone = dictionary[Keys.Timezone] as? String
+        timezoneOffset = dictionary[Keys.TimezoneOffset] as? NSNumber
         longitude = dictionary[Keys.Longitude] as? NSNumber
         latitude = dictionary[Keys.Latitude] as? NSNumber
+        weather_description = dictionary[Keys.WeatherDescription] as? String
+        weather_temp = dictionary[Keys.WeatherTemperature] as? NSNumber
+        weather_temp_unit = dictionary[Keys.WeatherTemperatureUnit] as? NSNumber
         lastUpdate = NSDate()
     }
     

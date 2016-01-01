@@ -63,8 +63,10 @@ class NotesTableViewController: UITableViewController {
 extension NotesTableViewController {
     
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("notesViewCell", forIndexPath: indexPath)
-        cell.textLabel?.text = allNotes[indexPath.row].meetingTitle
+        let cell = tableView.dequeueReusableCellWithIdentifier("notesViewCell", forIndexPath: indexPath) as! NotesTableCell
+        //cell.textLabel?.text = allNotes[indexPath.row].meetingTitle
+        cell.meetingLabel.text = allNotes[indexPath.row].meetingTitle
+        cell.meetingNoteLabel.text = allNotes[indexPath.row].note
         
         return cell
     }

@@ -124,12 +124,15 @@ class Meeting: NSObject, CoreDataStackManagerDelegate {
         
         if let storedParticipants = fetchedResultsController.fetchedObjects?.first as? Participant {
             
-            self.getGeoInformation(storedParticipants, context: self.sharedContext) { location, error in
+            self.getLocationInformation(storedParticipants, context: self.sharedContext) { location, error in
                 if let locationData = location {
                     if locationData["doesExist"] as! Bool == true {
                         print("    1.5 - Updating weather and lastUpdate date + saveContext ! (using existing Participant)")
                         if locationData[Location.Keys.Weather] != nil {
                             storedParticipants.location?.weather = locationData[Location.Keys.Weather] as? String
+                            storedParticipants.location?.weather_description = locationData[Location.Keys.WeatherDescription] as? String
+                            storedParticipants.location?.weather_temp = locationData[Location.Keys.WeatherTemperature] as? NSNumber
+                            storedParticipants.location?.weather_temp_unit = locationData[Location.Keys.WeatherTemperatureUnit] as? NSNumber
                             storedParticipants.location?.lastUpdate = locationData[Location.Keys.LastUpdate]! as! NSDate
                         }
                         CoreDataStackManager.sharedInstance().saveContext() {
@@ -152,12 +155,15 @@ class Meeting: NSObject, CoreDataStackManagerDelegate {
             }
         } else {
             let newParticipant = Participant(attendee: attendee, context: self.sharedContext) as Participant
-            self.getGeoInformation(newParticipant, context: self.sharedContext) { location, error in
+            self.getLocationInformation(newParticipant, context: self.sharedContext) { location, error in
                 if let locationData = location {
                     if locationData["doesExist"] as! Bool == true {
                         print("    1.5 - Updating weather and lastUpdate date + saveContext ! (created new Participant)")
                         if locationData[Location.Keys.Weather] != nil {
                             newParticipant.location?.weather = locationData[Location.Keys.Weather] as? String
+                            newParticipant.location?.weather_description = locationData[Location.Keys.WeatherDescription] as? String
+                            newParticipant.location?.weather_temp = locationData[Location.Keys.WeatherTemperature] as? NSNumber
+                            newParticipant.location?.weather_temp_unit = locationData[Location.Keys.WeatherTemperatureUnit] as? NSNumber
                             newParticipant.location?.lastUpdate = NSDate()
                         }
                         CoreDataStackManager.sharedInstance().saveContext() {
@@ -181,7 +187,7 @@ class Meeting: NSObject, CoreDataStackManagerDelegate {
         }
     }
     
-    func getGeoInformation(attendee: Participant, context: NSManagedObjectContext, completionHandler: (result: [String:AnyObject]? , error: NSError?) -> Void) {
+    func getLocationInformation(attendee: Participant, context: NSManagedObjectContext, completionHandler: (result: [String:AnyObject]? , error: NSError?) -> Void) {
         let geocoder = CLGeocoder()
         if let possibleAddressObject = self.findContactofAttendee(attendee) {
             print("    1.3 - Found address")
@@ -207,6 +213,16 @@ class Meeting: NSObject, CoreDataStackManagerDelegate {
                             try fetchedResultsController.performFetch()
                         } catch _ {}
                         
+                        //TEST, going to ask for timezone
+                        GoogleAPIClient.sharedInstance().getTimeOfLocation(placemark.location!.coordinate.latitude, long: placemark.location!.coordinate.longitude) {
+                            result, error in
+                            print("TZ Offset:")
+                            print(result)
+                            print("Time there currently:")
+                            print(NSDate(timeInterval: result!, sinceDate: NSDate()))
+                            
+                        }
+                        
                         var returnDictionary = [String:AnyObject]()
 
                         if let storedLocation = fetchedResultsController.fetchedObjects?.first as? Location {
@@ -216,30 +232,45 @@ class Meeting: NSObject, CoreDataStackManagerDelegate {
                             returnDictionary[Location.Keys.Country] = storedLocation.country
                             returnDictionary[Location.Keys.Latitude] = storedLocation.latitude
                             returnDictionary[Location.Keys.Longitude] = storedLocation.longitude
-                            returnDictionary[Location.Keys.Timezone] = storedLocation.timezone
+                            returnDictionary[Location.Keys.TimezoneOffset] = storedLocation.timezoneOffset
                             returnDictionary[Location.Keys.LastUpdate] = storedLocation.lastUpdate
+                            returnDictionary[Location.Keys.WeatherTemperatureUnit] = storedLocation.weather_temp_unit
                             returnDictionary["doesExist"] = true
                             
                             if NSDate().timeIntervalSinceDate(storedLocation.lastUpdate) > 3600 || storedLocation.weather == nil {
-                                OpenWeatherClient.sharedInstance().getWeatherByLatLong(placemark.location!.coordinate.latitude, long: placemark.location!.coordinate.longitude)  { data, error in
-                                    if let anError = error {
-                                        print("openWeatherClient was not able to get a result: " + anError.localizedDescription)
-                                        completionHandler(result: nil, error: NSError(domain: "Not able to get result from openweather Client", code: 0, userInfo: nil))
-                                        return
+                                
+                                GoogleAPIClient.sharedInstance().getTimeOfLocation(placemark.location!.coordinate.latitude, long: placemark.location!.coordinate.longitude) { timezoneInfo, timezoneError in
+                                
+                                    if let _ = timezoneError {
+                                        completionHandler(result: nil, error: NSError(domain: "Not able to get result from google timezone API", code: 0, userInfo: nil))
                                     } else {
-                                        print("        1.4.1 - weather (\(data)) updated, here we go with the data")
-                                        if data != nil {
-                                            returnDictionary[Location.Keys.Weather] = data
-                                            returnDictionary[Location.Keys.LastUpdate] = NSDate()
-                                            
-                                        } else {
-                                            print("            1.4.1.1 - openweather data was nil, strange !!")
-                                        }
-                                        
-                                        completionHandler(result: returnDictionary, error: nil)
+                                        returnDictionary[Location.Keys.TimezoneOffset] = timezoneInfo
+                                    }
+                                    
+                                    OpenWeatherClient.sharedInstance().getWeatherByLatLong(placemark.location!.coordinate.latitude, long: placemark.location!.coordinate.longitude, unitIndex: NSUserDefaults.standardUserDefaults().integerForKey("temperatureIndex"))  { data, error in
+                                        if let anError = error {
+                                            print("openWeatherClient was not able to get a result: " + anError.localizedDescription)
+                                            completionHandler(result: returnDictionary, error: NSError(domain: "Not able to get result from openweather Client", code: 0, userInfo: nil))
                                         return
+                                        } else {
+                                            print("        1.4.1 - weather (\(data)) updated, here we go with the data")
+                                            if data != nil {
+                                                returnDictionary[Location.Keys.Weather] = data!["weather"]
+                                                returnDictionary[Location.Keys.WeatherDescription] = data!["weather_description"]
+                                                returnDictionary[Location.Keys.WeatherTemperature] = data!["weather_temp"]
+                                                returnDictionary[Location.Keys.WeatherTemperatureUnit] = data!["weather_temp_unit"]
+                                                returnDictionary[Location.Keys.LastUpdate] = NSDate()
+                                            
+                                            } else {
+                                                print("            1.4.1.1 - openweather data was nil, strange !!")
+                                            }
+                                        
+                                            completionHandler(result: returnDictionary, error: nil)
+                                            return
+                                        }
                                     }
                                 }
+                                
                             } else {
                                 
                                 //print("no update required, using \"cached\" information of " + location.city)
@@ -250,23 +281,35 @@ class Meeting: NSObject, CoreDataStackManagerDelegate {
                             
                         } else {
                             print("    1.4 - No location entry in Core Data, going to create !")
-                            OpenWeatherClient.sharedInstance().getWeatherByLatLong(placemark.location!.coordinate.latitude, long: placemark.location!.coordinate.longitude)  { data, error in
-                                if let anError = error {
-                                    print("openWeatherClient was not able to get a result: " + anError.localizedDescription)
-                                } else {
-                                    // Create new Location
-                                    let newLocationDict: [String:AnyObject] = [
-                                        Location.Keys.City       : location.city,
-                                        Location.Keys.Country    : location.country,
-                                        Location.Keys.Latitude   : placemark.location!.coordinate.latitude,
-                                        Location.Keys.Longitude  : placemark.location!.coordinate.longitude,
-                                        Location.Keys.Weather    : data != nil ? data! : "",
-                                        Location.Keys.LastUpdate : NSDate(),
-                                        "doesExist"              : false
-                                    ]
-                                    print("        1.4.1 - weather (\(data)) updated, returning new data for location")
-                                    completionHandler(result: newLocationDict, error: nil)
-                                    return
+                            
+                            GoogleAPIClient.sharedInstance().getTimeOfLocation(placemark.location!.coordinate.latitude, long: placemark.location!.coordinate.longitude) { timezoneInfo, timezoneError in
+                                
+                                if let _ = timezoneError {
+                                    completionHandler(result: nil, error: NSError(domain: "Not able to get result from google timezone API", code: 0, userInfo: nil))
+                                }
+                                
+                                OpenWeatherClient.sharedInstance().getWeatherByLatLong(placemark.location!.coordinate.latitude, long: placemark.location!.coordinate.longitude, unitIndex: NSUserDefaults.standardUserDefaults().integerForKey("temperatureIndex"))  { data, error in
+                                    if let anError = error {
+                                        print("openWeatherClient was not able to get a result: " + anError.localizedDescription)
+                                    } else {
+                                        // Create new Location
+                                        let newLocationDict: [String:AnyObject] = [
+                                            Location.Keys.City               : location.city,
+                                            Location.Keys.Country            : location.country,
+                                            Location.Keys.Latitude           : placemark.location!.coordinate.latitude,
+                                            Location.Keys.Longitude          : placemark.location!.coordinate.longitude,
+                                            Location.Keys.Weather            : data != nil ? data!["weather"]! : "",
+                                            Location.Keys.WeatherDescription : data != nil ? data!["weather_description"]! : "",
+                                            Location.Keys.WeatherTemperature : data != nil ? data!["weather_temp"]! : 0.0,
+                                            Location.Keys.WeatherTemperatureUnit : NSUserDefaults.standardUserDefaults().integerForKey("temperatureIndex"),
+                                            Location.Keys.LastUpdate         : NSDate(),
+                                            Location.Keys.TimezoneOffset     : timezoneInfo!,
+                                            "doesExist"                      : false
+                                        ]
+                                        print("        1.4.1 - weather (\(data)) updated, returning new data for location")
+                                        completionHandler(result: newLocationDict, error: nil)
+                                        return
+                                    }
                                 }
                             }
                         }

@@ -1,14 +1,14 @@
 //
-//  TimezdbClient.swift
+//  GoogleAPIClient.swift
 //  YACA
 //
-//  Created by Andreas Pfister on 18/12/15.
+//  Created by Andreas Pfister on 31/12/15.
 //  Copyright © 2015 AP. All rights reserved.
 //
 
 import Foundation
 
-class TimezdbClient : NSObject {
+class GoogleAPIClient : NSObject {
     
     /* Shared session */
     var session: NSURLSession
@@ -28,7 +28,7 @@ class TimezdbClient : NSObject {
         mutableParameters[ParameterKeys.ApiKey] = Constants.ApiKey
         
         /* 2/3. Build the URL and configure the request */
-        let urlString = Constants.BaseURL + TimezdbClient.escapedParameters(mutableParameters)
+        let urlString = Constants.BaseURL + GoogleAPIClient.escapedParameters(mutableParameters)
         let url = NSURL(string: urlString)!
         let request = NSMutableURLRequest(URL: url)
         
@@ -37,10 +37,12 @@ class TimezdbClient : NSObject {
             
             /* 5/6. Parse the data and use the data (happens in completion handler) */
             if let error = downloadError {
-                let newError = TimezdbClient.errorForData(data, response: response, error: error)
+                let newError = GoogleAPIClient.errorForData(data, response: response, error: error)
                 completionHandler(result: nil, error: newError)
             } else {
-                TimezdbClient.parseJSONWithCompletionHandler(data!, completionHandler: completionHandler)
+                var strData = NSString(data: data!, encoding: NSUTF8StringEncoding)
+                //print(strData)
+                GoogleAPIClient.parseJSONWithCompletionHandler(data!, completionHandler: completionHandler)
             }
         }
         
@@ -72,7 +74,7 @@ class TimezdbClient : NSObject {
             _ = try NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions.AllowFragments)
         } catch let error as NSError {
             // TODO - do something here, figure out later, how to work with errors from Facebook API
-            print(error.localizedDescription)
+            print("client/restcountries:" + error.localizedDescription)
         }
         /*
         if let parsedResult = NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions.AllowFragments, error: nil) as? [String : AnyObject] {
@@ -93,6 +95,7 @@ class TimezdbClient : NSObject {
         
         var parsedResult: AnyObject?
         
+        
         do {
             try parsedResult = NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.AllowFragments)
             completionHandler(result: parsedResult, error: nil)
@@ -105,29 +108,35 @@ class TimezdbClient : NSObject {
     class func escapedParameters(parameters: [String : AnyObject]) -> String {
         
         var urlVars = [String]()
+        var isSimple = false
         
         for (key, value) in parameters {
             
             /* Make sure that it is a string value */
             let stringValue = "\(value)"
             
-            /* Escape it */
-            let escapedValue = stringValue.stringByAddingPercentEncodingWithAllowedCharacters(NSCharacterSet.URLQueryAllowedCharacterSet())
-            
-            /* Append it */
-            urlVars += [key + "=" + "\(escapedValue!)"]
+            if stringValue != "" {
+                /* Escape it */
+                let escapedValue = stringValue.stringByAddingPercentEncodingWithAllowedCharacters(NSCharacterSet.URLQueryAllowedCharacterSet())
+                
+                /* Append it */
+                urlVars += [key + "=" + "\(escapedValue!)"]
+            } else {
+                urlVars += ["\(key)"]
+                isSimple = true
+            }
             
         }
         
-        return (!urlVars.isEmpty ? "?" : "") + urlVars.joinWithSeparator("&")
+        return (!urlVars.isEmpty ? isSimple ? "":"?" : "") + ( isSimple ? urlVars.joinWithSeparator("/"):urlVars.joinWithSeparator("&") )
     }
     
     // MARK: - Shared Instance
     
-    class func sharedInstance() -> TimezdbClient {
+    class func sharedInstance() -> GoogleAPIClient {
         
         struct Singleton {
-            static var sharedInstance = TimezdbClient()
+            static var sharedInstance = GoogleAPIClient()
         }
         
         return Singleton.sharedInstance

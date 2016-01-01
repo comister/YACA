@@ -31,6 +31,7 @@ class SettingsViewController: UIViewController {
     @IBOutlet weak var pickContactsButton: UIButton!
     @IBOutlet weak var durationSegments: UISegmentedControl!
     @IBOutlet weak var storeIniCloud: UISwitch!
+    @IBOutlet weak var temperatureSegment: UISegmentedControl!
     
     override func viewDidLoad() {
         calendarPicker.delegate = self
@@ -49,12 +50,14 @@ class SettingsViewController: UIViewController {
             selectedContactGroup = NSUserDefaults.standardUserDefaults().stringForKey("selectedContactGroup")
             pickContactsButton.titleLabel?.text = NSUserDefaults.standardUserDefaults().stringForKey("selectedContactGroupName")
             durationSegments.selectedSegmentIndex = NSUserDefaults.standardUserDefaults().integerForKey("durationIndex")
+            temperatureSegment.selectedSegmentIndex = NSUserDefaults.standardUserDefaults().integerForKey("temperatureIndex")
             storeIniCloud.on = NSUserDefaults.standardUserDefaults().boolForKey("iCloudOn")
         } else {
-            //NSUserDefaults.standardUserDefaults().setValue(self.calendars!.first!.calendarIdentifier, forKey: "selectedCalendar")
-            //selectedCalendar = self.calendars!.first!.calendarIdentifier
             welcomeLabel.hidden = false
             descriptionLabel.hidden = false
+            
+            //iCloud turned off by default (for the time being not implemented due to unaddressed challenges in terms of synching data back and forth)
+            NSUserDefaults.standardUserDefaults().setValue(false, forKey: "iCloudOn")
         }
     }
 
@@ -73,6 +76,11 @@ class SettingsViewController: UIViewController {
         }
         NSUserDefaults.standardUserDefaults().setValue(duration, forKey: "duration")
     }
+    
+    @IBAction func metricsChanged(sender: UISegmentedControl) {
+        NSUserDefaults.standardUserDefaults().setValue(sender.selectedSegmentIndex, forKey: "temperatureIndex")
+    }
+    
     
     @IBAction func iCloudSwitchChanged(sender: UISwitch) {
         NSUserDefaults.standardUserDefaults().setValue(sender.on, forKey: "iCloudOn")

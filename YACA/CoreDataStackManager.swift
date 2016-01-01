@@ -124,18 +124,25 @@ class CoreDataStackManager {
     // MARK: - Core Data Saving support
     private
     func saveContextSub( context: NSManagedObjectContext? = CoreDataStackManager.sharedInstance().managedObjectContext!, completition : (()->() )? ) {
+        
+    }
+    
+    
+    func saveContext(context: NSManagedObjectContext? = CoreDataStackManager.sharedInstance().managedObjectContext!,completition : (()->() )? ) {
+        //Perform save on main thread
+        
         if let context = self.managedObjectContext {
-            //context.performBlockAndWait { () -> Void in
-                if context.hasChanges {
-                    do {
-                        try context.save()
-                        //context.reset()
-                    } catch let error as NSError {
-                        NSLog("Unresolved error \(error), \(error.userInfo)")
-                        abort()
-                    }
+            context.performBlockAndWait { () -> Void in
+            if context.hasChanges {
+                do {
+                    try context.save()
+                    //context.reset()
+                } catch let error as NSError {
+                    NSLog("Unresolved error \(error), \(error.userInfo)")
+                    abort()
                 }
-            //}
+            }
+            }
             
             //Call delegate method
             delegate?.CoreDataStackManagerDidSaveContext()
@@ -148,12 +155,7 @@ class CoreDataStackManager {
                 closure()
             }
         }
-    }
-    
-    
-    func saveContext(context: NSManagedObjectContext? = CoreDataStackManager.sharedInstance().managedObjectContext!,completition : (()->() )? ) {
-        //Perform save on main thread
-        
+        /*
         if (NSThread.isMainThread()) {
             saveContextSub(context,completition: completition)
         } else {
@@ -161,18 +163,6 @@ class CoreDataStackManager {
                 self.saveContextSub(context, completition : completition)
             }
         }
+        */
     }
-    
-    func insertEntityWithClassName(className :String, andAttributes attributesDictionary : NSDictionary? = nil, andContext context : NSManagedObjectContext = MiniCoreDataStack.sharedInstance.defaultContext ) -> NSManagedObject {
-        let entity = NSEntityDescription.insertNewObjectForEntityForName(className, inManagedObjectContext: context)
-        if let attributes = attributesDictionary {
-            attributes.enumerateKeysAndObjectsUsingBlock({
-                (dictKey : AnyObject!, dictObj : AnyObject!, stopBool) -> Void in
-                entity.setValue(dictObj, forKey: dictKey as! String)
-            })
-        }
-        return entity
-    }
-    
-    
 }

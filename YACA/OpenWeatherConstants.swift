@@ -31,6 +31,11 @@ extension OpenWeatherClient {
         static let ApiKey = "appid"
         static let Latitude = "lat"
         static let Longitude = "lon"
+        static let Unit = "units"
+        static let Units: [Int:String] = [
+            0: "metric",
+            1: "imperial"
+        ]
     }
     
     struct JSONResponseKeys {
@@ -39,6 +44,8 @@ extension OpenWeatherClient {
         static let weatherDescription = "description"
         static let weatherIcon = "icon"
         static let weatherId = "id"
+        static let Main = "main"
+        static let mainTemperature = "temp"
         static let Wind = "wind"
         static let Clouds = "clouds"
         static let Name = "name"

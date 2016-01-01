@@ -167,7 +167,7 @@ extension MeetingsViewController: UICollectionViewDataSource {
     }
     
     func collectionView(collectionView: UICollectionView, didDeselectItemAtIndexPath indexPath: NSIndexPath) {
-        //something to do when clicked
+        //something to do when clicked --- NOPE, we are having all interactions within the Cell itself
     }
     
     func collectionView(collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, atIndexPath indexPath: NSIndexPath) -> UICollectionReusableView {

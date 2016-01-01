@@ -39,5 +39,6 @@ In addition iCloud storage was enabled as well which provides the opportunity to
 * At first time startup you will get asked to select a calendar, which will be used as basis for the Overview ( can be changed everytime in the settings )
 * To have the notes tested you just put some notes into one of the meetings, those will be either saved by taping outside of the notefield or by hitting the *Save Button*
 * You can review the notes under All Notes with the ability to delete by either opening the note and using the basket-icon or by swiping from right to left and using the appearing DELETE button
+* Typing on an attendee in the Collection View Cell gives you some information about the location of the attendee and some current facts, like weather, time + ...
 
 Thats all folks, seems to be quiet easy app and far away from being something I would call final, but it is a working app demonstrating some nice techniques in several aspects.
