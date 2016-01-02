@@ -16,9 +16,11 @@ class NotesTableViewController: UITableViewController {
     var meetingTitle: String?
     var meetingNotes: String?
     var selectedNote: Note?
+    let dateFormatter = NSDateFormatter()
     
     override func viewDidLoad() {
-
+        dateFormatter.locale = NSLocale(localeIdentifier: "en_US")
+        dateFormatter.dateFormat = "YYYY-MM-dd HH:mm"
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -67,6 +69,7 @@ extension NotesTableViewController {
         //cell.textLabel?.text = allNotes[indexPath.row].meetingTitle
         cell.meetingLabel.text = allNotes[indexPath.row].meetingTitle
         cell.meetingNoteLabel.text = allNotes[indexPath.row].note
+        cell.meetingNoteDate.text = dateFormatter.stringFromDate(allNotes[indexPath.row].createdAt)
         
         return cell
     }

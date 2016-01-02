@@ -20,13 +20,19 @@ class MeetingListCell: UICollectionViewCell, UITableViewDelegate, UITableViewDat
     @IBOutlet weak var notesButton: UIButton!
     @IBOutlet weak var participantsButton: UIButton!
     @IBOutlet weak var saveButton: UIButton!
+    @IBOutlet weak var deleteButton: UIButton!
     @IBOutlet weak var participantDetails: UIView!
     @IBOutlet weak var participantDetailsName: UILabel!
     @IBOutlet weak var participantDetailsWeather: UILabel!
     @IBOutlet weak var participantDetailsWeatherTemperature: UILabel!
     @IBOutlet weak var participantDetailsLastUpdate: UILabel!
     @IBOutlet weak var participantDetailsLocation: UILabel!
+    @IBOutlet weak var participantDetailsWeatherDescription: UILabel!
+    @IBOutlet weak var participantDetailsTime: UILabel!
+    @IBOutlet weak var participantDetailsMeetingTime: UILabel!
+    @IBOutlet weak var bottomWeatherLine: UIView!
     
+    var backgroundGradient: CAGradientLayer? = nil
     
     @IBAction func closeParticipantDetails(sender: UIButton) {
         UIView.animateWithDuration(0.5, animations: {
@@ -83,6 +89,10 @@ class MeetingListCell: UICollectionViewCell, UITableViewDelegate, UITableViewDat
         addStoreNotifications()
     }
 
+    deinit {
+        removeStoreNotifications()
+    }
+    
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         addStoreNotifications()
@@ -98,7 +108,10 @@ class MeetingListCell: UICollectionViewCell, UITableViewDelegate, UITableViewDat
     }
     
     func removeStoreNotifications() {
-        
+        NSNotificationCenter.defaultCenter().removeObserver(self, name: NSPersistentStoreCoordinatorStoresWillChangeNotification,object: nil )
+        NSNotificationCenter.defaultCenter().removeObserver(self, name: NSPersistentStoreCoordinatorStoresDidChangeNotification,object: nil )
+        NSNotificationCenter.defaultCenter().removeObserver(self, name: NSManagedObjectContextDidSaveNotification,object: nil )
+        NSNotificationCenter.defaultCenter().removeObserver(self, name: NSPersistentStoreCoordinatorWillRemoveStoreNotification,object: nil )
     }
     
     func handleStoresWillRemove(notification: NSNotification) { }
@@ -110,7 +123,6 @@ class MeetingListCell: UICollectionViewCell, UITableViewDelegate, UITableViewDat
     }
     
     func handleStoresDidChange(notification: NSNotification) {
-        print("!!!!!!!!! handleStoresDidChange !!!!!!!!")
         self.stopSaveAnimation()
     }
     
@@ -142,12 +154,14 @@ class MeetingListCell: UICollectionViewCell, UITableViewDelegate, UITableViewDat
         animation.fromValue = 1.0
         animation.toValue = 0.1
         saveButton.hidden = false
+        deleteButton.hidden = false
         saveButton.layer.addAnimation(animation, forKey: "animateOpacity")
     }
     
     func stopSaveAnimation() {
         saveButton.layer.removeAnimationForKey("animateOpacity")
         saveButton.hidden = true
+        deleteButton.hidden = true
     }
     
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
@@ -160,14 +174,27 @@ class MeetingListCell: UICollectionViewCell, UITableViewDelegate, UITableViewDat
             
             participantDetailsLastUpdate.text = "Last update: " + ( Int(round(NSDate().timeIntervalSinceDate(location.lastUpdate)/60)) < 60 ? " just a moment ago":String(Int(round(NSDate().timeIntervalSinceDate(location.lastUpdate)/60))) + " minutes ago")
             
-            participantDetailsLocation.text = location.city! + ", " + location.country!
+            participantDetailsLocation.text = location.city! + (location.country != "" ? ", " + location.country! : "")
             if let weather = location.weather {
                 participantDetailsWeather.text = OWFontIcons[weather]
                 participantDetailsWeatherTemperature.text = String(location.weather_temp!.unsignedIntValue) + (location.weather_temp_unit == 0 ? "°C":"°F")
-                print(location.weather_temp_unit)
+                print("__________ UNIT __________")
+                print(location)
+                participantDetailsWeatherDescription.text = location.weather_description
+                
             } else {
                 participantDetailsWeather.text = ""
                 print(meeting.participantArray[indexPath.row].location)
+            }
+            
+            if let timeOffset = location.timezoneOffset {
+                let dateFormatter = NSDateFormatter()
+                dateFormatter.locale = NSLocale(localeIdentifier: "en_US")
+                dateFormatter.dateFormat = "YYYY-MM-dd HH:mm"
+                print(dateFormatter.stringFromDate(NSDate(timeInterval: (timeOffset as Double), sinceDate: NSDate())))
+                participantDetailsTime.text = "" + dateFormatter.stringFromDate(NSDate(timeInterval: (timeOffset as Double), sinceDate: NSDate()))
+                dateFormatter.dateFormat = "HH:mm"
+                participantDetailsMeetingTime.text = dateFormatter.stringFromDate(NSDate(timeInterval: (timeOffset as Double), sinceDate: meeting.starttime)) + " - " + dateFormatter.stringFromDate(NSDate(timeInterval: (timeOffset as Double), sinceDate: meeting.endtime))
             }
         }
     }
@@ -240,17 +267,32 @@ extension MeetingListCell: UITextViewDelegate {
         self.endEditing(true)
     }
     
+    @IBAction func deleteNote(sender: UIButton) {
+        self.endEditing(true)
+        notesText.text = ""
+        doSaveNote()
+    }
+    
     func doSaveNote() {
+        // a new note to be created
         if self.meeting.note == nil {
+            if notesText.text == "" {
+                return
+            }
             let noteDictionary = [
                 Note.Keys.Note: notesText.text,
                 Note.Keys.MeetingId: self.meeting.meetingId,
                 Note.Keys.MeetingTitle: self.meeting.name
             ]
             self.meeting.note = Note(dictionary: noteDictionary, context: self.sharedContext)
+        // an existing note to be updated
         } else {
-            self.meeting.note?.note = notesText.text
-            self.meeting.note?.meetingTitle = self.meeting.name
+            if notesText.text == "" {
+                self.sharedContext.deleteObject(self.meeting.note!)
+            } else {
+                self.meeting.note?.note = notesText.text
+                self.meeting.note?.meetingTitle = self.meeting.name
+            }
         }
         startSaveAnimation()
         CoreDataStackManager.sharedInstance().saveContext() {
@@ -259,15 +301,19 @@ extension MeetingListCell: UITextViewDelegate {
         
     }
     
-    func textViewDidChange(textView: UITextView) { }
-    
     func textViewDidBeginEditing(textView: UITextView) {
         saveButton.hidden = false
+        deleteButton.hidden = false
     }
     
     func textViewDidEndEditing(textView: UITextView) {
         doSaveNote()
     }
+    
+    func configureUI() {
+        
+    }
+    
 }
 
 extension UIImage {
@@ -279,5 +325,4 @@ extension UIImage {
             return image
         }
     }
-
 }

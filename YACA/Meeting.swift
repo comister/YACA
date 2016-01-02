@@ -213,16 +213,6 @@ class Meeting: NSObject, CoreDataStackManagerDelegate {
                             try fetchedResultsController.performFetch()
                         } catch _ {}
                         
-                        //TEST, going to ask for timezone
-                        GoogleAPIClient.sharedInstance().getTimeOfLocation(placemark.location!.coordinate.latitude, long: placemark.location!.coordinate.longitude) {
-                            result, error in
-                            print("TZ Offset:")
-                            print(result)
-                            print("Time there currently:")
-                            print(NSDate(timeInterval: result!, sinceDate: NSDate()))
-                            
-                        }
-                        
                         var returnDictionary = [String:AnyObject]()
 
                         if let storedLocation = fetchedResultsController.fetchedObjects?.first as? Location {
@@ -258,7 +248,7 @@ class Meeting: NSObject, CoreDataStackManagerDelegate {
                                                 returnDictionary[Location.Keys.Weather] = data!["weather"]
                                                 returnDictionary[Location.Keys.WeatherDescription] = data!["weather_description"]
                                                 returnDictionary[Location.Keys.WeatherTemperature] = data!["weather_temp"]
-                                                returnDictionary[Location.Keys.WeatherTemperatureUnit] = data!["weather_temp_unit"]
+                                                returnDictionary[Location.Keys.WeatherTemperatureUnit] = NSUserDefaults.standardUserDefaults().integerForKey("temperatureIndex")
                                                 returnDictionary[Location.Keys.LastUpdate] = NSDate()
                                             
                                             } else {
@@ -316,6 +306,8 @@ class Meeting: NSObject, CoreDataStackManagerDelegate {
                     }
                 })
             }
+        } else {
+            completionHandler(result: nil, error: nil)
         }
     }
     

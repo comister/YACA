@@ -200,6 +200,7 @@ extension MeetingsViewController: UICollectionViewDataSource {
                     cell.meeting = meetingObject
                     cell.participantDetails.hidden = true
                     cell.participantTable.reloadData()
+                    cell.configureUI()
                     if let meetingNote = meetingObject.note {
                         cell.notesText.text = meetingNote.note
                     } else {

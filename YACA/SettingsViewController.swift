@@ -48,21 +48,21 @@ class SettingsViewController: UIViewController {
             }
             selectedCalendar = NSUserDefaults.standardUserDefaults().stringForKey("selectedCalendar")
             selectedContactGroup = NSUserDefaults.standardUserDefaults().stringForKey("selectedContactGroup")
-            pickContactsButton.titleLabel?.text = NSUserDefaults.standardUserDefaults().stringForKey("selectedContactGroupName")
             durationSegments.selectedSegmentIndex = NSUserDefaults.standardUserDefaults().integerForKey("durationIndex")
             temperatureSegment.selectedSegmentIndex = NSUserDefaults.standardUserDefaults().integerForKey("temperatureIndex")
-            storeIniCloud.on = NSUserDefaults.standardUserDefaults().boolForKey("iCloudOn")
         } else {
             welcomeLabel.hidden = false
             descriptionLabel.hidden = false
             
             //iCloud turned off by default (for the time being not implemented due to unaddressed challenges in terms of synching data back and forth)
-            NSUserDefaults.standardUserDefaults().setValue(false, forKey: "iCloudOn")
+            NSUserDefaults.standardUserDefaults().setBool(false, forKey: "iCloudOn")
+            NSUserDefaults.standardUserDefaults().setInteger(0, forKey: "temperatureIndex")
+            NSUserDefaults.standardUserDefaults().setInteger(0, forKey: "durationIndex")
         }
     }
 
     @IBAction func durationClicked(sender: UISegmentedControl) {
-        NSUserDefaults.standardUserDefaults().setValue(sender.selectedSegmentIndex, forKey: "durationIndex")
+        NSUserDefaults.standardUserDefaults().setInteger(sender.selectedSegmentIndex, forKey: "durationIndex")
         var duration = 0
         switch sender.selectedSegmentIndex {
         case 0:
@@ -78,12 +78,12 @@ class SettingsViewController: UIViewController {
     }
     
     @IBAction func metricsChanged(sender: UISegmentedControl) {
-        NSUserDefaults.standardUserDefaults().setValue(sender.selectedSegmentIndex, forKey: "temperatureIndex")
+        NSUserDefaults.standardUserDefaults().setInteger(sender.selectedSegmentIndex, forKey: "temperatureIndex")
     }
     
     
     @IBAction func iCloudSwitchChanged(sender: UISwitch) {
-        NSUserDefaults.standardUserDefaults().setValue(sender.on, forKey: "iCloudOn")
+        NSUserDefaults.standardUserDefaults().setBool(sender.on, forKey: "iCloudOn")
     }
     
     func grantAccessClicked() {

@@ -12,5 +12,6 @@ class NotesTableCell: UITableViewCell {
 
     @IBOutlet weak var meetingLabel: UILabel!
     @IBOutlet weak var meetingNoteLabel: UILabel!
+    @IBOutlet weak var meetingNoteDate: UILabel!
     
 }
