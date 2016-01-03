@@ -1,5 +1,5 @@
 //
-//  UIViewExtension.swift
+//  UIView.extension.swift
 //  YACA
 //
 //  Created by Andreas Pfister on 14/12/15.

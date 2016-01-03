@@ -10,6 +10,7 @@ import Foundation
 import UIKit
 import EventKit
 import CoreData
+import MapKit
 
 class MeetingListCell: UICollectionViewCell, UITableViewDelegate, UITableViewDataSource {
     
@@ -30,6 +31,7 @@ class MeetingListCell: UICollectionViewCell, UITableViewDelegate, UITableViewDat
     @IBOutlet weak var participantDetailsWeatherDescription: UILabel!
     @IBOutlet weak var participantDetailsTime: UILabel!
     @IBOutlet weak var participantDetailsMeetingTime: UILabel!
+    @IBOutlet weak var participantDetailsMap: MKMapView!
     @IBOutlet weak var bottomWeatherLine: UIView!
     
     var backgroundGradient: CAGradientLayer? = nil
@@ -86,64 +88,10 @@ class MeetingListCell: UICollectionViewCell, UITableViewDelegate, UITableViewDat
     override init(frame: CGRect) {
         // do something
         super.init(frame: frame)
-        addStoreNotifications()
-    }
-
-    deinit {
-        removeStoreNotifications()
     }
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-        addStoreNotifications()
-    }
-    
-    func addStoreNotifications() {
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "handleStoresWillChange:", name: NSPersistentStoreCoordinatorStoresWillChangeNotification, object: self.sharedContext)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "handleStoresDidChange:", name: NSPersistentStoreCoordinatorStoresDidChangeNotification, object: self.sharedContext)
-        NSNotificationCenter.defaultCenter().addObserver( self, selector: "mergeChanges:", name: NSManagedObjectContextDidSaveNotification,object: self.sharedContext)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "handleStoresWillRemove:",
-            name: NSPersistentStoreCoordinatorWillRemoveStoreNotification,
-            object: self.sharedContext)
-    }
-    
-    func removeStoreNotifications() {
-        NSNotificationCenter.defaultCenter().removeObserver(self, name: NSPersistentStoreCoordinatorStoresWillChangeNotification,object: nil )
-        NSNotificationCenter.defaultCenter().removeObserver(self, name: NSPersistentStoreCoordinatorStoresDidChangeNotification,object: nil )
-        NSNotificationCenter.defaultCenter().removeObserver(self, name: NSManagedObjectContextDidSaveNotification,object: nil )
-        NSNotificationCenter.defaultCenter().removeObserver(self, name: NSPersistentStoreCoordinatorWillRemoveStoreNotification,object: nil )
-    }
-    
-    func handleStoresWillRemove(notification: NSNotification) { }
-    
-    func handleStoresWillChange(notification: NSNotification) {
-        CoreDataStackManager.sharedInstance().saveContext() {
-            print("StoreWillChange notification fired and context saved successfully")
-        }
-    }
-    
-    func handleStoresDidChange(notification: NSNotification) {
-        self.stopSaveAnimation()
-    }
-    
-    func mergeChanges(notification: NSNotification) {
-        self.sharedContext.performBlock {
-            self.sharedContext.mergeChangesFromContextDidSaveNotification(notification)
-            self.postRefetchDatabaseNotification()
-        }
-        self.stopSaveAnimation()
-    }
-    
-    func postRefetchDatabaseNotification() {
-        dispatch_async(dispatch_get_main_queue(), { () -> Void in
-            NSNotificationCenter.defaultCenter().postNotificationName(
-                "kRefetchDatabaseNotification", // can be observed in any other ViewController
-                object: nil);
-        })
-    }
-    
-    func persistentStoreDidImportUbiquitousContentChanges(notification: NSNotification) {
-        self.mergeChanges(notification);
     }
     
     func startSaveAnimation() {
@@ -172,14 +120,12 @@ class MeetingListCell: UICollectionViewCell, UITableViewDelegate, UITableViewDat
             UIView.transitionWithView(participantDetails, duration: 0.5, options: UIViewAnimationOptions.TransitionFlipFromRight, animations: nil, completion: nil)
             participantDetailsName.text = ( meeting.participantArray[indexPath.row].name != nil ? meeting.participantArray[indexPath.row].name : meeting.participantArray[indexPath.row].email )
             
-            participantDetailsLastUpdate.text = "Last update: " + ( Int(round(NSDate().timeIntervalSinceDate(location.lastUpdate)/60)) < 60 ? " just a moment ago":String(Int(round(NSDate().timeIntervalSinceDate(location.lastUpdate)/60))) + " minutes ago")
+            participantDetailsLastUpdate.text = "Last update: " + ( Int(round(NSDate().timeIntervalSinceDate(location.lastUpdate))) < 60 ? " just a moment ago":String(Int(round(NSDate().timeIntervalSinceDate(location.lastUpdate)/60))) + " minutes ago")
             
             participantDetailsLocation.text = location.city! + (location.country != "" ? ", " + location.country! : "")
             if let weather = location.weather {
                 participantDetailsWeather.text = OWFontIcons[weather]
                 participantDetailsWeatherTemperature.text = String(location.weather_temp!.unsignedIntValue) + (location.weather_temp_unit == 0 ? "°C":"°F")
-                print("__________ UNIT __________")
-                print(location)
                 participantDetailsWeatherDescription.text = location.weather_description
                 
             } else {
@@ -187,6 +133,7 @@ class MeetingListCell: UICollectionViewCell, UITableViewDelegate, UITableViewDat
                 print(meeting.participantArray[indexPath.row].location)
             }
             
+            // use timeoffset of google timezone api to calculate th respective times for meeting as well as actual time
             if let timeOffset = location.timezoneOffset {
                 let dateFormatter = NSDateFormatter()
                 dateFormatter.locale = NSLocale(localeIdentifier: "en_US")
@@ -195,6 +142,27 @@ class MeetingListCell: UICollectionViewCell, UITableViewDelegate, UITableViewDat
                 participantDetailsTime.text = "" + dateFormatter.stringFromDate(NSDate(timeInterval: (timeOffset as Double), sinceDate: NSDate()))
                 dateFormatter.dateFormat = "HH:mm"
                 participantDetailsMeetingTime.text = dateFormatter.stringFromDate(NSDate(timeInterval: (timeOffset as Double), sinceDate: meeting.starttime)) + " - " + dateFormatter.stringFromDate(NSDate(timeInterval: (timeOffset as Double), sinceDate: meeting.endtime))
+            }
+            
+            // prepare Map and add annotation of location, if available
+            if let longitude = location.longitude {
+                if let latitude = location.latitude {
+                    participantDetailsMap.hidden = false
+                    participantDetailsMap.removeAnnotations(participantDetailsMap.annotations)
+                    let annotation = MKPointAnnotation()
+                    annotation.coordinate = CLLocationCoordinate2D(latitude: CLLocationDegrees(latitude), longitude: CLLocationDegrees(longitude))
+                    participantDetailsMap.addAnnotation(annotation)
+                    participantDetailsMap.userInteractionEnabled = false
+                    
+                    let viewRegion = MKCoordinateRegionMakeWithDistance(annotation.coordinate, 10000000, 10000000)
+                    let adjustedRegion = participantDetailsMap.regionThatFits(viewRegion)
+                    participantDetailsMap.setRegion(adjustedRegion, animated: true)
+                    
+                } else {
+                    participantDetailsMap.hidden = true
+                }
+            } else {
+                participantDetailsMap.hidden = true
             }
         }
     }
@@ -238,7 +206,7 @@ extension MeetingListCell {
     func participantArea() {
         participantTable.hidden = false
         notesText.hidden = true
-        
+        participantTable.reloadData()
         participantsButton.backgroundColor = UIColor.whiteColor()
         notesButton.backgroundColor = .None
     }
@@ -316,13 +284,3 @@ extension MeetingListCell: UITextViewDelegate {
     
 }
 
-extension UIImage {
-    var blank_x1: UIImage {
-        get {
-            UIGraphicsBeginImageContextWithOptions(CGRectMake(0, 0, 22, 22).size, false, 0)
-            let image: UIImage = UIGraphicsGetImageFromCurrentImageContext()
-            UIGraphicsEndImageContext()
-            return image
-        }
-    }
-}

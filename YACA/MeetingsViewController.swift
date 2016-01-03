@@ -22,7 +22,6 @@ class MeetingsViewController: UIViewController {
     var calendars: [EKCalendar]?
     var selectedCalendar: String?
     var duration: Int = 0
-    var eventSource: Datasource?
     let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
     var tapRecognizer: UITapGestureRecognizer? = nil
     @IBOutlet weak var meetingCollectionView: UICollectionView!
@@ -57,29 +56,16 @@ class MeetingsViewController: UIViewController {
         durationSgements.borderColor = UIColor(white: 1.0, alpha: 0.3)
         durationSgements.addTarget(self, action: "changeDuration:", forControlEvents: .ValueChanged)
         
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "iCloudUpdated:", name: "kRefetchDatabaseNotification", object: nil)
-        
         self.duration = getDurationOfIndex(NSUserDefaults.standardUserDefaults().integerForKey("durationIndex"))
         loadIndicator.startAnimating()
         
-        self.loadEvents() { success in
-            if success {
-                self.loadIndicator.stopAnimating()
-                self.meetingCollectionView.hidden = false
-                self.meetingCollectionView.reloadData()
-            }
-        }
-        
-        //weatherTest.text = OWFontIcons["802"]
-        //weatherTest.font = UIFont.fontOWOfSize(100)
-        //weatherTest.text = String.fontAwesomeIconWithCode("803")
-        //print(weatherTest.text?.unicodeScalars)
-    }
-    
-    // MARK: - There was something updated in iCloud and this new information got received, updating the meetings !
-    func iCloudUpdated (notification: NSNotification) {
-        print("        CoreData UPDATED, reloading collectionView")
-        meetingCollectionView.reloadData()
+        appDelegate.backgroundThread(0.0, background: {
+            self.loadEvents()
+        }, completion: {
+            self.loadIndicator.stopAnimating()
+            self.meetingCollectionView.hidden = false
+            self.meetingCollectionView.reloadData()
+        })
     }
     
     override func viewDidAppear(animated: Bool) {
@@ -118,23 +104,13 @@ class MeetingsViewController: UIViewController {
         self.duration = localDuration
         loadIndicator.startAnimating()
         
-        self.loadEvents() { success in
-            if success {
-                self.loadIndicator.stopAnimating()
-                self.meetingCollectionView.hidden = false
-                self.meetingCollectionView.reloadData()
-            } else {
-                // no access to calendar !!
-            }
-        }
-        
-        /*
         appDelegate.backgroundThread(0.0, background: {
-            
-            }, completion: {
-                
+            self.loadEvents()
+        }, completion: {
+            self.loadIndicator.stopAnimating()
+            self.meetingCollectionView.hidden = false
+            self.meetingCollectionView.reloadData()
         })
-        */
     }
     
     // MARK: - Core Data
@@ -160,10 +136,7 @@ class MeetingsViewController: UIViewController {
 extension MeetingsViewController: UICollectionViewDataSource {
     
     func numberOfSectionsInCollectionView(collectionView: UICollectionView) -> Int {
-        if eventSource != nil {
-            return (eventSource?.daysOfMeeting.count)!
-        }
-        return 0
+        return Datasource.sharedInstance.daysOfMeeting.count
     }
     
     func collectionView(collectionView: UICollectionView, didDeselectItemAtIndexPath indexPath: NSIndexPath) {
@@ -174,28 +147,33 @@ extension MeetingsViewController: UICollectionViewDataSource {
         
         let headerCell = collectionView.dequeueReusableSupplementaryViewOfKind(kind, withReuseIdentifier: "meetingCellHeader", forIndexPath: indexPath) as? MeetingListCellHeader
 
-        headerCell?.dayLabel.text = eventSource?.getSpecialWeekdayOfDate((eventSource?.sortedMeetingArray[indexPath.section])!)
+        headerCell?.dayLabel.text = Datasource.sharedInstance.getSpecialWeekdayOfDate((Datasource.sharedInstance.sortedMeetingArray[indexPath.section]))
         
         return headerCell!
     }
     
+    
     func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-
-        if let currentDate = eventSource?.sortedMeetingArray[section] {
-            if let currentDateObjects = eventSource?.daysOfMeeting[currentDate] {
-                return currentDateObjects.count
-            }
-        }
-        return 1
+        let currentDate = Datasource.sharedInstance.sortedMeetingArray[section]
+        let currentDateObjects = Datasource.sharedInstance.daysOfMeeting[currentDate]
+        return currentDateObjects!.count
     }
     
     func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCellWithReuseIdentifier("meetingViewCell", forIndexPath: indexPath) as! MeetingListCell
-        if let currentDate = eventSource?.sortedMeetingArray[indexPath.section] {
-            if let currentDateObjects = eventSource?.daysOfMeeting[currentDate] {
-                if let meetingObject = currentDateObjects[indexPath.row] as? Meeting {
+        
+        let currentDate = Datasource.sharedInstance.sortedMeetingArray[indexPath.section]
+        let currentDateObjects = Datasource.sharedInstance.daysOfMeeting[currentDate]
+        
+        
+                if let meetingObject = currentDateObjects![indexPath.row] as? Meeting {
                     cell.calendarName.text = meetingObject.name
-                    cell.timingLabel?.text = (eventSource?.getTimeOfDate(meetingObject.starttime))! + " - " + (eventSource?.getTimeOfDate(meetingObject.endtime))!
+                    
+                    if NSDate.areDatesSameDay(meetingObject.starttime, dateTwo: meetingObject.endtime) {
+                        cell.timingLabel?.text = (Datasource.sharedInstance.getTimeOfDate(meetingObject.starttime)) + " - " + (Datasource.sharedInstance.getTimeOfDate(meetingObject.endtime))
+                    } else {
+                        cell.timingLabel?.text = (Datasource.sharedInstance.getTimeOfDate(meetingObject.starttime)) + " - " + (Datasource.sharedInstance.getTimeOfDate(meetingObject.endtime))
+                    }
                     cell.cellIdentifier = "meetingParticipant_" + String(indexPath.row)
                     cell.meeting = meetingObject
                     cell.participantDetails.hidden = true
@@ -207,8 +185,7 @@ extension MeetingsViewController: UICollectionViewDataSource {
                         cell.notesText.text = ""
                     }
                 }
-            }
-        }
+
         return cell
     }
 }
@@ -236,7 +213,7 @@ extension MeetingsViewController {
 // MARK: - Calendar background actions (will/should be called in a backgroundThread)
 extension MeetingsViewController {
     
-    func loadEvents(completionHandler: (result: Bool) -> Void) {
+    func loadEvents() {
         appDelegate.checkCalendarAuthorizationStatus { (accessGranted) -> Void in
             if accessGranted {
                 self.fetchEvents(self.eventStore, calendarIdentity: self.selectedCalendar!, completed: { (events: [EKEvent]) -> Void in
@@ -250,12 +227,12 @@ extension MeetingsViewController {
                             }
                         }
                     }
-                    // MARK: - Feed datasource and let it do the job to structure probably for CollectionView
-                    self.eventSource = Datasource(events: self.events)
-                    completionHandler(result: true)
+                    // MARK: - Feed datasource and let it do the job to structure probably for the CollectionView
+                    Datasource.sharedInstance.loadMeetings(self.events)
+                    //completionHandler(result: true)
                 })
             } else {
-                completionHandler(result: false)
+                // Show dialog or something to make aware of unaccessibility of Calendar
             }
         }
     }

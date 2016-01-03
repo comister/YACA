@@ -17,7 +17,6 @@ class CoreDataStackManager {
     
     struct Constants {
         static let persistentStoreSqlFile       = "yaca.sqlite"
-        static let persistentStoreName          = "YACA"
         static let persistentModelName          = "YACA"
         static let contextSaveNotification      = "CoreDataStackManagerDidSaveContextNotification"
     }
@@ -79,20 +78,8 @@ class CoreDataStackManager {
         var coordinator: NSPersistentStoreCoordinator? = NSPersistentStoreCoordinator(managedObjectModel: self.managedObjectModel)
         let url = self.applicationDocumentsDirectory.URLByAppendingPathComponent(Constants.persistentStoreSqlFile)
         
-        var storeOptions: [NSObject:AnyObject]?
-        
-        if NSUserDefaults.standardUserDefaults().boolForKey("iCloudOn") == true {
-            storeOptions = [
-                NSPersistentStoreUbiquitousContentNameKey    : Constants.persistentStoreName,
-                NSMigratePersistentStoresAutomaticallyOption : true,
-                NSInferMappingModelAutomaticallyOption       : true
-            ]
-        } else {
-            storeOptions = nil
-        }
-        
         do {
-            try coordinator!.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: url, options: storeOptions)
+            try coordinator!.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: url, options: nil)
         } catch var error as NSError {
             var dict = [NSObject : AnyObject]()
             dict[NSLocalizedDescriptionKey] = "Failed to initialize the application's saved data"
@@ -122,26 +109,20 @@ class CoreDataStackManager {
     }()
     
     // MARK: - Core Data Saving support
-    private
-    func saveContextSub( context: NSManagedObjectContext? = CoreDataStackManager.sharedInstance().managedObjectContext!, completition : (()->() )? ) {
-        
-    }
-    
-    
     func saveContext(context: NSManagedObjectContext? = CoreDataStackManager.sharedInstance().managedObjectContext!,completition : (()->() )? ) {
         //Perform save on main thread
         
         if let context = self.managedObjectContext {
             context.performBlockAndWait { () -> Void in
-            if context.hasChanges {
-                do {
-                    try context.save()
-                    //context.reset()
-                } catch let error as NSError {
-                    NSLog("Unresolved error \(error), \(error.userInfo)")
-                    abort()
+                if context.hasChanges {
+                    do {
+                        try context.save()
+                        //context.reset()
+                    } catch let error as NSError {
+                        NSLog("Unresolved error \(error), \(error.userInfo)")
+                        abort()
+                    }
                 }
-            }
             }
             
             //Call delegate method
@@ -155,14 +136,5 @@ class CoreDataStackManager {
                 closure()
             }
         }
-        /*
-        if (NSThread.isMainThread()) {
-            saveContextSub(context,completition: completition)
-        } else {
-            NSOperationQueue.mainQueue().addOperationWithBlock(){
-                self.saveContextSub(context, completition : completition)
-            }
-        }
-        */
     }
 }

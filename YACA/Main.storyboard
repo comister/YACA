@@ -651,18 +651,37 @@
                                                                             </mask>
                                                                         </variation>
                                                                     </view>
+                                                                    <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="20E-xp-GRD">
+                                                                        <rect key="frame" x="0.0" y="0.0" width="240" height="128"/>
+                                                                        <constraints>
+                                                                            <constraint firstAttribute="height" constant="88" id="8rA-wL-F3q">
+                                                                                <variation key="widthClass=compact" constant="89"/>
+                                                                            </constraint>
+                                                                        </constraints>
+                                                                        <variation key="default">
+                                                                            <mask key="constraints">
+                                                                                <exclude reference="8rA-wL-F3q"/>
+                                                                            </mask>
+                                                                        </variation>
+                                                                        <variation key="widthClass=compact">
+                                                                            <mask key="constraints">
+                                                                                <include reference="8rA-wL-F3q"/>
+                                                                            </mask>
+                                                                        </variation>
+                                                                    </mapView>
                                                                 </subviews>
                                                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                                 <constraints>
                                                                     <constraint firstAttribute="trailing" secondItem="xB6-Rg-1yd" secondAttribute="trailing" id="1tg-bk-BVT"/>
                                                                     <constraint firstItem="clW-D7-3G2" firstAttribute="top" secondItem="MlN-06-Yf1" secondAttribute="bottom" constant="18" id="8cw-4S-esa"/>
                                                                     <constraint firstItem="MlN-06-Yf1" firstAttribute="leading" secondItem="TlF-7a-UkQ" secondAttribute="leading" constant="8" id="8kS-eL-2fV"/>
-                                                                    <constraint firstItem="xB6-Rg-1yd" firstAttribute="top" secondItem="clW-D7-3G2" secondAttribute="bottom" constant="37" id="9Ns-9a-Fqy"/>
+                                                                    <constraint firstItem="xB6-Rg-1yd" firstAttribute="top" secondItem="clW-D7-3G2" secondAttribute="bottom" constant="24" id="9Ns-9a-Fqy"/>
                                                                     <constraint firstItem="zHS-mT-vwB" firstAttribute="leading" secondItem="TlF-7a-UkQ" secondAttribute="leadingMargin" id="AgZ-qz-l0B"/>
                                                                     <constraint firstItem="MlN-06-Yf1" firstAttribute="top" secondItem="zHS-mT-vwB" secondAttribute="bottom" constant="-1" id="BUn-bH-teX">
                                                                         <variation key="widthClass=compact" constant="10"/>
                                                                     </constraint>
                                                                     <constraint firstAttribute="trailing" secondItem="o0K-rl-VDm" secondAttribute="trailing" constant="1" id="DA8-aF-2Yl"/>
+                                                                    <constraint firstItem="20E-xp-GRD" firstAttribute="top" secondItem="xB6-Rg-1yd" secondAttribute="bottom" constant="-1" id="DY6-3q-2I6"/>
                                                                     <constraint firstAttribute="trailing" secondItem="GdD-v5-ClW" secondAttribute="trailing" id="DoN-XU-Igx">
                                                                         <variation key="widthClass=compact" constant="20"/>
                                                                     </constraint>
@@ -682,8 +701,11 @@
                                                                     <constraint firstItem="clW-D7-3G2" firstAttribute="top" secondItem="GdD-v5-ClW" secondAttribute="bottom" constant="-1" id="TBD-IQ-9HL">
                                                                         <variation key="widthClass=compact" constant="10"/>
                                                                     </constraint>
+                                                                    <constraint firstAttribute="trailing" secondItem="20E-xp-GRD" secondAttribute="trailing" id="XBN-Tj-R7Z">
+                                                                        <variation key="widthClass=compact" constant="10"/>
+                                                                    </constraint>
                                                                     <constraint firstItem="31h-fg-opV" firstAttribute="top" secondItem="o0K-rl-VDm" secondAttribute="bottom" constant="-1" id="YpO-x5-ITe"/>
-                                                                    <constraint firstItem="1sw-eD-iuj" firstAttribute="top" secondItem="clW-D7-3G2" secondAttribute="bottom" constant="22.5" id="ZJS-KG-uJm"/>
+                                                                    <constraint firstItem="1sw-eD-iuj" firstAttribute="top" secondItem="clW-D7-3G2" secondAttribute="bottom" constant="10" id="ZJS-KG-uJm"/>
                                                                     <constraint firstItem="Uel-yu-WI2" firstAttribute="bottom" secondItem="zHS-mT-vwB" secondAttribute="bottom" id="cMQ-BS-pJF"/>
                                                                     <constraint firstItem="o0K-rl-VDm" firstAttribute="top" secondItem="xT6-Gk-Cms" secondAttribute="bottom" constant="-1" id="eCa-ww-hVy"/>
                                                                     <constraint firstItem="xT6-Gk-Cms" firstAttribute="trailing" secondItem="o0K-rl-VDm" secondAttribute="trailing" id="f1W-jS-ylT"/>
@@ -695,6 +717,9 @@
                                                                     </constraint>
                                                                     <constraint firstItem="Uel-yu-WI2" firstAttribute="top" secondItem="zHS-mT-vwB" secondAttribute="top" id="hhS-g7-lYV"/>
                                                                     <constraint firstAttribute="trailing" secondItem="1sw-eD-iuj" secondAttribute="trailing" id="hze-sN-5be"/>
+                                                                    <constraint firstItem="20E-xp-GRD" firstAttribute="leading" secondItem="TlF-7a-UkQ" secondAttribute="leading" id="kZF-Xc-zbT">
+                                                                        <variation key="widthClass=compact" constant="10"/>
+                                                                    </constraint>
                                                                     <constraint firstItem="EzX-rG-MdN" firstAttribute="leading" secondItem="TlF-7a-UkQ" secondAttribute="leading" id="kxn-Fn-ViJ"/>
                                                                     <constraint firstItem="hK5-dM-xu9" firstAttribute="leading" secondItem="TlF-7a-UkQ" secondAttribute="leading" id="n1i-Ie-fT9"/>
                                                                     <constraint firstItem="clW-D7-3G2" firstAttribute="leading" secondItem="GdD-v5-ClW" secondAttribute="trailing" constant="-252" id="n9p-bf-PLI"/>
@@ -725,6 +750,7 @@
                                                                         <exclude reference="1sw-eD-iuj"/>
                                                                         <exclude reference="xT6-Gk-Cms"/>
                                                                         <exclude reference="GdD-v5-ClW"/>
+                                                                        <exclude reference="20E-xp-GRD"/>
                                                                     </mask>
                                                                     <mask key="constraints">
                                                                         <exclude reference="AgZ-qz-l0B"/>
@@ -754,6 +780,9 @@
                                                                         <exclude reference="1tg-bk-BVT"/>
                                                                         <exclude reference="9Ns-9a-Fqy"/>
                                                                         <exclude reference="qTy-cn-vgj"/>
+                                                                        <exclude reference="DY6-3q-2I6"/>
+                                                                        <exclude reference="XBN-Tj-R7Z"/>
+                                                                        <exclude reference="kZF-Xc-zbT"/>
                                                                         <exclude reference="cMQ-BS-pJF"/>
                                                                         <exclude reference="hhS-g7-lYV"/>
                                                                         <exclude reference="Oaa-iG-MRn"/>
@@ -781,6 +810,7 @@
                                                                         <include reference="1sw-eD-iuj"/>
                                                                         <include reference="xT6-Gk-Cms"/>
                                                                         <include reference="GdD-v5-ClW"/>
+                                                                        <include reference="20E-xp-GRD"/>
                                                                     </mask>
                                                                     <mask key="constraints">
                                                                         <include reference="AgZ-qz-l0B"/>
@@ -810,6 +840,9 @@
                                                                         <include reference="1tg-bk-BVT"/>
                                                                         <include reference="9Ns-9a-Fqy"/>
                                                                         <include reference="qTy-cn-vgj"/>
+                                                                        <include reference="DY6-3q-2I6"/>
+                                                                        <include reference="XBN-Tj-R7Z"/>
+                                                                        <include reference="kZF-Xc-zbT"/>
                                                                         <include reference="cMQ-BS-pJF"/>
                                                                         <include reference="hhS-g7-lYV"/>
                                                                         <include reference="Oaa-iG-MRn"/>
@@ -910,6 +943,7 @@
                                                         <outlet property="participantDetails" destination="TlF-7a-UkQ" id="x6o-Dg-aiv"/>
                                                         <outlet property="participantDetailsLastUpdate" destination="Fac-NX-VYr" id="HBc-ow-4vw"/>
                                                         <outlet property="participantDetailsLocation" destination="o0K-rl-VDm" id="bt1-QT-zJS"/>
+                                                        <outlet property="participantDetailsMap" destination="20E-xp-GRD" id="tYh-rR-ZEm"/>
                                                         <outlet property="participantDetailsMeetingTime" destination="xB6-Rg-1yd" id="65O-cY-91U"/>
                                                         <outlet property="participantDetailsName" destination="zHS-mT-vwB" id="xb7-Fb-wtI"/>
                                                         <outlet property="participantDetailsTime" destination="EzX-rG-MdN" id="OsE-uk-CWF"/>
@@ -1723,6 +1757,7 @@ show and retrieve the temperature</string>
                             </label>
                             <pickerView hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="nvu-KQ-Exo">
                                 <rect key="frame" x="0.0" y="-216" width="320" height="216"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="120" id="5px-V3-443"/>
                                 </constraints>

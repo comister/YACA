@@ -62,9 +62,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 }
                 else {
                     if status == CNAuthorizationStatus.Denied {
-                        dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                            //show dialog to transition to screen to allow access to contacts
-                        })
+                        completionHandler(accessGranted: false)
                     }
                 }
             })
@@ -88,9 +86,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 }
                 else {
                     if status == EKAuthorizationStatus.Denied {
-                        dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                            //show dialog and transition to settings
-                        })
+                        completionHandler(accessGranted: false)
                     }
                 }
             })

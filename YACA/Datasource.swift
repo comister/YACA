@@ -15,30 +15,33 @@ import EventKit
 
 class Datasource {
     
+    static let sharedInstance = Datasource()
+    
     var meetings: [Meeting]?
+    var working: Bool = false
     
     var daysOfMeeting = [NSDate:[Meeting]]()
     var sortedMeetingArray = [NSDate]()
     var meetingId: String = ""
     
-    init(meetings: [Meeting]?) {
+    func loadMeetings(meetings: [Meeting]?) {
         self.meetings = meetings
     }
     
-    init(events: [EKEvent]) {
+    func loadMeetings(events: [EKEvent]) {
         var localMeetings = [Meeting]()
         for event in events {
-            
-            
             localMeetings.append(Meeting(event: event))
-            
-            
         }
         self.meetings = localMeetings
         
         //CoreDataStackManager.sharedInstance().saveContext() {
-            self.structureMeetings()
+        self.structureMeetings()
         //}
+    }
+    
+    private init() {
+        
     }
     
     // MARK: - iterate through each Event and fill up dates, afterwards sort

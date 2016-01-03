@@ -195,7 +195,10 @@ class Meeting: NSObject, CoreDataStackManagerDelegate {
                 let location = addressObject.value as! CNPostalAddress
                 let address = location.city + ", " + location.country
                 geocoder.geocodeAddressString(address, completionHandler: {(placemarks, error) -> Void in
-                    
+                    if placemarks == nil {
+                        completionHandler(result: nil, error: NSError(domain: "Was not able to determine coordinates for location", code: 0, userInfo: nil))
+                        return
+                    }
                     if let placemark = placemarks![0] as? CLPlacemark {
 
                         // MARK: - lookup Core Data for existing Location entry
@@ -347,6 +350,10 @@ class Meeting: NSObject, CoreDataStackManagerDelegate {
 
     
     func CoreDataStackManagerDidSaveContext() {
-        print("context saved !!!")
+        print("")
+        print("~~~~~~~~RECEIVED NOTIFICATION~~~~~~~~")
+        print("!!! context saved !!!")
+        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        print("")
     }
 }
