@@ -94,16 +94,20 @@ class MeetingsViewController: UIViewController, DataSourceDelegate {
     
     // MARK: - Using the delegate of Datasource to determine Indicator appearance as well as collectionView appearance
     func DataSourceFinishedProcessing() {
-        self.loadIndicator.stopAnimating()
-        self.meetingCollectionView.hidden = false
-        stopLoadAnimation()
-        self.meetingCollectionView.reloadData()
+        dispatch_async(dispatch_get_main_queue()) {
+            self.loadIndicator.stopAnimating()
+            self.meetingCollectionView.hidden = false
+            self.meetingCollectionView.reloadData()
+            self.stopLoadAnimation()
+        }
     }
     
     func DataSourceStartedProcessing() {
-        self.loadIndicator.startAnimating()
-        self.meetingCollectionView.hidden = true
-        startLoadAnimation()
+        dispatch_async(dispatch_get_main_queue()) {
+            self.loadIndicator.startAnimating()
+            self.meetingCollectionView.hidden = true
+            self.startLoadAnimation()
+        }
     }
     
     override func viewDidAppear(animated: Bool) {
@@ -166,8 +170,9 @@ class MeetingsViewController: UIViewController, DataSourceDelegate {
     
     
     func startLoadAnimation() {
+        print("start animation")
         let animation = CABasicAnimation(keyPath: "opacity")
-        animation.duration = 0.3
+        animation.duration = 0.6
         animation.repeatCount = 9999
         animation.autoreverses = true
         animation.fromValue = 1.0
@@ -177,6 +182,7 @@ class MeetingsViewController: UIViewController, DataSourceDelegate {
     }
     
     func stopLoadAnimation() {
+        print("stop animation")
         loadLabel.layer.removeAnimationForKey("animateOpacity")
         loadLabel.hidden = true
     }
@@ -206,9 +212,13 @@ extension MeetingsViewController: UICollectionViewDataSource {
     
     
     func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        let currentDate = Datasource.sharedInstance.sortedMeetingArray[section]
-        let currentDateObjects = Datasource.sharedInstance.daysOfMeeting[currentDate]
-        return currentDateObjects!.count
+        if Datasource.sharedInstance.sortedMeetingArray.count > 0 {
+            let currentDate = Datasource.sharedInstance.sortedMeetingArray[section]
+            let currentDateObjects = Datasource.sharedInstance.daysOfMeeting[currentDate]
+            return currentDateObjects!.count
+        } else {
+            return 0
+        }
     }
     
     func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {

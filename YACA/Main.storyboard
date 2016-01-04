@@ -1061,25 +1061,6 @@
                                     </mask>
                                 </variation>
                             </view>
-                            <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" animating="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="vgh-7p-rdw">
-                                <rect key="frame" x="-10" y="-10" width="20" height="20"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="37" id="aBY-ic-emn"/>
-                                    <constraint firstAttribute="height" constant="37" id="pHq-TA-RUP"/>
-                                </constraints>
-                                <variation key="default">
-                                    <mask key="constraints">
-                                        <exclude reference="aBY-ic-emn"/>
-                                        <exclude reference="pHq-TA-RUP"/>
-                                    </mask>
-                                </variation>
-                                <variation key="widthClass=compact">
-                                    <mask key="constraints">
-                                        <include reference="aBY-ic-emn"/>
-                                        <include reference="pHq-TA-RUP"/>
-                                    </mask>
-                                </variation>
-                            </activityIndicatorView>
                             <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="x6r-S3-UHH">
                                 <rect key="frame" x="0.0" y="0.0" width="240" height="128"/>
                                 <subviews>
@@ -1150,6 +1131,25 @@
                                     </mask>
                                 </variation>
                             </view>
+                            <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" animating="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="vgh-7p-rdw">
+                                <rect key="frame" x="-10" y="-10" width="20" height="20"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="37" id="aBY-ic-emn"/>
+                                    <constraint firstAttribute="height" constant="37" id="pHq-TA-RUP"/>
+                                </constraints>
+                                <variation key="default">
+                                    <mask key="constraints">
+                                        <exclude reference="aBY-ic-emn"/>
+                                        <exclude reference="pHq-TA-RUP"/>
+                                    </mask>
+                                </variation>
+                                <variation key="widthClass=compact">
+                                    <mask key="constraints">
+                                        <include reference="aBY-ic-emn"/>
+                                        <include reference="pHq-TA-RUP"/>
+                                    </mask>
+                                </variation>
+                            </activityIndicatorView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
@@ -1185,8 +1185,8 @@
                                 <exclude reference="fsM-a8-g6M"/>
                                 <exclude reference="qal-wc-jKp"/>
                                 <exclude reference="NW1-VY-rt0"/>
-                                <exclude reference="vgh-7p-rdw"/>
                                 <exclude reference="x6r-S3-UHH"/>
+                                <exclude reference="vgh-7p-rdw"/>
                             </mask>
                             <mask key="constraints">
                                 <exclude reference="fGQ-el-eMP"/>
@@ -1216,8 +1216,8 @@
                                 <include reference="fsM-a8-g6M"/>
                                 <include reference="qal-wc-jKp"/>
                                 <include reference="NW1-VY-rt0"/>
-                                <include reference="vgh-7p-rdw"/>
                                 <include reference="x6r-S3-UHH"/>
+                                <include reference="vgh-7p-rdw"/>
                             </mask>
                             <mask key="constraints">
                                 <include reference="fGQ-el-eMP"/>
