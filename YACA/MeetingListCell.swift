@@ -117,7 +117,7 @@ class MeetingListCell: UICollectionViewCell, UITableViewDelegate, UITableViewDat
             participantDetailsLocation.text = location.city! + (location.country != "" ? ", " + location.country! : "")
             if let weather = location.weather {
                 participantDetailsWeather.text = OWFontIcons[weather]
-                participantDetailsWeatherTemperature.text = String(location.weather_temp!.unsignedIntValue) + (location.weather_temp_unit == 0 ? "°C":"°F")
+                participantDetailsWeatherTemperature.text = String(location.weather_temp!.integerValue) + (location.weather_temp_unit == 0 ? "°C":"°F")
                 participantDetailsWeatherDescription.text = location.weather_description
                 
             } else {
