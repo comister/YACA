@@ -43,6 +43,11 @@ class MeetingsViewController: UIViewController, DataSourceDelegate {
         configureUI()
         addKeyboardDismissRecognizer()
         
+        // Check authorization for Calendar and Contacts
+        if checkCalendarAndContactsAccess() {
+            self.noAccessView.hidden = true
+        }
+        
         // MARK: - Load Events from selected Calendar
         if (NSUserDefaults.standardUserDefaults().stringForKey("selectedCalendar") != nil) {
             self.selectedCalendar = NSUserDefaults.standardUserDefaults().stringForKey("selectedCalendar")
@@ -66,6 +71,28 @@ class MeetingsViewController: UIViewController, DataSourceDelegate {
             self.meetingCollectionView.hidden = false
             self.meetingCollectionView.reloadData()
         })
+    }
+    
+    func checkCalendarAndContactsAccess() -> Bool {
+        var returnValue = true
+        appDelegate.checkCalendarAuthorizationStatus() {
+            granted in
+            if !granted {
+                self.noAccessView.hidden = false
+                self.noAccessView.fadeIn()
+                returnValue = false
+            }
+        }
+        
+        appDelegate.checkContactsAuthorizationStatus() {
+            granted in
+            if !granted {
+                self.noAccessView.hidden = false
+                self.noAccessView.fadeIn()
+                returnValue = false
+            }
+        }
+        return returnValue
     }
     
     // MARK: - Using the delegate of Datasource to determine Indicator appearance
@@ -171,28 +198,26 @@ extension MeetingsViewController: UICollectionViewDataSource {
         
         let currentDate = Datasource.sharedInstance.sortedMeetingArray[indexPath.section]
         let currentDateObjects = Datasource.sharedInstance.daysOfMeeting[currentDate]
-        
-        
-                if let meetingObject = currentDateObjects![indexPath.row] as? Meeting {
-                    cell.calendarName.text = meetingObject.name
+        // iterate through meetings, set necessary values and reload tableview in cell 
+        if let meetingObject = currentDateObjects![indexPath.row] as? Meeting {
+            cell.calendarName.text = meetingObject.name
                     
-                    if NSDate.areDatesSameDay(meetingObject.starttime, dateTwo: meetingObject.endtime) {
-                        cell.timingLabel?.text = (Datasource.sharedInstance.getTimeOfDate(meetingObject.starttime)) + " - " + (Datasource.sharedInstance.getTimeOfDate(meetingObject.endtime))
-                    } else {
-                        cell.timingLabel?.text = (Datasource.sharedInstance.getTimeOfDate(meetingObject.starttime)) + " - " + (Datasource.sharedInstance.getTimeOfDate(meetingObject.endtime))
-                    }
-                    cell.cellIdentifier = "meetingParticipant_" + String(indexPath.row)
-                    cell.meeting = meetingObject
-                    cell.participantDetails.hidden = true
-                    cell.participantTable.reloadData()
-                    cell.configureUI()
-                    if let meetingNote = meetingObject.note {
-                        cell.notesText.text = meetingNote.note
-                    } else {
-                        cell.notesText.text = ""
-                    }
-                }
-
+            if NSDate.areDatesSameDay(meetingObject.starttime, dateTwo: meetingObject.endtime) {
+                cell.timingLabel?.text = (Datasource.sharedInstance.getTimeOfDate(meetingObject.starttime)) + " - " + (Datasource.sharedInstance.getTimeOfDate(meetingObject.endtime))
+            } else {
+                cell.timingLabel?.text = (Datasource.sharedInstance.getTimeOfDate(meetingObject.starttime)) + " - " + (Datasource.sharedInstance.getTimeOfDate(meetingObject.endtime))
+            }
+            cell.cellIdentifier = "meetingParticipant_" + String(indexPath.row)
+            cell.meeting = meetingObject
+            cell.participantDetails.hidden = true
+            cell.participantTable.reloadData()
+            cell.configureUI()
+            if let meetingNote = meetingObject.note {
+                cell.notesText.text = meetingNote.note
+            } else {
+                cell.notesText.text = ""
+            }
+        }
         return cell
     }
 }
@@ -219,6 +244,10 @@ extension MeetingsViewController {
 
 // MARK: - Calendar background actions (will/should be called in a backgroundThread)
 extension MeetingsViewController {
+    
+    @IBAction func gotoSettingsButtonClick(sender: UIButton) {
+        grantAccessClicked()
+    }
     
     func grantAccessClicked() {
         let openSettingsUrl = NSURL(string: UIApplicationOpenSettingsURLString)

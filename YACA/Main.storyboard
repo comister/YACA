@@ -1095,6 +1095,9 @@
                                                 <include reference="r61-jY-zSI"/>
                                             </mask>
                                         </variation>
+                                        <connections>
+                                            <action selector="gotoSettingsButtonClick:" destination="4Pi-XJ-cIs" eventType="touchUpInside" id="bgx-Py-QwP"/>
+                                        </connections>
                                     </button>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="No access to Calendar" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ecy-LL-UN8">
                                         <rect key="frame" x="-42" y="-21" width="42" height="21"/>
@@ -1842,7 +1845,9 @@ show and retrieve the temperature</string>
                                 <rect key="frame" x="0.0" y="-216" width="320" height="216"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="120" id="5px-V3-443"/>
+                                    <constraint firstAttribute="height" constant="120" id="5px-V3-443">
+                                        <variation key="widthClass=compact" constant="150"/>
+                                    </constraint>
                                 </constraints>
                                 <variation key="default">
                                     <mask key="constraints">

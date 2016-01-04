@@ -38,7 +38,7 @@ class NoteViewController: UIViewController {
     
     @IBAction func deleteNote(sender: AnyObject) {
         
-        let confirmation = UIAlertController(title: "Delete Note", message: "Are you sure you want to permantently delete this note?", preferredStyle: UIAlertControllerStyle.ActionSheet)
+        let confirmation = UIAlertController(title: "Delete Note", message: "Are you sure you want to permanently delete this note?", preferredStyle: UIAlertControllerStyle.ActionSheet)
         let cancelAction: UIAlertAction = UIAlertAction(title: "Cancel", style: .Cancel) { action -> Void in
             
         }

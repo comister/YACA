@@ -55,15 +55,7 @@ class MeetingListCell: UICollectionViewCell, UITableViewDelegate, UITableViewDat
             updateContent()
         }
     }
-    
-    var taskToCancelifCellIsReused: NSURLSessionTask? {
-        didSet {
-            if let taskToCancel = oldValue {
-                taskToCancel.cancel()
-            }
-        }
-    }
-    
+
     // MARK: - Core Data
     var sharedContext: NSManagedObjectContext {
         return CoreDataStackManager.sharedInstance().managedObjectContext!

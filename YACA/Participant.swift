@@ -55,8 +55,5 @@ class Participant: NSManagedObject {
         name = attendee!.name
         email = attendee!.getEmail()
         myself = attendee!.currentUser
-        
-        //getGeoInformation(context)
-        
     }
 }

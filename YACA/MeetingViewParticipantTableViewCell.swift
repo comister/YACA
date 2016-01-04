@@ -8,6 +8,4 @@
 
 import UIKit
 
-class MeetingViewParticipantTableViewCell: UITableViewCell {
-
-}
+class MeetingViewParticipantTableViewCell: UITableViewCell { }

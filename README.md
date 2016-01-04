@@ -38,4 +38,17 @@ The app does not take care of recurring meetings at the moment !
 * You can review the notes under All Notes with the ability to delete by either opening the note and using the basket-icon or by swiping from right to left and using the appearing DELETE button
 * Typing on an attendee in the Collection View Cell gives you some information about the location of the attendee and some current facts, like weather and times
 
+#### Things to improve in a possible future version (just some kind of notes)
+
+* Show some additional information in CollcetionView to visualise current location in Calendar (showing week on top or similar)
+* Model to be splitted up into more entities including proper relationships, Location > Weather and Location > Timezone
+* Currently only local Contacts are used to determine a Location, LDAP search for i.e. exchange would add a lot of value for Enterprise customers
+* iCloud support (especially for Notes)
+
 Thats all folks, seems to be quiet easy app and far away from being something I would call final, but it is a working app demonstrating some nice techniques in several aspects.
+
+##### References ( and used code from other parties)
+
+* Custom segmented control by appdesignvault ( https://www.youtube.com/watch?v=qT1ZEE2CBDQ ) 
+* Ray Wenderlich ( http://www.raywenderlich.com/ ) helped me with a lot of challenges during my dev process as well as
+* Andrew Bancroft ( https://www.andrewcbancroft.com/category/software-development/ios-mac/swift/ )

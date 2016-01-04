@@ -110,25 +110,19 @@ class CoreDataStackManager {
     
     // MARK: - Core Data Saving support
     func saveContext(context: NSManagedObjectContext? = CoreDataStackManager.sharedInstance().managedObjectContext!,completition : (()->() )? ) {
-        //Perform save on main thread
-        
         if let context = self.managedObjectContext {
             context.performBlockAndWait { () -> Void in
                 if context.hasChanges {
                     do {
                         try context.save()
-                        //context.refreshAllObjects()
                     } catch let error as NSError {
                         NSLog("Unresolved error \(error), \(error.userInfo)")
                         abort()
                     }
                     
-                    //Call delegate method --> not used anymore
+                    //Call delegate method --> not used anymore but keep alive
                     self.delegate?.CoreDataStackManagerDidSaveContext()
-                    print("")
-                    print("Calling delegate!!!!!")
-                    print("")
-                    //Send notification message
+                    //Send notification message --> not used anymore but keep alive
                     self.defaultCenter.postNotificationName(Constants.contextSaveNotification, object: self)
                     
                 }

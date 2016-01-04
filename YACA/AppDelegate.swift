@@ -47,7 +47,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
     }
     
-    // MARK: - Adding this function to AppDelegate to have access from everywhere
+    // MARK: - Adding this function to AppDelegate to have access from everywhere (which would be possible otherwise as well, for sure)
     func checkContactsAuthorizationStatus(completionHandler: (accessGranted: Bool) -> Void) {
         let status = CNContactStore.authorizationStatusForEntityType(CNEntityType.Contacts)
         

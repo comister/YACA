@@ -49,7 +49,6 @@ class Location: NSManagedObject {
         let entity =  NSEntityDescription.entityForName(statics.entityName, inManagedObjectContext: context)!
         super.init(entity: entity, insertIntoManagedObjectContext: context)
         // Dictionary
-        
         country = dictionary[Keys.Country] as? String
         city = dictionary[Keys.City] as? String
         weather = dictionary[Keys.Weather] as? String
