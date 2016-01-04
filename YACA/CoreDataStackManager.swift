@@ -109,7 +109,7 @@ class CoreDataStackManager {
     }()
     
     // MARK: - Core Data Saving support
-    func saveContext(context: NSManagedObjectContext? = CoreDataStackManager.sharedInstance().managedObjectContext!,completition : (()->() )? ) {
+    func saveContext(context: NSManagedObjectContext? = CoreDataStackManager.sharedInstance().managedObjectContext!, completition : (()->() )? ) {
         if let context = self.managedObjectContext {
             context.performBlockAndWait { () -> Void in
                 if context.hasChanges {

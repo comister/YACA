@@ -36,6 +36,7 @@ class Datasource: MeetingDelegate {
             if meetingsToCreate == 0 {
                 self.delegate?.DataSourceFinishedProcessing()
             }
+            print("Setting meeting count to " + String(meetingsToCreate))
         }
     }
     
@@ -47,6 +48,7 @@ class Datasource: MeetingDelegate {
         self.delegate?.DataSourceStartedProcessing()
         var localMeetings = [Meeting]()
         meetingsToCreate = events.count
+        
         for event in events {
             let meeting = Meeting(event: event)
             meeting.delegate = self
@@ -85,6 +87,9 @@ class Datasource: MeetingDelegate {
     }
     
     func MeetingDidCreate() {
+        print("")
+        print("Processing Meeting " + String(self.meetingsToCreate) + " -- meetings left: " + String(self.meetingsToCreate-1))
+        print("")
         self.meetingsToCreate--
         
     }

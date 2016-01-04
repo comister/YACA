@@ -50,6 +50,7 @@ class Meeting: NSObject {
     var attendeesToCreate: Int = 0 {
         didSet {
             if attendeesToCreate == 0 {
+                print("----------------We are good, we are 0 now----------------")
                 self.delegate?.MeetingDidCreate()
             }
         }
@@ -77,7 +78,11 @@ class Meeting: NSObject {
                     participant, error in
                     if error == nil {
                         self.participantArray.append(participant!)
+                    } else {
+                        print("THERE was an ERROR in getParticipant .....")
                     }
+
+                    print("        Attendee " + String(self.attendeesToCreate) + " -- attendees left: " + String(self.attendeesToCreate-1))
                     self.attendeesToCreate--
                 }
             }
@@ -246,7 +251,7 @@ class Meeting: NSObject {
                                     OpenWeatherClient.sharedInstance().getWeatherByLatLong(placemark.location!.coordinate.latitude, long: placemark.location!.coordinate.longitude, unitIndex: NSUserDefaults.standardUserDefaults().integerForKey("temperatureIndex"))  { data, error in
                                         if let anError = error {
                                             completionHandler(result: returnDictionary, error: NSError(domain: "Not able to get result from openweather Client: " + anError.localizedDescription, code: 0, userInfo: nil))
-                                        return
+                                            return
                                         } else {
                                             // this should never happen, but check to get sure
                                             if data != nil {

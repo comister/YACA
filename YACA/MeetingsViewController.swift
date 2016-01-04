@@ -94,20 +94,37 @@ class MeetingsViewController: UIViewController, DataSourceDelegate {
     
     // MARK: - Using the delegate of Datasource to determine Indicator appearance as well as collectionView appearance
     func DataSourceFinishedProcessing() {
-        dispatch_async(dispatch_get_main_queue()) {
-            self.loadIndicator.stopAnimating()
-            self.meetingCollectionView.hidden = false
-            self.meetingCollectionView.reloadData()
-            self.stopLoadAnimation()
+        
+        if (NSThread.isMainThread()) {
+            loadIndicator.stopAnimating()
+            meetingCollectionView.hidden = false
+            meetingCollectionView.reloadData()
+            stopLoadAnimation()
+        } else {
+            NSOperationQueue.mainQueue().addOperationWithBlock(){
+                self.loadIndicator.stopAnimating()
+                self.meetingCollectionView.hidden = false
+                self.meetingCollectionView.reloadData()
+                self.stopLoadAnimation()
+            }
         }
+        
     }
     
     func DataSourceStartedProcessing() {
-        dispatch_async(dispatch_get_main_queue()) {
-            self.loadIndicator.startAnimating()
-            self.meetingCollectionView.hidden = true
-            self.startLoadAnimation()
+        
+        if (NSThread.isMainThread()) {
+            loadIndicator.startAnimating()
+            meetingCollectionView.hidden = true
+            startLoadAnimation()
+        } else {
+            NSOperationQueue.mainQueue().addOperationWithBlock(){
+                self.loadIndicator.startAnimating()
+                self.meetingCollectionView.hidden = true
+                self.startLoadAnimation()
+            }
         }
+        
     }
     
     override func viewDidAppear(animated: Bool) {
@@ -204,8 +221,9 @@ extension MeetingsViewController: UICollectionViewDataSource {
     func collectionView(collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, atIndexPath indexPath: NSIndexPath) -> UICollectionReusableView {
         
         let headerCell = collectionView.dequeueReusableSupplementaryViewOfKind(kind, withReuseIdentifier: "meetingCellHeader", forIndexPath: indexPath) as? MeetingListCellHeader
-
-        headerCell?.dayLabel.text = Datasource.sharedInstance.getSpecialWeekdayOfDate((Datasource.sharedInstance.sortedMeetingArray[indexPath.section]))
+        if Datasource.sharedInstance.sortedMeetingArray.count > 0 {
+            headerCell?.dayLabel.text = Datasource.sharedInstance.getSpecialWeekdayOfDate((Datasource.sharedInstance.sortedMeetingArray[indexPath.section]))
+        }
         
         return headerCell!
     }
