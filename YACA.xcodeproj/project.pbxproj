@@ -37,6 +37,7 @@
 		3E9A68961C3557A90020BC7C /* NotesTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E9A68951C3557A90020BC7C /* NotesTableCell.swift */; };
 		3E9A689A1C3949510020BC7C /* EKParticipant.extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E9A68991C3949510020BC7C /* EKParticipant.extension.swift */; };
 		3E9A689C1C394AAB0020BC7C /* UIImage.extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E9A689B1C394AAB0020BC7C /* UIImage.extension.swift */; };
+		3E9A689E1C3A82BF0020BC7C /* YACA_Description.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 3E9A689D1C3A82BF0020BC7C /* YACA_Description.pdf */; };
 		3EA80B311C28470C00E96AF3 /* Note.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EA80B301C28470C00E96AF3 /* Note.swift */; };
 		3EA80B331C297E4100E96AF3 /* Meeting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EA80B321C297E4100E96AF3 /* Meeting.swift */; };
 		3EA80B351C29CDDD00E96AF3 /* TabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EA80B341C29CDDD00E96AF3 /* TabBarController.swift */; };
@@ -87,6 +88,7 @@
 		3E9A68981C36DB100020BC7C /* YACAv6.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = YACAv6.xcdatamodel; sourceTree = "<group>"; };
 		3E9A68991C3949510020BC7C /* EKParticipant.extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EKParticipant.extension.swift; sourceTree = "<group>"; };
 		3E9A689B1C394AAB0020BC7C /* UIImage.extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIImage.extension.swift; sourceTree = "<group>"; };
+		3E9A689D1C3A82BF0020BC7C /* YACA_Description.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = YACA_Description.pdf; sourceTree = "<group>"; };
 		3EA80B301C28470C00E96AF3 /* Note.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Note.swift; sourceTree = "<group>"; };
 		3EA80B321C297E4100E96AF3 /* Meeting.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Meeting.swift; sourceTree = "<group>"; };
 		3EA80B341C29CDDD00E96AF3 /* TabBarController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TabBarController.swift; sourceTree = "<group>"; };
@@ -190,6 +192,7 @@
 		3E3BEBEC1C243956008BC0CF = {
 			isa = PBXGroup;
 			children = (
+				3E9A689D1C3A82BF0020BC7C /* YACA_Description.pdf */,
 				3EA80B381C29D4CE00E96AF3 /* README.md */,
 				3E3BEBF71C243956008BC0CF /* YACA */,
 				3E3BEBF61C243956008BC0CF /* Products */,
@@ -313,6 +316,7 @@
 				3E3BEC2C1C243999008BC0CF /* Assets.xcassets in Resources */,
 				3E3BEC1F1C243999008BC0CF /* MeetingListCellHeader.xib in Resources */,
 				3E3BEC2F1C243999008BC0CF /* Roboto-Regular.ttf in Resources */,
+				3E9A689E1C3A82BF0020BC7C /* YACA_Description.pdf in Resources */,
 				3E3BEC351C2439B1008BC0CF /* Main.storyboard in Resources */,
 				3E3BEC361C2439B1008BC0CF /* LaunchScreen.storyboard in Resources */,
 				3E3BEC301C243999008BC0CF /* Roboto-Thin.ttf in Resources */,
