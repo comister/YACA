@@ -117,23 +117,25 @@ class CoreDataStackManager {
                 if context.hasChanges {
                     do {
                         try context.save()
-                        //context.reset()
+                        //context.refreshAllObjects()
                     } catch let error as NSError {
                         NSLog("Unresolved error \(error), \(error.userInfo)")
                         abort()
                     }
+                    
+                    //Call delegate method
+                    self.delegate?.CoreDataStackManagerDidSaveContext()
+                    print("")
+                    print("Calling delegate!!!!!")
+                    print("")
+                    //Send notification message
+                    self.defaultCenter.postNotificationName(Constants.contextSaveNotification, object: self)
+                    
                 }
-            }
-            
-            //Call delegate method
-            delegate?.CoreDataStackManagerDidSaveContext()
-            
-            //Send notification message
-            defaultCenter.postNotificationName(Constants.contextSaveNotification, object: self)
-            
-            //Perform completition closure
-            if let closure = completition {
-                closure()
+                //Perform completition closure
+                if let closure = completition {
+                    closure()
+                }
             }
         }
     }

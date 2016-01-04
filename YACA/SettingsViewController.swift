@@ -27,22 +27,18 @@ class SettingsViewController: UIViewController {
     @IBOutlet weak var calendarPicker: UIPickerView!
     @IBOutlet weak var pickCalendarButton: UIButton!
     @IBOutlet weak var durationSegments: UISegmentedControl!
-    @IBOutlet weak var storeIniCloud: UISwitch!
     @IBOutlet weak var temperatureSegment: UISegmentedControl!
     
     override func viewDidLoad() {
         calendarPicker.delegate = self
         calendarPicker.dataSource = self
-        configureUI()
     }
     
     override func viewWillAppear(animated: Bool) {
         loadCalendars()
         if NSUserDefaults.standardUserDefaults().stringForKey("selectedCalendar") != nil {
-            //dispatch_async(dispatch_get_main_queue()){
-            print(NSUserDefaults.standardUserDefaults().stringForKey("selectedCalendarName"))
-                self.pickCalendarButton.titleLabel?.text = NSUserDefaults.standardUserDefaults().stringForKey("selectedCalendarName")
-            //}
+            
+            self.pickCalendarButton.titleLabel?.text = NSUserDefaults.standardUserDefaults().stringForKey("selectedCalendarName")
             selectedCalendar = NSUserDefaults.standardUserDefaults().stringForKey("selectedCalendar")
             durationSegments.selectedSegmentIndex = NSUserDefaults.standardUserDefaults().integerForKey("durationIndex")
             temperatureSegment.selectedSegmentIndex = NSUserDefaults.standardUserDefaults().integerForKey("temperatureIndex")
@@ -59,25 +55,20 @@ class SettingsViewController: UIViewController {
         NSUserDefaults.standardUserDefaults().setInteger(sender.selectedSegmentIndex, forKey: "durationIndex")
         var duration = 0
         switch sender.selectedSegmentIndex {
-        case 0:
-            duration = 86400
-        case 1:
-            duration = 604800
-        case 3:
-            duration = 2419200
-        default:
-            duration = 0
+            case 0:
+                duration = 86400
+            case 1:
+                duration = 604800
+            case 3:
+                duration = 2419200
+            default:
+                duration = 0
         }
         NSUserDefaults.standardUserDefaults().setValue(duration, forKey: "duration")
     }
     
     @IBAction func metricsChanged(sender: UISegmentedControl) {
         NSUserDefaults.standardUserDefaults().setInteger(sender.selectedSegmentIndex, forKey: "temperatureIndex")
-    }
-    
-    
-    @IBAction func iCloudSwitchChanged(sender: UISwitch) {
-        NSUserDefaults.standardUserDefaults().setBool(sender.on, forKey: "iCloudOn")
     }
     
     func grantAccessClicked() {
@@ -102,29 +93,14 @@ extension SettingsViewController {
         appDelegate.checkCalendarAuthorizationStatus { (accessGranted) -> Void in
             if accessGranted {
                 self.calendars = self.eventStore.calendarsForEntityType(EKEntityType.Event)
+            } else {
+                
             }
         }
     }
 }
 
-// MARK: - configure the UI for SettingsViewController
-extension SettingsViewController {
-    func configureUI() {
-        //not configuring Settings screen, looks strange with all this orange here
-        /*
-        self.view.backgroundColor = UIColor.clearColor()
-        let colorTop = UIColor(red: 1, green: 0.680, blue: 0.225, alpha: 1.0).CGColor
-        let colorBottom = UIColor(red: 1, green: 0.594, blue: 0.128, alpha: 1.0).CGColor
-        self.backgroundGradient = CAGradientLayer()
-        self.backgroundGradient!.colors = [colorTop, colorBottom]
-        self.backgroundGradient!.locations = [0.0, 1.0]
-        self.backgroundGradient!.frame = view.frame
-        self.view.layer.insertSublayer(self.backgroundGradient!, atIndex: 0)
-        */
-    }
-}
-
-
+// MARK: - Everything related to the PickerViewmfor Calendar Selection
 extension SettingsViewController: UIPickerViewDelegate, UIPickerViewDataSource {
     
     @IBAction func clickCalendar(sender: UIButton) {

@@ -12,8 +12,7 @@ import EventKit
 import Contacts
 import CoreData
 
-
-class MeetingsViewController: UIViewController {
+class MeetingsViewController: UIViewController, DataSourceDelegate {
     
     var backgroundGradient: CAGradientLayer? = nil
     var meeting: Meeting!
@@ -35,6 +34,7 @@ class MeetingsViewController: UIViewController {
         tapRecognizer = UITapGestureRecognizer(target: self, action: "handleSingleTap:")
         tapRecognizer?.numberOfTapsRequired = 1
         tapRecognizer?.cancelsTouchesInView = false
+        Datasource.sharedInstance.delegate = self
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -62,10 +62,19 @@ class MeetingsViewController: UIViewController {
         appDelegate.backgroundThread(0.0, background: {
             self.loadEvents()
         }, completion: {
-            self.loadIndicator.stopAnimating()
+            
             self.meetingCollectionView.hidden = false
             self.meetingCollectionView.reloadData()
         })
+    }
+    
+    // MARK: - Using the delegate of Datasource to determine Indicator appearance
+    func DataSourceFinishedProcessing() {
+        self.loadIndicator.stopAnimating()
+    }
+    
+    func DataSourceStartedProcessing() {
+        self.loadIndicator.startAnimating()
     }
     
     override func viewDidAppear(animated: Bool) {
@@ -85,14 +94,14 @@ class MeetingsViewController: UIViewController {
     func getDurationOfIndex(index: Int) -> Int {
         var duration = 0
         switch index {
-        case 0:
-            duration = 86400
-        case 1:
-            duration = 604800
-        case 2:
-            duration = 2419200
-        default:
-            duration = 0
+            case 0:
+                duration = 86400
+            case 1:
+                duration = 604800
+            case 2:
+                duration = 2419200
+            default:
+                duration = 0
         }
         return duration
     }
@@ -102,12 +111,10 @@ class MeetingsViewController: UIViewController {
         NSUserDefaults.standardUserDefaults().setValue(durationSgements.selectedIndex, forKey: "durationIndex")
         NSUserDefaults.standardUserDefaults().setValue(localDuration, forKey: "duration")
         self.duration = localDuration
-        loadIndicator.startAnimating()
         
         appDelegate.backgroundThread(0.0, background: {
             self.loadEvents()
         }, completion: {
-            self.loadIndicator.stopAnimating()
             self.meetingCollectionView.hidden = false
             self.meetingCollectionView.reloadData()
         })
@@ -240,9 +247,6 @@ extension MeetingsViewController {
     func fetchEvents(eventStore: EKEventStore, calendarIdentity: String, completed: ([EKEvent]) -> ()) {
         let endDate = NSDate(timeIntervalSinceNow: NSTimeInterval(self.duration))
         let predicate = eventStore.predicateForEventsWithStartDate(NSDate(), endDate: endDate, calendars: [self.eventStore.calendarWithIdentifier(calendarIdentity)!])
-        
-        //let events = NSMutableArray(array: eventStore.eventsMatchingPredicate(predicate))
-        
         completed(eventStore.eventsMatchingPredicate(predicate) as [EKEvent]!)
     }
 }

@@ -40,6 +40,7 @@ extension OpenWeatherClient {
                     if let temperature = mainContainer.valueForKey(OpenWeatherClient.JSONResponseKeys.mainTemperature) {
                         returnDict["weather_temp"] = NSNumber(double: temperature as! Double)
                         completionHandler(result: returnDict, error: nil)
+                        return
                     }
                 }
                 completionHandler(result: returnDict, error: nil)
