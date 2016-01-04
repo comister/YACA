@@ -27,6 +27,7 @@ class MeetingsViewController: UIViewController, DataSourceDelegate {
     @IBOutlet weak var calendarName: UILabel!
     @IBOutlet weak var durationSgements: CustomSegmentedControl!
     @IBOutlet weak var loadIndicator: UIActivityIndicatorView!
+    @IBOutlet weak var loadLabel: UILabel!
     @IBOutlet weak var noAccessView: UIView!
     
     override func viewDidLoad() {
@@ -66,10 +67,6 @@ class MeetingsViewController: UIViewController, DataSourceDelegate {
         
         appDelegate.backgroundThread(0.0, background: {
             self.loadEvents()
-        }, completion: {
-            
-            self.meetingCollectionView.hidden = false
-            self.meetingCollectionView.reloadData()
         })
     }
     
@@ -95,13 +92,18 @@ class MeetingsViewController: UIViewController, DataSourceDelegate {
         return returnValue
     }
     
-    // MARK: - Using the delegate of Datasource to determine Indicator appearance
+    // MARK: - Using the delegate of Datasource to determine Indicator appearance as well as collectionView appearance
     func DataSourceFinishedProcessing() {
         self.loadIndicator.stopAnimating()
+        self.meetingCollectionView.hidden = false
+        stopLoadAnimation()
+        self.meetingCollectionView.reloadData()
     }
     
     func DataSourceStartedProcessing() {
         self.loadIndicator.startAnimating()
+        self.meetingCollectionView.hidden = true
+        startLoadAnimation()
     }
     
     override func viewDidAppear(animated: Bool) {
@@ -138,12 +140,10 @@ class MeetingsViewController: UIViewController, DataSourceDelegate {
         NSUserDefaults.standardUserDefaults().setValue(durationSgements.selectedIndex, forKey: "durationIndex")
         NSUserDefaults.standardUserDefaults().setValue(localDuration, forKey: "duration")
         self.duration = localDuration
+        self.meetingCollectionView.hidden = true
         
         appDelegate.backgroundThread(0.0, background: {
             self.loadEvents()
-        }, completion: {
-            self.meetingCollectionView.hidden = false
-            self.meetingCollectionView.reloadData()
         })
     }
     
@@ -163,6 +163,24 @@ class MeetingsViewController: UIViewController, DataSourceDelegate {
         return fetchedResultsController
         
     }()
+    
+    
+    func startLoadAnimation() {
+        let animation = CABasicAnimation(keyPath: "opacity")
+        animation.duration = 0.3
+        animation.repeatCount = 9999
+        animation.autoreverses = true
+        animation.fromValue = 1.0
+        animation.toValue = 0.1
+        loadLabel.hidden = false
+        loadLabel.layer.addAnimation(animation, forKey: "animateOpacity")
+    }
+    
+    func stopLoadAnimation() {
+        loadLabel.layer.removeAnimationForKey("animateOpacity")
+        loadLabel.hidden = true
+    }
+    
     
 }
 
