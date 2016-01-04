@@ -272,8 +272,6 @@ class Meeting: NSObject {
                             }
                             
                         } else {
-                            print(fetchedResultsControllerForLocation.fetchedObjects)
-                            
                             GoogleAPIClient.sharedInstance().getTimeOfLocation(placemark.location!.coordinate.latitude, long: placemark.location!.coordinate.longitude) { timezoneInfo, timezoneError in
                                 
                                 if let anError = timezoneError {

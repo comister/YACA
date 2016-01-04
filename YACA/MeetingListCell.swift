@@ -122,7 +122,6 @@ class MeetingListCell: UICollectionViewCell, UITableViewDelegate, UITableViewDat
                 
             } else {
                 participantDetailsWeather.text = ""
-                print(meeting.participantArray[indexPath.row].location)
             }
             
             // use timeoffset of google timezone api to calculate th respective times for meeting as well as actual time
@@ -130,7 +129,6 @@ class MeetingListCell: UICollectionViewCell, UITableViewDelegate, UITableViewDat
                 let dateFormatter = NSDateFormatter()
                 dateFormatter.locale = NSLocale(localeIdentifier: "en_US")
                 dateFormatter.dateFormat = "YYYY-MM-dd HH:mm"
-                print(dateFormatter.stringFromDate(NSDate(timeInterval: (timeOffset as Double), sinceDate: NSDate())))
                 participantDetailsTime.text = "" + dateFormatter.stringFromDate(NSDate(timeInterval: (timeOffset as Double), sinceDate: NSDate()))
                 dateFormatter.dateFormat = "HH:mm"
                 participantDetailsMeetingTime.text = dateFormatter.stringFromDate(NSDate(timeInterval: (timeOffset as Double), sinceDate: meeting.starttime)) + " - " + dateFormatter.stringFromDate(NSDate(timeInterval: (timeOffset as Double), sinceDate: meeting.endtime))
