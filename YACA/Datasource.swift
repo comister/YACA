@@ -16,6 +16,7 @@ import EventKit
 protocol DataSourceDelegate : class {
     func DataSourceFinishedProcessing()
     func DataSourceStartedProcessing()
+    func ConnectivityProblem(status: Bool)
 }
 
 class Datasource: MeetingDelegate {
@@ -36,7 +37,6 @@ class Datasource: MeetingDelegate {
             if meetingsToCreate == 0 {
                 self.delegate?.DataSourceFinishedProcessing()
             }
-            print("Setting meeting count to " + String(meetingsToCreate))
         }
     }
     
@@ -48,7 +48,6 @@ class Datasource: MeetingDelegate {
         self.delegate?.DataSourceStartedProcessing()
         var localMeetings = [Meeting]()
         meetingsToCreate = events.count
-        
         for event in events {
             let meeting = Meeting(event: event)
             meeting.delegate = self
@@ -62,9 +61,7 @@ class Datasource: MeetingDelegate {
     }
     
     // MARK: - prohibits the creation of an instance outside the singleton pattern
-    private init() {
-        
-    }
+    private init() { }
     
     // MARK: - iterate through each Event and fill up dates, afterwards sort
     func structureMeetings() {
@@ -87,11 +84,13 @@ class Datasource: MeetingDelegate {
     }
     
     func MeetingDidCreate() {
-        print("")
-        print("Processing Meeting " + String(self.meetingsToCreate) + " -- meetings left: " + String(self.meetingsToCreate-1))
-        print("")
         self.meetingsToCreate--
-        
+        print("Meeting got created !!")
+    }
+    
+    //pass through delegate
+    func ConnectivityProblem(status: Bool) {
+        self.delegate?.ConnectivityProblem(status)
     }
     
     // MARK: - returns the weekday of a date, the special is because it does return the string today and tomorrow

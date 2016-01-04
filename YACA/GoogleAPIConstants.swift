@@ -15,6 +15,10 @@ extension GoogleAPIClient {
         static let BaseURL = "https://maps.googleapis.com/maps/api/timezone/json"
     }
     
+    struct ErrorKeys {
+        static let Timeout = -1001
+    }
+    
     // MARK: - Parameter Keys
     struct ParameterKeys {
         static let Location = "location"

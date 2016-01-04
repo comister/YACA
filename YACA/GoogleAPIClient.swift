@@ -31,10 +31,9 @@ class GoogleAPIClient : NSObject {
         let urlString = Constants.BaseURL + GoogleAPIClient.escapedParameters(mutableParameters)
         let url = NSURL(string: urlString)!
         let request = NSMutableURLRequest(URL: url)
-        
+        request.timeoutInterval = 10 // this cannot take longer than 10 seconds, otherwise we are assuming connection is not working
         /* 4. Make the request */
         let task = session.dataTaskWithRequest(request) {data, response, downloadError in
-            
             /* 5/6. Parse the data and use the data (happens in completion handler) */
             if let error = downloadError {
                 let newError = GoogleAPIClient.errorForData(data, response: response, error: error)
@@ -64,27 +63,6 @@ class GoogleAPIClient : NSObject {
     
     /* Helper: Given a response with error, see if a status_message is returned, otherwise return the previous error */
     class func errorForData(data: NSData?, response: NSURLResponse?, error: NSError) -> NSError {
-        if data == nil {
-            return NSError(domain: "No data received", code: 1, userInfo: [NSLocalizedDescriptionKey: "No data received"])
-        }
-        
-        do {
-            _ = try NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions.AllowFragments)
-        } catch let error as NSError {
-            // TODO - do something here, figure out later, how to work with errors from Facebook API
-            print("client/restcountries:" + error.localizedDescription)
-        }
-        /*
-        if let parsedResult = NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions.AllowFragments, error: nil) as? [String : AnyObject] {
-        
-        if let errorMessage = parsedResult[parseClient.JSONResponseKeys.StatusMessage] as? String {
-        
-        let userInfo = [NSLocalizedDescriptionKey : errorMessage]
-        
-        return NSError(domain: "parse Client Error", code: 1, userInfo: userInfo)
-        }
-        }
-        */
         return error
     }
     

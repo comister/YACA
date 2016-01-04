@@ -31,7 +31,8 @@ class OpenWeatherClient : NSObject {
         let urlString = Constants.BaseURL + OpenWeatherClient.escapedParameters(mutableParameters)
         let url = NSURL(string: urlString)!
         let request = NSMutableURLRequest(URL: url)
-
+        request.timeoutInterval = 15
+        
         /* 4. Make the request */
         let task = session.dataTaskWithRequest(request) {data, response, downloadError in
             
@@ -64,27 +65,6 @@ class OpenWeatherClient : NSObject {
     
     /* Helper: Given a response with error, see if a status_message is returned, otherwise return the previous error */
     class func errorForData(data: NSData?, response: NSURLResponse?, error: NSError) -> NSError {
-        if data == nil {
-            return NSError(domain: "No data received", code: 1, userInfo: [NSLocalizedDescriptionKey: "No data received"])
-        }
-        
-        do {
-            _ = try NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions.AllowFragments)
-        } catch let error as NSError {
-            // TODO - do something here, figure out later, how to work with errors from Facebook API
-            print(error.localizedDescription)
-        }
-        /*
-        if let parsedResult = NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions.AllowFragments, error: nil) as? [String : AnyObject] {
-        
-        if let errorMessage = parsedResult[parseClient.JSONResponseKeys.StatusMessage] as? String {
-        
-        let userInfo = [NSLocalizedDescriptionKey : errorMessage]
-        
-        return NSError(domain: "parse Client Error", code: 1, userInfo: userInfo)
-        }
-        }
-        */
         return error
     }
     

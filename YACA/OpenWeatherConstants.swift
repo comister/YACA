@@ -19,6 +19,10 @@ extension OpenWeatherClient {
         static let iconLocation: String = "http://openweathermap.org/img/w/"
     }
     
+    struct ErrorKeys {
+        static let Timeout = -1001
+    }
+    
     // MARK: - Methods
     struct Methods {
         // MARK: currently no methods, everything queried through the URL set in BaseURL

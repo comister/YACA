@@ -27,7 +27,8 @@ class MeetingsViewController: UIViewController, DataSourceDelegate {
     @IBOutlet weak var calendarName: UILabel!
     @IBOutlet weak var durationSgements: CustomSegmentedControl!
     @IBOutlet weak var loadIndicator: UIActivityIndicatorView!
-    @IBOutlet weak var loadLabel: UILabel!
+    @IBOutlet weak var noConnectionIndicator: UILabel!
+    @IBOutlet weak var noConnectionIndicatorText: UILabel!
     @IBOutlet weak var noAccessView: UIView!
     
     override func viewDidLoad() {
@@ -64,10 +65,7 @@ class MeetingsViewController: UIViewController, DataSourceDelegate {
         durationSgements.addTarget(self, action: "changeDuration:", forControlEvents: .ValueChanged)
         
         self.duration = getDurationOfIndex(NSUserDefaults.standardUserDefaults().integerForKey("durationIndex"))
-        
-        appDelegate.backgroundThread(0.0, background: {
-            self.loadEvents()
-        })
+        self.loadEvents()
     }
     
     func checkCalendarAndContactsAccess() -> Bool {
@@ -92,39 +90,53 @@ class MeetingsViewController: UIViewController, DataSourceDelegate {
         return returnValue
     }
     
-    // MARK: - Using the delegate of Datasource to determine Indicator appearance as well as collectionView appearance
+    // MARK: - Using the delegate of Datasource to determine Indicator appearance
     func DataSourceFinishedProcessing() {
-        
-        if (NSThread.isMainThread()) {
-            loadIndicator.stopAnimating()
-            meetingCollectionView.hidden = false
-            meetingCollectionView.reloadData()
-            stopLoadAnimation()
-        } else {
-            NSOperationQueue.mainQueue().addOperationWithBlock(){
-                self.loadIndicator.stopAnimating()
-                self.meetingCollectionView.hidden = false
-                self.meetingCollectionView.reloadData()
-                self.stopLoadAnimation()
-            }
+        dispatch_async(dispatch_get_main_queue()) {
+            self.meetingCollectionView.hidden = false
+            self.meetingCollectionView.reloadData()
+            self.loadIndicator.stopAnimating()
         }
-        
     }
     
     func DataSourceStartedProcessing() {
-        
-        if (NSThread.isMainThread()) {
-            loadIndicator.startAnimating()
-            meetingCollectionView.hidden = true
-            startLoadAnimation()
-        } else {
-            NSOperationQueue.mainQueue().addOperationWithBlock(){
-                self.loadIndicator.startAnimating()
-                self.meetingCollectionView.hidden = true
-                self.startLoadAnimation()
-            }
+        dispatch_async(dispatch_get_main_queue()) {
+            self.loadIndicator.startAnimating()
         }
-        
+    }
+    
+    func ConnectivityProblem(status: Bool) {
+        if status == true {
+            startConnectivityAnimation()
+        } else {
+            stopConnectivityAnimation()
+        }
+    }
+    
+    func startConnectivityAnimation() {
+        print("having connectivity issues!!")
+        let animation = CABasicAnimation(keyPath: "opacity")
+        animation.duration = 0.3
+        animation.repeatCount = 15
+        animation.autoreverses = true
+        animation.fromValue = 0.1
+        animation.toValue = 1.0
+        dispatch_async(dispatch_get_main_queue()) {
+            self.noConnectionIndicator.hidden = false
+            self.noConnectionIndicatorText.hidden = false
+            self.noConnectionIndicatorText.layer.addAnimation(animation, forKey: "animateOpacity")
+            self.noConnectionIndicator.layer.addAnimation(animation, forKey: "animateOpacity")
+        }
+    }
+    
+    func stopConnectivityAnimation() {
+        print("connectivity issues resolved!!")
+        dispatch_async(dispatch_get_main_queue()) {
+            self.noConnectionIndicator.layer.removeAnimationForKey("animateOpacity")
+            self.noConnectionIndicator.hidden = true
+            self.noConnectionIndicatorText.layer.removeAnimationForKey("animateOpacity")
+            self.noConnectionIndicatorText.hidden = true
+        }
     }
     
     override func viewDidAppear(animated: Bool) {
@@ -161,11 +173,7 @@ class MeetingsViewController: UIViewController, DataSourceDelegate {
         NSUserDefaults.standardUserDefaults().setValue(durationSgements.selectedIndex, forKey: "durationIndex")
         NSUserDefaults.standardUserDefaults().setValue(localDuration, forKey: "duration")
         self.duration = localDuration
-        self.meetingCollectionView.hidden = true
-        
-        appDelegate.backgroundThread(0.0, background: {
-            self.loadEvents()
-        })
+        self.loadEvents()
     }
     
     // MARK: - Core Data
@@ -185,26 +193,6 @@ class MeetingsViewController: UIViewController, DataSourceDelegate {
         
     }()
     
-    
-    func startLoadAnimation() {
-        print("start animation")
-        let animation = CABasicAnimation(keyPath: "opacity")
-        animation.duration = 0.6
-        animation.repeatCount = 9999
-        animation.autoreverses = true
-        animation.fromValue = 1.0
-        animation.toValue = 0.1
-        loadLabel.hidden = false
-        loadLabel.layer.addAnimation(animation, forKey: "animateOpacity")
-    }
-    
-    func stopLoadAnimation() {
-        print("stop animation")
-        loadLabel.layer.removeAnimationForKey("animateOpacity")
-        loadLabel.hidden = true
-    }
-    
-    
 }
 
 // MARK: - CollectionView related methods
@@ -221,22 +209,17 @@ extension MeetingsViewController: UICollectionViewDataSource {
     func collectionView(collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, atIndexPath indexPath: NSIndexPath) -> UICollectionReusableView {
         
         let headerCell = collectionView.dequeueReusableSupplementaryViewOfKind(kind, withReuseIdentifier: "meetingCellHeader", forIndexPath: indexPath) as? MeetingListCellHeader
-        if Datasource.sharedInstance.sortedMeetingArray.count > 0 {
-            headerCell?.dayLabel.text = Datasource.sharedInstance.getSpecialWeekdayOfDate((Datasource.sharedInstance.sortedMeetingArray[indexPath.section]))
-        }
+
+        headerCell?.dayLabel.text = Datasource.sharedInstance.getSpecialWeekdayOfDate((Datasource.sharedInstance.sortedMeetingArray[indexPath.section]))
         
         return headerCell!
     }
     
     
     func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if Datasource.sharedInstance.sortedMeetingArray.count > 0 {
-            let currentDate = Datasource.sharedInstance.sortedMeetingArray[section]
-            let currentDateObjects = Datasource.sharedInstance.daysOfMeeting[currentDate]
-            return currentDateObjects!.count
-        } else {
-            return 0
-        }
+        let currentDate = Datasource.sharedInstance.sortedMeetingArray[section]
+        let currentDateObjects = Datasource.sharedInstance.daysOfMeeting[currentDate]
+        return currentDateObjects!.count
     }
     
     func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {

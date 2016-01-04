@@ -14,6 +14,7 @@ import CoreData
 
 protocol MeetingDelegate : class {
     func MeetingDidCreate()
+    func ConnectivityProblem(status: Bool)
 }
 
 class Meeting: NSObject {
@@ -50,8 +51,8 @@ class Meeting: NSObject {
     var attendeesToCreate: Int = 0 {
         didSet {
             if attendeesToCreate == 0 {
-                print("----------------We are good, we are 0 now----------------")
                 self.delegate?.MeetingDidCreate()
+                print(self.participantArray)
             }
         }
     }
@@ -75,14 +76,30 @@ class Meeting: NSObject {
             attendeesToCreate = eventAttendees.count - 1
             for eventAttendee in eventAttendees {
                 getParticipant(eventAttendee, context: self.sharedContext) {
-                    participant, error in
-                    if error == nil {
+                    participant, didUpdate, error in
+                    
+                    if participant != nil {
                         self.participantArray.append(participant!)
-                    } else {
-                        print("THERE was an ERROR in getParticipant .....")
+                        if didUpdate && error == nil {
+                            print("no error but updated something")
+                            self.delegate?.ConnectivityProblem(false)
+                        }
                     }
-
-                    print("        Attendee " + String(self.attendeesToCreate) + " -- attendees left: " + String(self.attendeesToCreate-1))
+                    if let connectivityError = error {
+                        if didUpdate && connectivityError.code == GoogleAPIClient.ErrorKeys.Timeout {
+                            // indicate connectivity problems through delegate
+                            self.delegate?.ConnectivityProblem(true)
+                            print("houston we have a problem")
+                        } else {
+                            self.delegate?.ConnectivityProblem(false)
+                            print("~~~~~~~~~~~~~~~~~~~~~~~")
+                            print(didUpdate)
+                            print(connectivityError.code)
+                            print("houston there is no problem anymore")
+                            print("~~~~~~~~~~~~~~~~~~~~~~~")
+                        }
+                    }
+                    
                     self.attendeesToCreate--
                 }
             }
@@ -119,7 +136,7 @@ class Meeting: NSObject {
         }
     }
     
-    func getParticipant(attendee: EKParticipant, context: NSManagedObjectContext, completionHandler: (result: Participant? , error: NSError?) -> Void) {
+    func getParticipant(attendee: EKParticipant, context: NSManagedObjectContext, completionHandler: (result: Participant?, didUpdate: Bool, error: NSError?) -> Void) {
         
         let fetchRequest = NSFetchRequest(entityName: Participant.statics.entityName)
         fetchRequest.predicate = NSPredicate(format: "email == %@", attendee.getEmail())
@@ -133,79 +150,103 @@ class Meeting: NSObject {
         // MARK: - check if participant exists in Coredata
         if let storedParticipants = fetchedResultsController.fetchedObjects?.first as? Participant {
             
-            self.getLocationInformation(storedParticipants, context: self.sharedContext) { location, error in
+            self.getLocationInformation(storedParticipants, context: self.sharedContext) { location, didUpdate, error in
                 if let locationData = location {
                     if locationData["doesExist"] as! Bool == true {
                         if locationData[Location.Keys.Weather] != nil {
-                            storedParticipants.location?.weather = locationData[Location.Keys.Weather] as? String
-                            storedParticipants.location?.weather_description = locationData[Location.Keys.WeatherDescription] as? String
-                            storedParticipants.location?.weather_temp = locationData[Location.Keys.WeatherTemperature] as? NSNumber
-                            storedParticipants.location?.weather_temp_unit = locationData[Location.Keys.WeatherTemperatureUnit] as? NSNumber
-                            storedParticipants.location?.lastUpdate = locationData[Location.Keys.LastUpdate]! as! NSDate
+                            // Change NSManagedObject ONLY in main thread !!
+                            dispatch_async(dispatch_get_main_queue()) {
+                                storedParticipants.location?.weather = locationData[Location.Keys.Weather] as? String
+                                storedParticipants.location?.weather_description = locationData[Location.Keys.WeatherDescription] as? String
+                                storedParticipants.location?.weather_temp = locationData[Location.Keys.WeatherTemperature] as? NSNumber
+                                storedParticipants.location?.weather_temp_unit = locationData[Location.Keys.WeatherTemperatureUnit] as? NSNumber
+                                storedParticipants.location?.lastUpdate = locationData[Location.Keys.LastUpdate]! as! NSDate
+                            }
                         }
                         
                         CoreDataStackManager.sharedInstance().saveContext() {
-                            completionHandler(result: storedParticipants, error: nil)
+                            completionHandler(result: storedParticipants, didUpdate: didUpdate, error: nil)
                         }
                         
                         return
                     } else {
-                        storedParticipants.location = Location(dictionary: locationData, context: self.sharedContext)
+                        dispatch_async(dispatch_get_main_queue()) {
+                            storedParticipants.location = Location(dictionary: locationData, context: self.sharedContext)
+                        }
                         CoreDataStackManager.sharedInstance().saveContext() {
-                            completionHandler(result: storedParticipants, error: nil)
+                            completionHandler(result: storedParticipants, didUpdate: didUpdate, error: nil)
                         }
                         return
                     }
                 } else {
                     //no GEOInformation
-                    completionHandler(result: storedParticipants, error: nil)
+                    print("NO Location information for " + storedParticipants.name!)
+                    CoreDataStackManager.sharedInstance().saveContext() {
+                        completionHandler(result: storedParticipants, didUpdate: didUpdate, error: error)
+                    }
                     return
                 }
             }
         } else {
-            let newParticipant = Participant(attendee: attendee, context: self.sharedContext) as Participant
-            self.getLocationInformation(newParticipant, context: self.sharedContext) { location, error in
+            var newParticipant: Participant?
+            dispatch_async(dispatch_get_main_queue()) {
+                newParticipant = Participant(attendee: attendee, context: self.sharedContext) as Participant
+            }
+            self.getLocationInformation(newParticipant, context: self.sharedContext) { location, didUpdate, error in
                 if let locationData = location {
                     if locationData["doesExist"] as! Bool == true {
                         if locationData[Location.Keys.Weather] != nil {
-                            newParticipant.location?.weather = locationData[Location.Keys.Weather] as? String
-                            newParticipant.location?.weather_description = locationData[Location.Keys.WeatherDescription] as? String
-                            newParticipant.location?.weather_temp = locationData[Location.Keys.WeatherTemperature] as? NSNumber
-                            newParticipant.location?.weather_temp_unit = locationData[Location.Keys.WeatherTemperatureUnit] as? NSNumber
-                            newParticipant.location?.lastUpdate = NSDate()
+                            dispatch_async(dispatch_get_main_queue()) {
+                                newParticipant!.location?.weather = locationData[Location.Keys.Weather] as? String
+                                newParticipant!.location?.weather_description = locationData[Location.Keys.WeatherDescription] as? String
+                                newParticipant!.location?.weather_temp = locationData[Location.Keys.WeatherTemperature] as? NSNumber
+                                newParticipant!.location?.weather_temp_unit = locationData[Location.Keys.WeatherTemperatureUnit] as? NSNumber
+                                newParticipant!.location?.lastUpdate = NSDate()
+                            }
                         }
                         CoreDataStackManager.sharedInstance().saveContext() {
-                            completionHandler(result: newParticipant, error: nil)
-                            //self.attendeesToCreate--
+                            completionHandler(result: newParticipant, didUpdate: didUpdate, error: nil)
                         }
                         return
                     } else {
-                        newParticipant.location = Location(dictionary: locationData, context: self.sharedContext)
+                        dispatch_async(dispatch_get_main_queue()) {
+                            newParticipant!.location = Location(dictionary: locationData, context: self.sharedContext)
+                        }
                         CoreDataStackManager.sharedInstance().saveContext() {
-                            completionHandler(result: newParticipant, error: nil)
-                            //self.attendeesToCreate--
+                            completionHandler(result: newParticipant, didUpdate: didUpdate, error: nil)
                         }
                         return
                     }
                 } else {
                     //no GEOInformation
-                    completionHandler(result: newParticipant, error: nil)
-                    //self.attendeesToCreate--
+                    print("NO Location information for " + (newParticipant?.name)!)
+                    CoreDataStackManager.sharedInstance().saveContext() {
+                        completionHandler(result: newParticipant, didUpdate: didUpdate, error: error)
+                    }
                     return
                 }
             }
         }
     }
     
-    func getLocationInformation(attendee: Participant, context: NSManagedObjectContext, completionHandler: (result: [String:AnyObject]? , error: NSError?) -> Void) {
+    func getLocationInformation(attendee: Participant?, context: NSManagedObjectContext, completionHandler: (result: [String:AnyObject]? , didUpdate: Bool, error: NSError?) -> Void) {
+        
         let geocoder = CLGeocoder()
-        if let possibleAddressObject = self.findContactofAttendee(attendee) {
+        
+        //TODO: if myself = true then use location services !
+        if ((attendee?.myself) != nil) {
+            if attendee!.myself {
+                
+            }
+        }
+        
+        if let possibleAddressObject = self.findContactofAttendee(attendee!.name) {
             if let addressObject = possibleAddressObject.postalAddresses.first {
                 let location = addressObject.value as! CNPostalAddress
                 let address = location.city + ", " + location.country
                 geocoder.geocodeAddressString(address, completionHandler: {(placemarks, error) -> Void in
                     if placemarks == nil {
-                        completionHandler(result: nil, error: NSError(domain: "Was not able to determine coordinates for location", code: 0, userInfo: nil))
+                        completionHandler(result: nil, didUpdate: false, error: NSError(domain: "Was not able to determine coordinates for location", code: 0, userInfo: nil))
                         return
                     }
                     if let placemark = placemarks![0] as? CLPlacemark {
@@ -243,14 +284,15 @@ class Meeting: NSObject {
                                 GoogleAPIClient.sharedInstance().getTimeOfLocation(placemark.location!.coordinate.latitude, long: placemark.location!.coordinate.longitude) { timezoneInfo, timezoneError in
                                 
                                     if let _ = timezoneError {
-                                        completionHandler(result: nil, error: NSError(domain: "Not able to get result from google timezone API", code: 0, userInfo: nil))
+                                        completionHandler(result: nil, didUpdate: true, error: timezoneError)
+                                        return
                                     } else {
                                         returnDictionary[Location.Keys.TimezoneOffset] = timezoneInfo
                                     }
                                     
                                     OpenWeatherClient.sharedInstance().getWeatherByLatLong(placemark.location!.coordinate.latitude, long: placemark.location!.coordinate.longitude, unitIndex: NSUserDefaults.standardUserDefaults().integerForKey("temperatureIndex"))  { data, error in
                                         if let anError = error {
-                                            completionHandler(result: returnDictionary, error: NSError(domain: "Not able to get result from openweather Client: " + anError.localizedDescription, code: 0, userInfo: nil))
+                                            completionHandler(result: returnDictionary, didUpdate: true, error: error)
                                             return
                                         } else {
                                             // this should never happen, but check to get sure
@@ -262,7 +304,7 @@ class Meeting: NSObject {
                                                 returnDictionary[Location.Keys.LastUpdate] = NSDate()
                                             
                                             }
-                                            completionHandler(result: returnDictionary, error: nil)
+                                            completionHandler(result: returnDictionary, didUpdate: true, error: nil)
                                             return
                                         }
                                     }
@@ -272,7 +314,7 @@ class Meeting: NSObject {
                                 
                                 //print("no update required, using \"cached\" information of " + location.city)
                                 //print("Last Update happened : " + String(NSDate().timeIntervalSinceDate(storedLocation.lastUpdate)/60) + " minutes ago")
-                                completionHandler(result: returnDictionary, error: nil)
+                                completionHandler(result: returnDictionary, didUpdate: false, error: nil)
                                 return
                             }
                             
@@ -280,13 +322,13 @@ class Meeting: NSObject {
                             GoogleAPIClient.sharedInstance().getTimeOfLocation(placemark.location!.coordinate.latitude, long: placemark.location!.coordinate.longitude) { timezoneInfo, timezoneError in
                                 
                                 if let anError = timezoneError {
-                                    completionHandler(result: nil, error: anError)
+                                    completionHandler(result: nil, didUpdate: true, error: anError)
                                     return
                                 }
                                 
                                 OpenWeatherClient.sharedInstance().getWeatherByLatLong(placemark.location!.coordinate.latitude, long: placemark.location!.coordinate.longitude, unitIndex: NSUserDefaults.standardUserDefaults().integerForKey("temperatureIndex"))  { data, error in
                                     if let anError = error {
-                                        completionHandler(result: nil, error: anError)
+                                        completionHandler(result: nil, didUpdate: true, error: anError)
                                         return
                                     } else {
                                         // Create new Location
@@ -303,7 +345,7 @@ class Meeting: NSObject {
                                             Location.Keys.TimezoneOffset     : timezoneInfo!,
                                             "doesExist"                      : false
                                         ]
-                                        completionHandler(result: newLocationDict, error: nil)
+                                        completionHandler(result: newLocationDict, didUpdate: true, error: nil)
                                         return
                                     }
                                 }
@@ -313,13 +355,13 @@ class Meeting: NSObject {
                 })
             }
         } else {
-            completionHandler(result: nil, error: nil)
+            completionHandler(result: nil, didUpdate: false, error: nil)
             return
         }
     }
     
     // MARK: - Getting additional information from Contacts like country
-    func findContactofAttendee(attendee: Participant) -> CNContact? {
+    func findContactofAttendee(attendeeName: String?) -> CNContact? {
         let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
         var eligibleContact: CNContact? = nil
         
@@ -331,11 +373,14 @@ class Meeting: NSObject {
                     // Fetching interesting information, whereat we only use PostalAddress at the moment
                     //let keysToFetch = [CNContactGivenNameKey, CNContactFamilyNameKey, CNContactPhoneNumbersKey, CNContactEmailAddressesKey, CNContactPostalAddressesKey]
                     let keysToFetch = [CNContactPostalAddressesKey]
-                    if let name = attendee.name {
+                    
+                    if let name = attendeeName {
                         let contacts = try store.unifiedContactsMatchingPredicate(CNContact.predicateForContactsMatchingName(name), keysToFetch: keysToFetch)
                         if let contact = contacts.first {
                             if (contact.isKeyAvailable(CNContactPostalAddressesKey)) {
-                                eligibleContact = contact
+                                if contact.postalAddresses.count > 0 {
+                                    eligibleContact = contact
+                                }
                             } else {
                                 // no address found, we are not able to determine where the person is coming from and can not show timezone as well as other information related to the location
                             }

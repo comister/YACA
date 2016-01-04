@@ -108,8 +108,20 @@ class CoreDataStackManager {
         return managedObjectContext
     }()
     
+    func saveContext(context: NSManagedObjectContext? = CoreDataStackManager.sharedInstance().managedObjectContext!,completition : (()->() )? ) {
+        //Perform save on main thread
+        if (NSThread.isMainThread()) {
+            saveContextFunction(context,completition: completition)
+        }else {
+            NSOperationQueue.mainQueue().addOperationWithBlock(){
+                self.saveContextFunction(context, completition : completition)
+            }
+        }
+    }
+    
     // MARK: - Core Data Saving support
-    func saveContext(context: NSManagedObjectContext? = CoreDataStackManager.sharedInstance().managedObjectContext!, completition : (()->() )? ) {
+    private
+    func saveContextFunction(context: NSManagedObjectContext? = CoreDataStackManager.sharedInstance().managedObjectContext!,completition : (()->() )? ) {
         if let context = self.managedObjectContext {
             context.performBlockAndWait { () -> Void in
                 if context.hasChanges {

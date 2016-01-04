@@ -18,7 +18,10 @@ extension GoogleAPIClient {
         
         taskForGETMethod(parameters as! [String : AnyObject]) {
             result, error in
-            
+            if let connectionError = error {
+                completionHandler(result: nil, error: connectionError)
+                return
+            }
             if let status = result[JSONResponseKeys.Status] {
                 //all good, we have offset + daylight saving offset which we simply add together
                 if status as! String == "OK" {

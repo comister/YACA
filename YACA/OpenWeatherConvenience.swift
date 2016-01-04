@@ -25,14 +25,14 @@ extension OpenWeatherClient {
                     if let weatherId = weatherContainer.valueForKey(OpenWeatherClient.JSONResponseKeys.weatherId) {
                         returnDict["weather"] = String(weatherId[0])
                     } else {
-                        completionHandler(result: nil, error: NSError(domain: "No data received", code: 1, userInfo: [NSLocalizedDescriptionKey: "openweather API did not provide an id for the current weather condition"]))
+                        completionHandler(result: nil, error: error)
                         return
                     }
                     if let weatherDescription = weatherContainer.valueForKey(OpenWeatherClient.JSONResponseKeys.weatherDescription) {
                         returnDict["weather_description"] = String(weatherDescription[0])
                     }
                 } else {
-                    completionHandler(result: nil, error: NSError(domain: "No data received", code: 1, userInfo: [NSLocalizedDescriptionKey: "openweather API did not provide any information about weather"]))
+                    completionHandler(result: nil, error: error)
                     return
                 }
                 if let mainContainer = JSONResult.valueForKey(OpenWeatherClient.JSONResponseKeys.Main) {
