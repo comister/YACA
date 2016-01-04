@@ -123,7 +123,7 @@ class CoreDataStackManager {
                         abort()
                     }
                     
-                    //Call delegate method
+                    //Call delegate method --> not used anymore
                     self.delegate?.CoreDataStackManagerDidSaveContext()
                     print("")
                     print("Calling delegate!!!!!")

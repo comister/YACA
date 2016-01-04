@@ -40,8 +40,6 @@ class GoogleAPIClient : NSObject {
                 let newError = GoogleAPIClient.errorForData(data, response: response, error: error)
                 completionHandler(result: nil, error: newError)
             } else {
-                var strData = NSString(data: data!, encoding: NSUTF8StringEncoding)
-                //print(strData)
                 GoogleAPIClient.parseJSONWithCompletionHandler(data!, completionHandler: completionHandler)
             }
         }

@@ -26,7 +26,7 @@ extension GoogleAPIClient {
                 }
                 
             } else {
-                completionHandler(result: nil, error: nil)
+                completionHandler(result: nil, error: NSError(domain: "No data received", code: 1, userInfo: [NSLocalizedDescriptionKey: "google timezone API did not provide any information"]))
             }
             
         }

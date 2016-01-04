@@ -16,7 +16,7 @@ protocol MeetingDelegate : class {
     func MeetingDidCreate()
 }
 
-class Meeting: NSObject, CoreDataStackManagerDelegate {
+class Meeting: NSObject {
     
     struct Keys {
         static let MeetingId = "meetingId"
@@ -52,7 +52,6 @@ class Meeting: NSObject, CoreDataStackManagerDelegate {
             if attendeesToCreate == 0 {
                 self.delegate?.MeetingDidCreate()
             }
-            print("Setting attendeesToCreate to " + String(attendeesToCreate))
         }
     }
     
@@ -69,7 +68,7 @@ class Meeting: NSObject, CoreDataStackManagerDelegate {
         endtime = event.endDate
         location = event.location
         super.init()
-        CoreDataStackManager.sharedInstance().delegate = self
+
         // Mark: - Convert EKParticipant to Participant and add to attendees
         if let eventAttendees = event.attendees {
             attendeesToCreate = eventAttendees.count - 1
@@ -103,9 +102,6 @@ class Meeting: NSObject, CoreDataStackManagerDelegate {
     }()
     
     func getNote(meetingId: String) -> Note? {
-        
-        // fetch Notes from CoreData, fetch Meetings & participants from system Calendar
-        // Meeting will be related to Notes through meetingId, with that we have a proper reference to get proper notes of meetings
         self.meetingId = meetingId
         do {
             try fetchedResultsControllerForNote.performFetch()
@@ -145,7 +141,6 @@ class Meeting: NSObject, CoreDataStackManagerDelegate {
                         
                         CoreDataStackManager.sharedInstance().saveContext() {
                             completionHandler(result: storedParticipants, error: nil)
-                            //self.attendeesToCreate--
                         }
                         
                         return
@@ -153,14 +148,12 @@ class Meeting: NSObject, CoreDataStackManagerDelegate {
                         storedParticipants.location = Location(dictionary: locationData, context: self.sharedContext)
                         CoreDataStackManager.sharedInstance().saveContext() {
                             completionHandler(result: storedParticipants, error: nil)
-                            //self.attendeesToCreate--
                         }
                         return
                     }
                 } else {
                     //no GEOInformation
                     completionHandler(result: storedParticipants, error: nil)
-                    //self.attendeesToCreate--
                     return
                 }
             }
@@ -252,9 +245,10 @@ class Meeting: NSObject, CoreDataStackManagerDelegate {
                                     
                                     OpenWeatherClient.sharedInstance().getWeatherByLatLong(placemark.location!.coordinate.latitude, long: placemark.location!.coordinate.longitude, unitIndex: NSUserDefaults.standardUserDefaults().integerForKey("temperatureIndex"))  { data, error in
                                         if let anError = error {
-                                            completionHandler(result: returnDictionary, error: NSError(domain: "Not able to get result from openweather Client", code: 0, userInfo: nil))
+                                            completionHandler(result: returnDictionary, error: NSError(domain: "Not able to get result from openweather Client: " + anError.localizedDescription, code: 0, userInfo: nil))
                                         return
                                         } else {
+                                            // this should never happen, but check to get sure
                                             if data != nil {
                                                 returnDictionary[Location.Keys.Weather] = data!["weather"]
                                                 returnDictionary[Location.Keys.WeatherDescription] = data!["weather_description"]
@@ -262,10 +256,7 @@ class Meeting: NSObject, CoreDataStackManagerDelegate {
                                                 returnDictionary[Location.Keys.WeatherTemperatureUnit] = NSUserDefaults.standardUserDefaults().integerForKey("temperatureIndex")
                                                 returnDictionary[Location.Keys.LastUpdate] = NSDate()
                                             
-                                            } else {
-                                                print("            1.4.1.1 - openweather data was nil, strange !!")
                                             }
-                                        
                                             completionHandler(result: returnDictionary, error: nil)
                                             return
                                         }
@@ -285,14 +276,15 @@ class Meeting: NSObject, CoreDataStackManagerDelegate {
                             
                             GoogleAPIClient.sharedInstance().getTimeOfLocation(placemark.location!.coordinate.latitude, long: placemark.location!.coordinate.longitude) { timezoneInfo, timezoneError in
                                 
-                                if let _ = timezoneError {
-                                    completionHandler(result: nil, error: NSError(domain: "Not able to get result from google timezone API", code: 0, userInfo: nil))
+                                if let anError = timezoneError {
+                                    completionHandler(result: nil, error: anError)
                                     return
                                 }
                                 
                                 OpenWeatherClient.sharedInstance().getWeatherByLatLong(placemark.location!.coordinate.latitude, long: placemark.location!.coordinate.longitude, unitIndex: NSUserDefaults.standardUserDefaults().integerForKey("temperatureIndex"))  { data, error in
                                     if let anError = error {
-                                        print("openWeatherClient was not able to get a result: " + anError.localizedDescription)
+                                        completionHandler(result: nil, error: anError)
+                                        return
                                     } else {
                                         // Create new Location
                                         let newLocationDict: [String:AnyObject] = [
@@ -323,9 +315,6 @@ class Meeting: NSObject, CoreDataStackManagerDelegate {
         }
     }
     
-    
-    
-    
     // MARK: - Getting additional information from Contacts like country
     func findContactofAttendee(attendee: Participant) -> CNContact? {
         let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
@@ -351,18 +340,10 @@ class Meeting: NSObject, CoreDataStackManagerDelegate {
                     }
                 } catch _ {}
             } else {
+                // MARK: - This scenario will be handled by the MeetingsViewController
                 print("no access to Contacts allowed")
             }
         }
         return eligibleContact
-    }
-
-    
-    func CoreDataStackManagerDidSaveContext() {
-        print("")
-        print("~~~~~~~~RECEIVED NOTIFICATION~~~~~~~~")
-        print("!!! context saved !!!")
-        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-        print("")
     }
 }

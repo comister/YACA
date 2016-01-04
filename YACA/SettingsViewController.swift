@@ -70,6 +70,10 @@ class SettingsViewController: UIViewController {
     @IBAction func metricsChanged(sender: UISegmentedControl) {
         NSUserDefaults.standardUserDefaults().setInteger(sender.selectedSegmentIndex, forKey: "temperatureIndex")
     }
+}
+
+// MARK: - Calendar related actions
+extension SettingsViewController {
     
     func grantAccessClicked() {
         let openSettingsUrl = NSURL(string: UIApplicationOpenSettingsURLString)
@@ -78,23 +82,27 @@ class SettingsViewController: UIViewController {
     
     func showMessage(message: String, title: String) {
         let alertController = UIAlertController(title: title, message: message, preferredStyle: UIAlertControllerStyle.Alert)
-        
-        let dismissAction = UIAlertAction(title: "Open preferences", style: UIAlertActionStyle.Default) { (action) -> Void in
+        let OKAction = UIAlertAction(title: "Yes", style: UIAlertActionStyle.Default) { (action) -> Void in
             self.grantAccessClicked()
         }
+        
+        let dismissAction = UIAlertAction(title: "No", style: UIAlertActionStyle.Cancel) { (action) -> Void in
+            dispatch_async(dispatch_get_main_queue()) {
+
+            }
+        }
+        
         alertController.addAction(dismissAction)
+        alertController.addAction(OKAction)
         self.presentViewController(alertController, animated: true, completion: nil)
     }
-}
-
-// MARK: - Calendar related actions
-extension SettingsViewController {
+    
     func loadCalendars() {
         appDelegate.checkCalendarAuthorizationStatus { (accessGranted) -> Void in
             if accessGranted {
                 self.calendars = self.eventStore.calendarsForEntityType(EKEntityType.Event)
             } else {
-                
+                self.showMessage("You have not allowed access to Calendar. This application does not work without this access! You can change this Setting in the global Settings. Should I bring you there?", title: "No access to Calendar")
             }
         }
     }
