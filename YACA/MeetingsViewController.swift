@@ -107,6 +107,7 @@ class MeetingsViewController: UIViewController, DataSourceDelegate {
     
     func ConnectivityProblem(status: Bool) {
         if status == true {
+            print("there seems to be a connection problem !!")
             startConnectivityAnimation()
         } else {
             stopConnectivityAnimation()

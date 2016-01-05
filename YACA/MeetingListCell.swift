@@ -108,6 +108,9 @@ class MeetingListCell: UICollectionViewCell, UITableViewDelegate, UITableViewDat
         print( "clicked participant, show some info" )
         
         if let location = meeting.participantArray[indexPath.row].location {
+            
+            print(location)
+            
             participantDetails.hidden = false
             UIView.transitionWithView(participantDetails, duration: 0.5, options: UIViewAnimationOptions.TransitionFlipFromRight, animations: nil, completion: nil)
             participantDetailsName.text = ( meeting.participantArray[indexPath.row].name != nil ? meeting.participantArray[indexPath.row].name : meeting.participantArray[indexPath.row].email )

@@ -61,5 +61,9 @@
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
 	</array>
+    <key>NSLocationAlwaysUsageDescription</key>
+    <string>YACA want to access your location!</string>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>YACA want to access your location!!!!</string>
 </dict>
 </plist>

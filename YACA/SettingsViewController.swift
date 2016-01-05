@@ -35,10 +35,13 @@ class SettingsViewController: UIViewController {
     }
     
     override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated)
         loadCalendars()
         if NSUserDefaults.standardUserDefaults().stringForKey("selectedCalendar") != nil {
-            
-            self.pickCalendarButton.titleLabel?.text = NSUserDefaults.standardUserDefaults().stringForKey("selectedCalendarName")
+            print("settings appeared")
+            let buttonText = NSUserDefaults.standardUserDefaults().stringForKey("selectedCalendarName")
+            //pickCalendarButton.titleLabel?.text = buttonText
+            pickCalendarButton.setTitle(buttonText, forState: UIControlState.Normal)
             selectedCalendar = NSUserDefaults.standardUserDefaults().stringForKey("selectedCalendar")
             durationSegments.selectedSegmentIndex = NSUserDefaults.standardUserDefaults().integerForKey("durationIndex")
             temperatureSegment.selectedSegmentIndex = NSUserDefaults.standardUserDefaults().integerForKey("temperatureIndex")
