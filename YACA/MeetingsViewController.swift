@@ -12,10 +12,11 @@ import EventKit
 import Contacts
 import CoreData
 
-class MeetingsViewController: UIViewController, DataSourceDelegate {
+class MeetingsViewController: UIViewController, DataSourceDelegate, CLLocationManagerDelegate {
     
     var backgroundGradient: CAGradientLayer? = nil
     var meeting: Meeting!
+    var locationManager: CLLocationManager!
     var events = [EKEvent]()
     let eventStore = EKEventStore()
     var calendars: [EKCalendar]?
@@ -49,6 +50,15 @@ class MeetingsViewController: UIViewController, DataSourceDelegate {
         if checkCalendarAndContactsAccess() {
             self.noAccessView.hidden = true
         }
+        
+        // Initialize LocationManager
+        locationManager = CLLocationManager()
+        locationManager.delegate = self
+        locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        if CLLocationManager.authorizationStatus() == .NotDetermined {
+            locationManager.requestWhenInUseAuthorization()
+        }
+        locationManager.startUpdatingLocation()
         
         // MARK: - Load Events from selected Calendar
         if (NSUserDefaults.standardUserDefaults().stringForKey("selectedCalendar") != nil) {
@@ -151,6 +161,30 @@ class MeetingsViewController: UIViewController, DataSourceDelegate {
         super.viewWillDisappear(animated)
         removeKeyboardDismissRecognizer()
         NSNotificationCenter.defaultCenter().removeObserver(self, name: "kRefetchDatabaseNotification",object: nil )
+    }
+    
+    func locationManager(manager: CLLocationManager,
+        didChangeAuthorizationStatus status: CLAuthorizationStatus) {
+            if status == .AuthorizedAlways || status == .AuthorizedWhenInUse {
+                locationManager.startUpdatingLocation()
+            } else if status == .AuthorizedWhenInUse || status == .Restricted || status == .Denied {
+                let alertController = UIAlertController(
+                    title: "Background Location Access Disabled",
+                    message: "To be able to see information about your current location it is recommended to enable location access.",
+                    preferredStyle: .Alert)
+                
+                let cancelAction = UIAlertAction(title: "Cancel", style: .Cancel, handler: nil)
+                alertController.addAction(cancelAction)
+                
+                let openAction = UIAlertAction(title: "Open Settings", style: .Default) { (action) in
+                    if let url = NSURL(string:UIApplicationOpenSettingsURLString) {
+                        UIApplication.sharedApplication().openURL(url)
+                    }
+                }
+                alertController.addAction(openAction)
+                
+                self.presentViewController(alertController, animated: true, completion: nil)
+            }
     }
     
     // MARK: - Returns seconds for 1 day (index=0), 1 week (index=1) and 1 month (index=2)

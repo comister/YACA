@@ -35,6 +35,17 @@ extension OpenWeatherClient {
                     completionHandler(result: nil, error: error)
                     return
                 }
+                
+                if let sysContainer = JSONResult.valueForKey(OpenWeatherClient.JSONResponseKeys.Sys) {
+                    if let country = sysContainer.valueForKey(OpenWeatherClient.JSONResponseKeys.Country) {
+                        returnDict["country"] = String(country)
+                    }
+                }
+                
+                if let city = JSONResult.valueForKey(OpenWeatherClient.JSONResponseKeys.City) {
+                    returnDict["city"] = String(city)
+                }
+                
                 if let mainContainer = JSONResult.valueForKey(OpenWeatherClient.JSONResponseKeys.Main) {
                     if let temperature = mainContainer.valueForKey(OpenWeatherClient.JSONResponseKeys.mainTemperature) {
                         returnDict["weather_temp"] = NSNumber(double: temperature as! Double)

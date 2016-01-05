@@ -53,6 +53,9 @@ extension OpenWeatherClient {
         static let Wind = "wind"
         static let Clouds = "clouds"
         static let Name = "name"
+        static let Sys = "sys"
+        static let City = "name"
+        static let Country = "country"
     }
     
 }

@@ -37,7 +37,6 @@ class Meeting: NSObject, CLLocationManagerDelegate {
     var locationManager: CLLocationManager!
     var locationStatus: String?
     var locationAvailable: Bool = false
-    let geocoder = CLGeocoder()
     
     var meetingId: String
     var name: String
@@ -184,8 +183,8 @@ class Meeting: NSObject, CLLocationManagerDelegate {
         
         // MARK: - check if participant exists in Coredata
         if let storedParticipants = fetchedResultsController.fetchedObjects?.first as? Participant {
-            
             self.getLocationInformation(storedParticipants, context: self.sharedContext) { location, didUpdate, error in
+                
                 if let locationData = location {
                     if locationData["doesExist"] as! Bool == true {
                         if locationData[Location.Keys.Weather] != nil {
@@ -221,20 +220,20 @@ class Meeting: NSObject, CLLocationManagerDelegate {
                 }
             }
         } else {
-            var newParticipant: Participant?
-            dispatch_async(dispatch_get_main_queue()) {
-                newParticipant = Participant(attendee: attendee, context: self.sharedContext) as Participant
-            }
+            let newParticipant = Participant(attendee: attendee, context: self.sharedContext) as Participant
+            print("")
+            print("Adding (NEW)" + newParticipant.name!)
+            print("")
             self.getLocationInformation(newParticipant, context: self.sharedContext) { location, didUpdate, error in
                 if let locationData = location {
                     if locationData["doesExist"] as! Bool == true {
                         if locationData[Location.Keys.Weather] != nil {
                             dispatch_async(dispatch_get_main_queue()) {
-                                newParticipant!.location?.weather = locationData[Location.Keys.Weather] as? String
-                                newParticipant!.location?.weather_description = locationData[Location.Keys.WeatherDescription] as? String
-                                newParticipant!.location?.weather_temp = locationData[Location.Keys.WeatherTemperature] as? NSNumber
-                                newParticipant!.location?.weather_temp_unit = locationData[Location.Keys.WeatherTemperatureUnit] as? NSNumber
-                                newParticipant!.location?.lastUpdate = NSDate()
+                                newParticipant.location?.weather = locationData[Location.Keys.Weather] as? String
+                                newParticipant.location?.weather_description = locationData[Location.Keys.WeatherDescription] as? String
+                                newParticipant.location?.weather_temp = locationData[Location.Keys.WeatherTemperature] as? NSNumber
+                                newParticipant.location?.weather_temp_unit = locationData[Location.Keys.WeatherTemperatureUnit] as? NSNumber
+                                newParticipant.location?.lastUpdate = NSDate()
                             }
                         }
                         CoreDataStackManager.sharedInstance().saveContext() {
@@ -243,7 +242,7 @@ class Meeting: NSObject, CLLocationManagerDelegate {
                         return
                     } else {
                         dispatch_async(dispatch_get_main_queue()) {
-                            newParticipant!.location = Location(dictionary: locationData, context: self.sharedContext)
+                            newParticipant.location = Location(dictionary: locationData, context: self.sharedContext)
                         }
                         CoreDataStackManager.sharedInstance().saveContext() {
                             completionHandler(result: newParticipant, didUpdate: didUpdate, error: nil)
@@ -261,14 +260,6 @@ class Meeting: NSObject, CLLocationManagerDelegate {
         }
     }
     
-    func timeout(timer: NSTimer) {
-        if self.geocoder.geocoding {
-            //running into timeout ...
-            print("timeout...")
-            geocoder.cancelGeocode()
-        }
-    }
-    
     func getLocationInformation(attendee: Participant?, context: NSManagedObjectContext, completionHandler: (result: [String:AnyObject]? , didUpdate: Bool, error: NSError?) -> Void) {
         
         var coordinateDetermination: CLLocationCoordinate2D?
@@ -283,7 +274,13 @@ class Meeting: NSObject, CLLocationManagerDelegate {
             if CLLocationManager.authorizationStatus() == .AuthorizedAlways || CLLocationManager.authorizationStatus() == .AuthorizedWhenInUse {
                 coordinateDetermination = locationManager.location?.coordinate
                 
-                //let timer = NSTimer(timeInterval: 2, target: self, selector: "timeout:", userInfo: nil, repeats: false)
+                self.getLocationDetails(coordinateDetermination, locationDescription: location, context: context) { location, didUpdate, error in    
+                    completionHandler(result: location, didUpdate: didUpdate, error: error)
+                    return
+                }
+                
+                // MARK: - We dont do that anymore ( to unresponsive in case of no network connectivity and no possibility to control any timeouts), pulling information about city from openweather
+                /*
                 geocoder.reverseGeocodeLocation(locationManager.location!) {
                     placemarks, error in
                     
@@ -301,21 +298,34 @@ class Meeting: NSObject, CLLocationManagerDelegate {
                             return
                         }
                     }
-                }
-                //NSRunLoop.currentRunLoop().addTimer(timer, forMode: NSDefaultRunLoopMode)
-                
+                }*/
             }
 
         } else if let possibleAddressObject = self.findContactofAttendee(attendee!.name) {
+            
             if let addressObject = possibleAddressObject.postalAddresses.first {
                 let contactsLocation = addressObject.value as? CNPostalAddress
                 location["country"] = contactsLocation?.country
                 location["city"] = contactsLocation?.city
                 
-                let address = contactsLocation!.city + ", " + contactsLocation!.country
+                let address = contactsLocation!.city + (contactsLocation!.country != "" ? ", " + contactsLocation!.country : "")
+                let geocoder = CLGeocoder()
                 geocoder.geocodeAddressString(address, completionHandler: {(placemarks, error) -> Void in
+                    
+                    dispatch_async(dispatch_get_main_queue()) {
+                        print("")
+                        print("LocationInformation check and update for " + attendee!.name!)
+                        print("Searching for " + address)
+                        print(location)
+                        print("")
+                    }
+                    
                     if placemarks == nil {
-                        completionHandler(result: nil, didUpdate: false, error: NSError(domain: "Was not able to determine coordinates for location", code: 0, userInfo: nil))
+                        if let anError = error {
+                            completionHandler(result: nil, didUpdate: false, error: NSError(domain: "GEOCoder",code: -1001, userInfo: nil))
+                        } else {
+                            completionHandler(result: nil, didUpdate: false, error: NSError(domain: "Was not able to determine coordinates for location", code: 0, userInfo: nil))
+                        }
                         return
                     }
                     
@@ -416,8 +426,8 @@ class Meeting: NSObject, CLLocationManagerDelegate {
                         } else {
                             // Create new Location
                             let newLocationDict: [String:AnyObject] = [
-                                Location.Keys.City               : locationDescription["city"]!,
-                                Location.Keys.Country            : locationDescription["country"]!,
+                                Location.Keys.City               : locationDescription["city"] != "" ? locationDescription["city"]! : data != nil ? data!["city"]! : "",
+                                Location.Keys.Country            : locationDescription["country"] != "" ? locationDescription["country"]! : data != nil ? data!["country"]! : "",
                                 Location.Keys.Latitude           : coordinates.latitude,
                                 Location.Keys.Longitude          : coordinates.longitude,
                                 Location.Keys.Weather            : data != nil ? data!["weather"]! : "",
