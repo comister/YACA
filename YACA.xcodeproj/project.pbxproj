@@ -38,6 +38,8 @@
 		3E9A689A1C3949510020BC7C /* EKParticipant.extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E9A68991C3949510020BC7C /* EKParticipant.extension.swift */; };
 		3E9A689C1C394AAB0020BC7C /* UIImage.extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E9A689B1C394AAB0020BC7C /* UIImage.extension.swift */; };
 		3E9A689E1C3A82BF0020BC7C /* YACA_Description.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 3E9A689D1C3A82BF0020BC7C /* YACA_Description.pdf */; };
+		3EA462B21C3D86B000EEE772 /* MIBadgeButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EA462B11C3D86B000EEE772 /* MIBadgeButton.swift */; };
+		3EA462B41C3D91CC00EEE772 /* Reach.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EA462B31C3D91CC00EEE772 /* Reach.swift */; };
 		3EA80B311C28470C00E96AF3 /* Note.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EA80B301C28470C00E96AF3 /* Note.swift */; };
 		3EA80B331C297E4100E96AF3 /* Meeting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EA80B321C297E4100E96AF3 /* Meeting.swift */; };
 		3EA80B351C29CDDD00E96AF3 /* TabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EA80B341C29CDDD00E96AF3 /* TabBarController.swift */; };
@@ -89,6 +91,8 @@
 		3E9A68991C3949510020BC7C /* EKParticipant.extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EKParticipant.extension.swift; sourceTree = "<group>"; };
 		3E9A689B1C394AAB0020BC7C /* UIImage.extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIImage.extension.swift; sourceTree = "<group>"; };
 		3E9A689D1C3A82BF0020BC7C /* YACA_Description.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = YACA_Description.pdf; sourceTree = "<group>"; };
+		3EA462B11C3D86B000EEE772 /* MIBadgeButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MIBadgeButton.swift; sourceTree = "<group>"; };
+		3EA462B31C3D91CC00EEE772 /* Reach.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Reach.swift; sourceTree = "<group>"; };
 		3EA80B301C28470C00E96AF3 /* Note.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Note.swift; sourceTree = "<group>"; };
 		3EA80B321C297E4100E96AF3 /* Meeting.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Meeting.swift; sourceTree = "<group>"; };
 		3EA80B341C29CDDD00E96AF3 /* TabBarController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TabBarController.swift; sourceTree = "<group>"; };
@@ -133,6 +137,7 @@
 				3E3BEC0B1C243999008BC0CF /* YACA.xcdatamodeld */,
 				3EBAF76D1C24429C009A49F6 /* Datasource.swift */,
 				3EA80B301C28470C00E96AF3 /* Note.swift */,
+				3EA462B31C3D91CC00EEE772 /* Reach.swift */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -244,6 +249,7 @@
 			isa = PBXGroup;
 			children = (
 				3EBAF77D1C27D6F7009A49F6 /* CustomSegmentedControl.swift */,
+				3EA462B11C3D86B000EEE772 /* MIBadgeButton.swift */,
 			);
 			name = Controls;
 			sourceTree = "<group>";
@@ -350,6 +356,7 @@
 				3EBAF76E1C24429C009A49F6 /* Datasource.swift in Sources */,
 				3E3BEC271C243999008BC0CF /* OpenWeatherClient.swift in Sources */,
 				3E3BEC2B1C243999008BC0CF /* UIView.extension.swift in Sources */,
+				3EA462B21C3D86B000EEE772 /* MIBadgeButton.swift in Sources */,
 				3E9A68901C3548CB0020BC7C /* GoogleAPIConstants.swift in Sources */,
 				3E3BEC321C243999008BC0CF /* SettingsViewController.swift in Sources */,
 				3E3BEC261C243999008BC0CF /* CoreDataStackManager.swift in Sources */,
@@ -361,6 +368,7 @@
 				3E3BEC231C243999008BC0CF /* MeetingsViewController.swift in Sources */,
 				3E9A68871C3046180020BC7C /* owfont_definitions.swift in Sources */,
 				3E9A68921C354E300020BC7C /* GoogleAPIClient.swift in Sources */,
+				3EA462B41C3D91CC00EEE772 /* Reach.swift in Sources */,
 				3E3BEC241C243999008BC0CF /* MeetingListCell.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

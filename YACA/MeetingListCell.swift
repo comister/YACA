@@ -19,7 +19,7 @@ class MeetingListCell: UICollectionViewCell, UITableViewDelegate, UITableViewDat
     @IBOutlet weak var timingLabel: UILabel!
     @IBOutlet weak var notesText: UITextView!
     @IBOutlet weak var notesButton: UIButton!
-    @IBOutlet weak var participantsButton: UIButton!
+    @IBOutlet weak var participantsButton: MIBadgeButton!
     @IBOutlet weak var saveButton: UIButton!
     @IBOutlet weak var deleteButton: UIButton!
     @IBOutlet weak var participantDetails: UIView!
@@ -105,11 +105,7 @@ class MeetingListCell: UICollectionViewCell, UITableViewDelegate, UITableViewDat
     }
     
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        print( "clicked participant, show some info" )
-        
         if let location = meeting.participantArray[indexPath.row].location {
-            
-            print(location)
             
             participantDetails.hidden = false
             UIView.transitionWithView(participantDetails, duration: 0.5, options: UIViewAnimationOptions.TransitionFlipFromRight, animations: nil, completion: nil)
@@ -161,6 +157,13 @@ class MeetingListCell: UICollectionViewCell, UITableViewDelegate, UITableViewDat
     }
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        participantsButton.enabled = meeting.participantArray.count > 0
+        if meeting.participantArray.count > 0 {
+            participantsButton.badgeString = String(meeting.participantArray.count)
+            participantsButton.badgeBackgroundColor = UIColor.darkGrayColor()
+        } else {
+            participantsButton.badgeString = nil
+        }
         return meeting.participantArray.count
     }
     

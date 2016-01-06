@@ -57,7 +57,6 @@ class Meeting: NSObject, CLLocationManagerDelegate {
         didSet {
             if attendeesToCreate == 0 {
                 self.delegate?.MeetingDidCreate()
-                //print(self.participantArray.last?.location)
             }
         }
     }
@@ -99,13 +98,10 @@ class Meeting: NSObject, CLLocationManagerDelegate {
                         }
                     }
                     if let connectivityError = error {
-                        
-                        print(connectivityError)
-                        
-                        if didUpdate && connectivityError.code == GoogleAPIClient.ErrorKeys.Timeout {
+                        if didUpdate && (connectivityError.code == GoogleAPIClient.ErrorKeys.Timeout || connectivityError.code == GoogleAPIClient.ErrorKeys.Offline) {
                             // indicate connectivity problems through delegate
                             self.delegate?.ConnectivityProblem(true)
-                        } else if connectivityError.code != GoogleAPIClient.ErrorKeys.Timeout {
+                        } else if connectivityError.code != GoogleAPIClient.ErrorKeys.Timeout && connectivityError.code != GoogleAPIClient.ErrorKeys.Offline {
                             self.delegate?.ConnectivityProblem(false)
                         }
                     }
@@ -221,9 +217,6 @@ class Meeting: NSObject, CLLocationManagerDelegate {
             }
         } else {
             let newParticipant = Participant(attendee: attendee, context: self.sharedContext) as Participant
-            print("")
-            print("Adding (NEW)" + newParticipant.name!)
-            print("")
             self.getLocationInformation(newParticipant, context: self.sharedContext) { location, didUpdate, error in
                 if let locationData = location {
                     if locationData["doesExist"] as! Bool == true {
@@ -311,15 +304,7 @@ class Meeting: NSObject, CLLocationManagerDelegate {
                 let address = contactsLocation!.city + (contactsLocation!.country != "" ? ", " + contactsLocation!.country : "")
                 let geocoder = CLGeocoder()
                 geocoder.geocodeAddressString(address, completionHandler: {(placemarks, error) -> Void in
-                    
-                    dispatch_async(dispatch_get_main_queue()) {
-                        print("")
-                        print("LocationInformation check and update for " + attendee!.name!)
-                        print("Searching for " + address)
-                        print(location)
-                        print("")
-                    }
-                    
+
                     if placemarks == nil {
                         if let anError = error {
                             completionHandler(result: nil, didUpdate: false, error: NSError(domain: "GEOCoder",code: -1001, userInfo: nil))
@@ -430,9 +415,9 @@ class Meeting: NSObject, CLLocationManagerDelegate {
                                 Location.Keys.Country            : locationDescription["country"] != "" ? locationDescription["country"]! : data != nil ? data!["country"]! : "",
                                 Location.Keys.Latitude           : coordinates.latitude,
                                 Location.Keys.Longitude          : coordinates.longitude,
-                                Location.Keys.Weather            : data != nil ? data!["weather"]! : "",
-                                Location.Keys.WeatherDescription : data != nil ? data!["weather_description"]! : "",
-                                Location.Keys.WeatherTemperature : data != nil ? data!["weather_temp"]! : 0.0,
+                                Location.Keys.Weather            : data != nil && data!["weather"] != nil ? data!["weather"]! : "",
+                                Location.Keys.WeatherDescription : data != nil && data!["weather_description"] != nil ? data!["weather_description"]! : "",
+                                Location.Keys.WeatherTemperature : data != nil && data!["weather_temp"] != nil ? data!["weather_temp"]! : 0.0,
                                 Location.Keys.WeatherTemperatureUnit : NSUserDefaults.standardUserDefaults().integerForKey("temperatureIndex"),
                                 Location.Keys.LastUpdate         : NSDate(),
                                 Location.Keys.TimezoneOffset     : timezoneInfo!,

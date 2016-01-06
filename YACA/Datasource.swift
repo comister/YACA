@@ -52,6 +52,9 @@ class Datasource: MeetingDelegate {
             let meeting = Meeting(event: event)
             meeting.delegate = self
             localMeetings.append(meeting)
+            if (event.attendees == nil) {
+                MeetingDidCreate()
+            }
         }
         self.meetings = localMeetings
         
@@ -85,7 +88,6 @@ class Datasource: MeetingDelegate {
     
     func MeetingDidCreate() {
         self.meetingsToCreate--
-        print("Meeting got created !!")
     }
     
     //pass through delegate

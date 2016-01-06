@@ -308,7 +308,7 @@
                                                                             <action selector="notesButton:" destination="NXs-gU-94K" eventType="touchUpInside" id="RmL-DP-tTz"/>
                                                                         </connections>
                                                                     </button>
-                                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="pCs-BA-fc5">
+                                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="pCs-BA-fc5" customClass="MIBadgeButton" customModule="YACA" customModuleProvider="target">
                                                                         <rect key="frame" x="-23" y="-15" width="46" height="30"/>
                                                                         <size key="titleShadowOffset" width="2" height="2"/>
                                                                         <state key="normal" image="participant"/>
@@ -1152,10 +1152,10 @@
                                 <color key="textColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="no or bad connectivity" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ubB-FN-oPc">
+                            <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="no or bad connectivity" textAlignment="right" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ubB-FN-oPc">
                                 <rect key="frame" x="-42" y="-21" width="42" height="21"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="21" id="43p-56-Cti"/>
+                                    <constraint firstAttribute="height" constant="42" id="43p-56-Cti"/>
                                     <constraint firstAttribute="width" constant="180" id="CQU-hB-gIx"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" name="Roboto-Thin" family="Roboto" pointSize="12"/>
@@ -1195,7 +1195,7 @@
                                 <variation key="widthClass=compact" constant="9"/>
                             </constraint>
                             <constraint firstAttribute="trailing" secondItem="ASg-Qr-hp8" secondAttribute="trailing" id="fGQ-el-eMP"/>
-                            <constraint firstItem="ubB-FN-oPc" firstAttribute="top" secondItem="aAf-ht-Odj" secondAttribute="bottom" constant="31" id="gxB-sL-Gax"/>
+                            <constraint firstItem="ubB-FN-oPc" firstAttribute="top" secondItem="aAf-ht-Odj" secondAttribute="bottom" constant="21" id="gxB-sL-Gax"/>
                             <constraint firstItem="fsM-a8-g6M" firstAttribute="top" secondItem="Wfu-iU-GVS" secondAttribute="top" constant="18" id="jpG-sJ-jbz">
                                 <variation key="widthClass=compact" constant="44"/>
                             </constraint>
@@ -1483,7 +1483,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="49C-Ed-pHf">
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="49C-Ed-pHf">
                                 <rect key="frame" x="0.0" y="0.0" width="240" height="128"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <string key="text">Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda.</string>

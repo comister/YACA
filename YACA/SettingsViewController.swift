@@ -38,7 +38,6 @@ class SettingsViewController: UIViewController {
         super.viewWillAppear(animated)
         loadCalendars()
         if NSUserDefaults.standardUserDefaults().stringForKey("selectedCalendar") != nil {
-            print("settings appeared")
             let buttonText = NSUserDefaults.standardUserDefaults().stringForKey("selectedCalendarName")
             //pickCalendarButton.titleLabel?.text = buttonText
             pickCalendarButton.setTitle(buttonText, forState: UIControlState.Normal)

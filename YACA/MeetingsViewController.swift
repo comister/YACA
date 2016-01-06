@@ -39,6 +39,20 @@ class MeetingsViewController: UIViewController, DataSourceDelegate, CLLocationMa
         tapRecognizer?.numberOfTapsRequired = 1
         tapRecognizer?.cancelsTouchesInView = false
         Datasource.sharedInstance.delegate = self
+        
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("networkStatusChanged:"), name: ReachabilityStatusChangedNotification, object: nil)
+        Reach().monitorReachabilityChanges()
+        
+    }
+    
+    func networkStatusChanged(note: NSNotification) {
+        let status = Reach().connectionStatus()
+        switch status {
+            case .Unknown, .Offline:
+                startConnectivityAnimation()
+            case .Online(.WWAN), .Online(.WiFi):
+                stopConnectivityAnimation()
+        }
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -76,6 +90,16 @@ class MeetingsViewController: UIViewController, DataSourceDelegate, CLLocationMa
         
         self.duration = getDurationOfIndex(NSUserDefaults.standardUserDefaults().integerForKey("durationIndex"))
         self.loadEvents()
+        
+        let status = Reach().connectionStatus()
+        switch status {
+        case .Unknown, .Offline:
+            noConnectionIndicatorText.text = "no connection\nworking offline"
+            startConnectivityAnimation()
+        default:
+            noConnectionIndicatorText.text = "bad connection"
+            stopConnectivityAnimation()
+        }
     }
     
     func checkCalendarAndContactsAccess() -> Bool {
@@ -117,7 +141,6 @@ class MeetingsViewController: UIViewController, DataSourceDelegate, CLLocationMa
     
     func ConnectivityProblem(status: Bool) {
         if status == true {
-            print("there seems to be a connection problem !!")
             startConnectivityAnimation()
         } else {
             stopConnectivityAnimation()
@@ -125,23 +148,23 @@ class MeetingsViewController: UIViewController, DataSourceDelegate, CLLocationMa
     }
     
     func startConnectivityAnimation() {
-        print("having connectivity issues!!")
-        let animation = CABasicAnimation(keyPath: "opacity")
-        animation.duration = 0.3
-        animation.repeatCount = 15
-        animation.autoreverses = true
-        animation.fromValue = 0.1
-        animation.toValue = 1.0
-        dispatch_async(dispatch_get_main_queue()) {
-            self.noConnectionIndicator.hidden = false
-            self.noConnectionIndicatorText.hidden = false
-            self.noConnectionIndicatorText.layer.addAnimation(animation, forKey: "animateOpacity")
-            self.noConnectionIndicator.layer.addAnimation(animation, forKey: "animateOpacity")
+        if self.noConnectionIndicatorText.layer.animationForKey("animateOpacity") == nil {
+            let animation = CABasicAnimation(keyPath: "opacity")
+            animation.duration = 0.4
+            animation.repeatCount = 45
+            animation.autoreverses = true
+            animation.fromValue = 0.1
+            animation.toValue = 1.0
+            dispatch_async(dispatch_get_main_queue()) {
+                self.noConnectionIndicator.hidden = false
+                self.noConnectionIndicatorText.hidden = false
+                self.noConnectionIndicatorText.layer.addAnimation(animation, forKey: "animateOpacity")
+                self.noConnectionIndicator.layer.addAnimation(animation, forKey: "animateOpacity")
+            }
         }
     }
     
     func stopConnectivityAnimation() {
-        print("connectivity issues resolved!!")
         dispatch_async(dispatch_get_main_queue()) {
             self.noConnectionIndicator.layer.removeAnimationForKey("animateOpacity")
             self.noConnectionIndicator.hidden = true

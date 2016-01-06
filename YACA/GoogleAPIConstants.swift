@@ -17,6 +17,7 @@ extension GoogleAPIClient {
     
     struct ErrorKeys {
         static let Timeout = -1001
+        static let Offline = -1009
     }
     
     // MARK: - Parameter Keys
