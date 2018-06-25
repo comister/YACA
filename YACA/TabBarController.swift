@@ -12,7 +12,7 @@ class TabBarController: UITabBarController {
     
     override func viewDidLoad() {
         // Mark: - Switch to Settings in case no UserDefaults set yet
-        if (NSUserDefaults.standardUserDefaults().stringForKey("selectedCalendar") == nil) {
+        if (UserDefaults.standard.string(forKey: "selectedCalendar") == nil) {
             self.selectedIndex = 2
         }
     }

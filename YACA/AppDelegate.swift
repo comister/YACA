@@ -19,29 +19,29 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     let eventStore = EKEventStore()
     let locationManager = CLLocationManager()
 
-    func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         return true
     }
     
-    func applicationWillResignActive(application: UIApplication) {
+    func applicationWillResignActive(_ application: UIApplication) {
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
         // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
     }
 
-    func applicationDidEnterBackground(application: UIApplication) {
+    func applicationDidEnterBackground(_ application: UIApplication) {
         // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
         // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
     }
 
-    func applicationWillEnterForeground(application: UIApplication) {
+    func applicationWillEnterForeground(_ application: UIApplication) {
         // Called as part of the transition from the background to the inactive state; here you can undo many of the changes made on entering the background.
     }
 
-    func applicationDidBecomeActive(application: UIApplication) {
+    func applicationDidBecomeActive(_ application: UIApplication) {
         // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
     }
 
-    func applicationWillTerminate(application: UIApplication) {
+    func applicationWillTerminate(_ application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
         // Saves changes in the application's managed object context before the application terminates.
         CoreDataStackManager.sharedInstance().saveContext() {
@@ -50,61 +50,63 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     // MARK: - Adding this function to AppDelegate to have access from everywhere (which would be possible otherwise as well, for sure)
-    func checkContactsAuthorizationStatus(completionHandler: (accessGranted: Bool) -> Void) {
-        let status = CNContactStore.authorizationStatusForEntityType(CNEntityType.Contacts)
+    func checkContactsAuthorizationStatus(_ completionHandler: @escaping (_ accessGranted: Bool) -> Void) {
+        let status = CNContactStore.authorizationStatus(for: CNEntityType.contacts)
         
         switch(status) {
-        case CNAuthorizationStatus.Authorized:
-            completionHandler(accessGranted: true)
+        case CNAuthorizationStatus.authorized:
+            completionHandler(true)
             
-        case CNAuthorizationStatus.Denied, CNAuthorizationStatus.NotDetermined:
-            self.contactStore.requestAccessForEntityType(CNEntityType.Contacts, completionHandler: { (access, accessError) -> Void in
+        case CNAuthorizationStatus.denied, CNAuthorizationStatus.notDetermined:
+            self.contactStore.requestAccess(for: CNEntityType.contacts, completionHandler: { (access, accessError) -> Void in
                 if access {
-                    completionHandler(accessGranted: access)
+                    completionHandler(access)
                 }
                 else {
-                    if status == CNAuthorizationStatus.Denied {
-                        completionHandler(accessGranted: false)
+                    if status == CNAuthorizationStatus.denied {
+                        completionHandler(false)
                     }
                 }
             })
             
         default:
-            completionHandler(accessGranted: false)
+            completionHandler(false)
         }
     }
     
-    func checkCalendarAuthorizationStatus(completionHandler: (accessGranted: Bool) -> Void) {
-        let status = EKEventStore.authorizationStatusForEntityType(EKEntityType.Event)
+    func checkCalendarAuthorizationStatus(_ completionHandler: @escaping (_ accessGranted: Bool) -> Void) {
+        let status = EKEventStore.authorizationStatus(for: EKEntityType.event)
         
         switch(status) {
-        case EKAuthorizationStatus.Authorized:
-            completionHandler(accessGranted: true)
+        case EKAuthorizationStatus.authorized:
+            completionHandler(true)
             
-        case EKAuthorizationStatus.Denied, EKAuthorizationStatus.NotDetermined:
-            self.eventStore.requestAccessToEntityType(EKEntityType.Event, completion: {(access, accessError) -> Void in
+        case EKAuthorizationStatus.denied, EKAuthorizationStatus.notDetermined:
+            self.eventStore.requestAccess(to: EKEntityType.event, completion: {(access, accessError) -> Void in
                 if access {
-                    completionHandler(accessGranted: access)
+                    completionHandler(access)
                 }
                 else {
-                    if status == EKAuthorizationStatus.Denied {
-                        completionHandler(accessGranted: false)
+                    if status == EKAuthorizationStatus.denied {
+                        completionHandler(false)
                     }
                 }
             })
             
         default:
-            completionHandler(accessGranted: false)
+            completionHandler(false)
         }
     }
     
-    func backgroundThread(delay: Double = 0.0, background: (() -> Void)? = nil, completion: (() -> Void)? = nil) {
-        dispatch_async(dispatch_get_global_queue(Int(QOS_CLASS_USER_INITIATED.rawValue), 0)) {
-            if(background != nil){ background!(); }
+    func backgroundThread(_ delay: Double = 0.0, background: (() -> Void)? = nil, completion: (() -> Void)? = nil) {
+        DispatchQueue.global(qos: .background).async {
+            background?()
             
-            let popTime = dispatch_time(DISPATCH_TIME_NOW, Int64(delay * Double(NSEC_PER_SEC)))
-            dispatch_after(popTime, dispatch_get_main_queue()) {
-                if(completion != nil){ completion!(); }
+            let popTime = DispatchTime.now() + Double(Int64(delay * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
+            if let completion = completion {
+                DispatchQueue.main.asyncAfter(deadline: popTime) {
+                    completion()
+                }
             }
         }
     }

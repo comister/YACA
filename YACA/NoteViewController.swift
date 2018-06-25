@@ -23,7 +23,7 @@ class NoteViewController: UIViewController {
         super.viewDidLoad()
     }
     
-    override func viewWillAppear(animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
         MeetingTitle.text = meetingName
@@ -36,23 +36,23 @@ class NoteViewController: UIViewController {
         return CoreDataStackManager.sharedInstance().managedObjectContext!
     }
     
-    @IBAction func deleteNote(sender: AnyObject) {
+    @IBAction func deleteNote(_ sender: AnyObject) {
         
-        let confirmation = UIAlertController(title: "Delete Note", message: "Are you sure you want to permanently delete this note?", preferredStyle: UIAlertControllerStyle.ActionSheet)
-        let cancelAction: UIAlertAction = UIAlertAction(title: "Cancel", style: .Cancel) { action -> Void in
+        let confirmation = UIAlertController(title: "Delete Note", message: "Are you sure you want to permanently delete this note?", preferredStyle: UIAlertControllerStyle.actionSheet)
+        let cancelAction: UIAlertAction = UIAlertAction(title: "Cancel", style: .cancel) { action -> Void in
             
         }
-        let confirmAction: UIAlertAction = UIAlertAction(title: "OK", style: .Default) { action -> Void in
-            self.sharedContext.deleteObject(self.note!)
-            self.dismissViewControllerAnimated(true, completion: nil)
+        let confirmAction: UIAlertAction = UIAlertAction(title: "OK", style: .default) { action -> Void in
+            self.sharedContext.delete(self.note!)
+            self.dismiss(animated: true, completion: nil)
         }
         confirmation.addAction(confirmAction)
         confirmation.addAction(cancelAction)
         
-        self.presentViewController(confirmation, animated: true, completion: nil)
+        self.present(confirmation, animated: true, completion: nil)
     }
     
-    @IBAction func closeNote(sender: AnyObject) {
-        self.dismissViewControllerAnimated(true, completion: nil)
+    @IBAction func closeNote(_ sender: AnyObject) {
+        self.dismiss(animated: true, completion: nil)
     }
 }

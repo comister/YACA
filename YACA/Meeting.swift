@@ -15,7 +15,7 @@ import CoreLocation
 
 protocol MeetingDelegate : class {
     func MeetingDidCreate()
-    func ConnectivityProblem(status: Bool)
+    func ConnectivityProblem(_ status: Bool)
 }
 
 class Meeting: NSObject, CLLocationManagerDelegate {
@@ -41,8 +41,8 @@ class Meeting: NSObject, CLLocationManagerDelegate {
     var meetingId: String
     var name: String
     var details: String?
-    var starttime: NSDate
-    var endtime: NSDate
+    var starttime: Date
+    var endtime: Date
     var location: String?
     var note: Note? {
         get {
@@ -79,7 +79,7 @@ class Meeting: NSObject, CLLocationManagerDelegate {
         locationManager = CLLocationManager()
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
-        if CLLocationManager.authorizationStatus() == .NotDetermined {
+        if CLLocationManager.authorizationStatus() == .notDetermined {
             locationManager.requestWhenInUseAuthorization()
         }
         locationManager.startUpdatingLocation()
@@ -105,33 +105,33 @@ class Meeting: NSObject, CLLocationManagerDelegate {
                             self.delegate?.ConnectivityProblem(false)
                         }
                     }
-                    self.attendeesToCreate--
+                    self.attendeesToCreate -= 1
                 }
             }
         }
     }
     
-    func locationManager(manager: CLLocationManager,
-        didChangeAuthorizationStatus status: CLAuthorizationStatus) {
-            if status == .AuthorizedAlways || status == .AuthorizedWhenInUse {
+    func locationManager(_ manager: CLLocationManager,
+        didChangeAuthorization status: CLAuthorizationStatus) {
+            if status == .authorizedAlways || status == .authorizedWhenInUse {
                 locationManager.startUpdatingLocation()
-            } else if status == .AuthorizedWhenInUse || status == .Restricted || status == .Denied {
+            } else if status == .authorizedWhenInUse || status == .restricted || status == .denied {
                 let alertController = UIAlertController(
                     title: "Background Location Access Disabled",
                     message: "To be able to see information about your current location it is recommended to enable location access.",
-                    preferredStyle: .Alert)
+                    preferredStyle: .alert)
                 
-                let cancelAction = UIAlertAction(title: "Cancel", style: .Cancel, handler: nil)
+                let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
                 alertController.addAction(cancelAction)
                 
-                let openAction = UIAlertAction(title: "Open Settings", style: .Default) { (action) in
-                    if let url = NSURL(string:UIApplicationOpenSettingsURLString) {
-                        UIApplication.sharedApplication().openURL(url)
+                let openAction = UIAlertAction(title: "Open Settings", style: .default) { (action) in
+                    if let url = URL(string:UIApplicationOpenSettingsURLString) {
+                        UIApplication.shared.openURL(url)
                     }
                 }
                 alertController.addAction(openAction)
                 
-                UIApplication.sharedApplication().keyWindow?.rootViewController?.presentViewController(alertController, animated: true, completion: nil)
+                UIApplication.shared.keyWindow?.rootViewController?.present(alertController, animated: true, completion: nil)
             }
     }
     
@@ -141,34 +141,34 @@ class Meeting: NSObject, CLLocationManagerDelegate {
         return CoreDataStackManager.sharedInstance().managedObjectContext!
     }
 
-    lazy var fetchedResultsControllerForNote: NSFetchedResultsController = {
+    lazy var fetchedResultsControllerForNote: NSFetchedResultsController<Note> = {
         
-        let fetchRequest = NSFetchRequest(entityName: Note.statics.entityName)
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: Note.statics.entityName)
         fetchRequest.predicate = NSPredicate(format: "meetingId == %@", self.meetingId)
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: Note.Keys.CreatedAt, ascending: true)]
         
         let fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: self.sharedContext, sectionNameKeyPath: nil, cacheName: nil)
         
-        return fetchedResultsController
+        return fetchedResultsController as! NSFetchedResultsController<Note>
         
     }()
     
-    func getNote(meetingId: String) -> Note? {
+    func getNote(_ meetingId: String) -> Note? {
         self.meetingId = meetingId
         do {
             try fetchedResultsControllerForNote.performFetch()
         } catch _ { }
         
         if let note = fetchedResultsControllerForNote.fetchedObjects?.first {
-            return note as? Note
+            return note
         } else {
             return nil
         }
     }
     
-    func getParticipant(attendee: EKParticipant, context: NSManagedObjectContext, completionHandler: (result: Participant?, didUpdate: Bool, error: NSError?) -> Void) {
+    func getParticipant(_ attendee: EKParticipant, context: NSManagedObjectContext, completionHandler: @escaping (_ result: Participant?, _ didUpdate: Bool, _ error: NSError?) -> Void) {
         
-        let fetchRequest = NSFetchRequest(entityName: Participant.statics.entityName)
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: Participant.statics.entityName)
         fetchRequest.predicate = NSPredicate(format: "email == %@", attendee.getEmail())
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: Participant.Keys.Email, ascending: true)]
         let fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: self.sharedContext, sectionNameKeyPath: nil, cacheName: nil)
@@ -185,32 +185,32 @@ class Meeting: NSObject, CLLocationManagerDelegate {
                     if locationData["doesExist"] as! Bool == true {
                         if locationData[Location.Keys.Weather] != nil {
                             // Change NSManagedObject ONLY in main thread !!
-                            dispatch_async(dispatch_get_main_queue()) {
+                            DispatchQueue.main.async {
                                 storedParticipants.location?.weather = locationData[Location.Keys.Weather] as? String
                                 storedParticipants.location?.weather_description = locationData[Location.Keys.WeatherDescription] as? String
                                 storedParticipants.location?.weather_temp = locationData[Location.Keys.WeatherTemperature] as? NSNumber
                                 storedParticipants.location?.weather_temp_unit = locationData[Location.Keys.WeatherTemperatureUnit] as? NSNumber
-                                storedParticipants.location?.lastUpdate = locationData[Location.Keys.LastUpdate]! as! NSDate
+                                storedParticipants.location?.lastUpdate = locationData[Location.Keys.LastUpdate]! as! Date
                             }
                         }
                         
                         CoreDataStackManager.sharedInstance().saveContext() {
-                            completionHandler(result: storedParticipants, didUpdate: didUpdate, error: nil)
+                            completionHandler(storedParticipants, didUpdate, nil)
                         }
                         return
                     } else {
-                        dispatch_async(dispatch_get_main_queue()) {
+                        DispatchQueue.main.async {
                             storedParticipants.location = Location(dictionary: locationData, context: self.sharedContext)
                         }
                         CoreDataStackManager.sharedInstance().saveContext() {
-                            completionHandler(result: storedParticipants, didUpdate: didUpdate, error: nil)
+                            completionHandler(storedParticipants, didUpdate, nil)
                         }
                         return
                     }
                 } else {
                     //no GEOInformation
                     CoreDataStackManager.sharedInstance().saveContext() {
-                        completionHandler(result: storedParticipants, didUpdate: didUpdate, error: error)
+                        completionHandler(storedParticipants, didUpdate, error)
                     }
                     return
                 }
@@ -221,31 +221,31 @@ class Meeting: NSObject, CLLocationManagerDelegate {
                 if let locationData = location {
                     if locationData["doesExist"] as! Bool == true {
                         if locationData[Location.Keys.Weather] != nil {
-                            dispatch_async(dispatch_get_main_queue()) {
+                            DispatchQueue.main.async {
                                 newParticipant.location?.weather = locationData[Location.Keys.Weather] as? String
                                 newParticipant.location?.weather_description = locationData[Location.Keys.WeatherDescription] as? String
                                 newParticipant.location?.weather_temp = locationData[Location.Keys.WeatherTemperature] as? NSNumber
                                 newParticipant.location?.weather_temp_unit = locationData[Location.Keys.WeatherTemperatureUnit] as? NSNumber
-                                newParticipant.location?.lastUpdate = NSDate()
+                                newParticipant.location?.lastUpdate = Date()
                             }
                         }
                         CoreDataStackManager.sharedInstance().saveContext() {
-                            completionHandler(result: newParticipant, didUpdate: didUpdate, error: nil)
+                            completionHandler(newParticipant, didUpdate, nil)
                         }
                         return
                     } else {
-                        dispatch_async(dispatch_get_main_queue()) {
+                        DispatchQueue.main.async {
                             newParticipant.location = Location(dictionary: locationData, context: self.sharedContext)
                         }
                         CoreDataStackManager.sharedInstance().saveContext() {
-                            completionHandler(result: newParticipant, didUpdate: didUpdate, error: nil)
+                            completionHandler(newParticipant, didUpdate, nil)
                         }
                         return
                     }
                 } else {
                     //no GEOInformation
                     CoreDataStackManager.sharedInstance().saveContext() {
-                        completionHandler(result: newParticipant, didUpdate: didUpdate, error: error)
+                        completionHandler(newParticipant, didUpdate, error)
                     }
                     return
                 }
@@ -253,22 +253,22 @@ class Meeting: NSObject, CLLocationManagerDelegate {
         }
     }
     
-    func getLocationInformation(attendee: Participant?, context: NSManagedObjectContext, completionHandler: (result: [String:AnyObject]? , didUpdate: Bool, error: NSError?) -> Void) {
+    func getLocationInformation(_ attendee: Participant?, context: NSManagedObjectContext, completionHandler: @escaping (_ result: [String:AnyObject]? , _ didUpdate: Bool, _ error: NSError?) -> Void) {
         
         var coordinateDetermination: CLLocationCoordinate2D?
         var location: [String:String] = ["country":"","city":""]
         
         //Retrieving current location if attendee is the user itself
         if attendee == nil {
-            completionHandler(result: nil, didUpdate: false, error: NSError(domain: "Not ready yet, waiting for different authorizations -- this usually happens at startup only", code: 0, userInfo: nil))
+            completionHandler(nil, false, NSError(domain: "Not ready yet, waiting for different authorizations -- this usually happens at startup only", code: 0, userInfo: nil))
             return
         }
         if attendee!.myself {
-            if CLLocationManager.authorizationStatus() == .AuthorizedAlways || CLLocationManager.authorizationStatus() == .AuthorizedWhenInUse {
+            if CLLocationManager.authorizationStatus() == .authorizedAlways || CLLocationManager.authorizationStatus() == .authorizedWhenInUse {
                 coordinateDetermination = locationManager.location?.coordinate
                 
                 self.getLocationDetails(coordinateDetermination, locationDescription: location, context: context) { location, didUpdate, error in    
-                    completionHandler(result: location, didUpdate: didUpdate, error: error)
+                    completionHandler(location, didUpdate, error)
                     return
                 }
                 
@@ -297,19 +297,19 @@ class Meeting: NSObject, CLLocationManagerDelegate {
         } else if let possibleAddressObject = self.findContactofAttendee(attendee!.name) {
             
             if let addressObject = possibleAddressObject.postalAddresses.first {
-                let contactsLocation = addressObject.value as? CNPostalAddress
-                location["country"] = contactsLocation?.country
-                location["city"] = contactsLocation?.city
+                let contactsLocation = addressObject.value
+                location["country"] = contactsLocation.country
+                location["city"] = contactsLocation.city
                 
-                let address = contactsLocation!.city + (contactsLocation!.country != "" ? ", " + contactsLocation!.country : "")
+                let address = contactsLocation.city + (contactsLocation.country != "" ? ", " + contactsLocation.country : "")
                 let geocoder = CLGeocoder()
                 geocoder.geocodeAddressString(address, completionHandler: {(placemarks, error) -> Void in
 
                     if placemarks == nil {
-                        if let anError = error {
-                            completionHandler(result: nil, didUpdate: false, error: NSError(domain: "GEOCoder",code: -1001, userInfo: nil))
+                        if error != nil {
+                            completionHandler(nil, false, NSError(domain: "GEOCoder",code: -1001, userInfo: nil))
                         } else {
-                            completionHandler(result: nil, didUpdate: false, error: NSError(domain: "Was not able to determine coordinates for location", code: 0, userInfo: nil))
+                            completionHandler(nil, false, NSError(domain: "Was not able to determine coordinates for location", code: 0, userInfo: nil))
                         }
                         return
                     }
@@ -319,7 +319,7 @@ class Meeting: NSObject, CLLocationManagerDelegate {
                         
                         self.getLocationDetails(coordinateDetermination, locationDescription: location, context: context) { location, didUpdate, error in
                             
-                            completionHandler(result: location, didUpdate: didUpdate, error: error)
+                            completionHandler(location, didUpdate, error)
                             return
                         }
                     }
@@ -328,13 +328,13 @@ class Meeting: NSObject, CLLocationManagerDelegate {
         }
     }
     
-    func getLocationDetails(coordinateDetermination: CLLocationCoordinate2D?, locationDescription: [String:String], context: NSManagedObjectContext, completionHandler: (result: [String:AnyObject]? , didUpdate: Bool, error: NSError?) -> Void) {
+    func getLocationDetails(_ coordinateDetermination: CLLocationCoordinate2D?, locationDescription: [String:String], context: NSManagedObjectContext, completionHandler: @escaping (_ result: [String:AnyObject]? , _ didUpdate: Bool, _ error: NSError?) -> Void) {
         
         if let coordinates = coordinateDetermination {
             
             // MARK: - lookup Core Data for existing Location entry
             // in addition, check on lastUpdate date and update if older than an hour
-            let fetchRequest = NSFetchRequest(entityName: Location.statics.entityName)
+            let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: Location.statics.entityName)
             var compoundPredicates = [NSPredicate]()
             compoundPredicates.append( NSPredicate(format: Location.Keys.Longitude + " == %lf", coordinates.longitude ) )
             compoundPredicates.append( NSPredicate(format: Location.Keys.Latitude + " == %lf", coordinates.latitude ) )
@@ -350,30 +350,30 @@ class Meeting: NSObject, CLLocationManagerDelegate {
             var returnDictionary = [String:AnyObject]()
             
             if let storedLocation = fetchedResultsControllerForLocation.fetchedObjects?.first as? Location {
-                returnDictionary[Location.Keys.City] = storedLocation.city
-                returnDictionary[Location.Keys.Country] = storedLocation.country
+                returnDictionary[Location.Keys.City] = storedLocation.city as AnyObject
+                returnDictionary[Location.Keys.Country] = storedLocation.country as AnyObject
                 returnDictionary[Location.Keys.Latitude] = storedLocation.latitude
                 returnDictionary[Location.Keys.Longitude] = storedLocation.longitude
                 returnDictionary[Location.Keys.TimezoneOffset] = storedLocation.timezoneOffset
-                returnDictionary[Location.Keys.LastUpdate] = storedLocation.lastUpdate
+                returnDictionary[Location.Keys.LastUpdate] = storedLocation.lastUpdate as AnyObject
                 returnDictionary[Location.Keys.WeatherTemperatureUnit] = storedLocation.weather_temp_unit
-                returnDictionary["doesExist"] = true
+                returnDictionary["doesExist"] = true as AnyObject
                 
                 // MARK: - check for actuality of data and refresh if older than an hour
-                if NSDate().timeIntervalSinceDate(storedLocation.lastUpdate) > 3600 || storedLocation.weather == nil || storedLocation.weather_temp_unit != NSUserDefaults.standardUserDefaults().integerForKey("temperatureIndex") {
+                if Date().timeIntervalSince(storedLocation.lastUpdate as Date) > 3600 || storedLocation.weather == nil || Int(truncating: storedLocation.weather_temp_unit!) != UserDefaults.standard.integer(forKey: "temperatureIndex") {
                     
-                    GoogleAPIClient.sharedInstance().getTimeOfLocation(coordinates.latitude, long: coordinates.longitude) { timezoneInfo, timezoneError in
+                    GoogleAPIClient.sharedInstance().getTimeOfLocation( lat: NSNumber(value: coordinates.latitude), long: NSNumber(value: coordinates.longitude)) { timezoneInfo, timezoneError in
                         
                         if let _ = timezoneError {
-                            completionHandler(result: nil, didUpdate: true, error: timezoneError)
+                            completionHandler(nil, true, timezoneError)
                             return
                         } else {
-                            returnDictionary[Location.Keys.TimezoneOffset] = timezoneInfo
+                            returnDictionary[Location.Keys.TimezoneOffset] = timezoneInfo as AnyObject
                         }
                         
-                        OpenWeatherClient.sharedInstance().getWeatherByLatLong(coordinates.latitude, long: coordinates.longitude, unitIndex: NSUserDefaults.standardUserDefaults().integerForKey("temperatureIndex"))  { data, error in
+                        OpenWeatherClient.sharedInstance().getWeatherByLatLong(NSNumber(value: coordinates.latitude), long: NSNumber(value: coordinates.longitude), unitIndex: UserDefaults.standard.integer(forKey: "temperatureIndex"))  { data, error in
                             if let _ = error {
-                                completionHandler(result: returnDictionary, didUpdate: true, error: error)
+                                completionHandler(returnDictionary, true, error)
                                 return
                             } else {
                                 // this should never happen, but check to get sure
@@ -381,63 +381,63 @@ class Meeting: NSObject, CLLocationManagerDelegate {
                                     returnDictionary[Location.Keys.Weather] = data!["weather"]
                                     returnDictionary[Location.Keys.WeatherDescription] = data!["weather_description"]
                                     returnDictionary[Location.Keys.WeatherTemperature] = data!["weather_temp"]
-                                    returnDictionary[Location.Keys.WeatherTemperatureUnit] = NSUserDefaults.standardUserDefaults().integerForKey("temperatureIndex")
-                                    returnDictionary[Location.Keys.LastUpdate] = NSDate()
+                                    returnDictionary[Location.Keys.WeatherTemperatureUnit] = UserDefaults.standard.integer(forKey: "temperatureIndex") as AnyObject
+                                    returnDictionary[Location.Keys.LastUpdate] = Date() as AnyObject
                                     
                                 }
-                                completionHandler(result: returnDictionary, didUpdate: true, error: nil)
+                                completionHandler(returnDictionary, true, nil)
                                 return
                             }
                         }
                     }
                     
                 } else {
-                    completionHandler(result: returnDictionary, didUpdate: false, error: nil)
+                    completionHandler(returnDictionary, false, nil)
                     return
                 }
                 
             } else {
-                GoogleAPIClient.sharedInstance().getTimeOfLocation(coordinates.latitude, long: coordinates.longitude) { timezoneInfo, timezoneError in
+                GoogleAPIClient.sharedInstance().getTimeOfLocation(lat: NSNumber(value: coordinates.latitude), long: NSNumber(value: coordinates.longitude)) { timezoneInfo, timezoneError in
                     
                     if let anError = timezoneError {
-                        completionHandler(result: nil, didUpdate: true, error: anError)
+                        completionHandler(nil, true, anError)
                         return
                     }
                     
-                    OpenWeatherClient.sharedInstance().getWeatherByLatLong(coordinates.latitude, long: coordinates.longitude, unitIndex: NSUserDefaults.standardUserDefaults().integerForKey("temperatureIndex"))  { data, error in
+                    OpenWeatherClient.sharedInstance().getWeatherByLatLong(NSNumber(value: coordinates.latitude), long: NSNumber(value: coordinates.longitude), unitIndex: UserDefaults.standard.integer(forKey: "temperatureIndex"))  { data, error in
                         if let anError = error {
-                            completionHandler(result: nil, didUpdate: true, error: anError)
+                            completionHandler(nil, true, anError)
                             return
                         } else {
                             // Create new Location
                             let newLocationDict: [String:AnyObject] = [
-                                Location.Keys.City               : locationDescription["city"] != "" ? locationDescription["city"]! : data != nil ? data!["city"]! : "",
-                                Location.Keys.Country            : locationDescription["country"] != "" ? locationDescription["country"]! : data != nil ? data!["country"]! : "",
-                                Location.Keys.Latitude           : coordinates.latitude,
-                                Location.Keys.Longitude          : coordinates.longitude,
-                                Location.Keys.Weather            : data != nil && data!["weather"] != nil ? data!["weather"]! : "",
-                                Location.Keys.WeatherDescription : data != nil && data!["weather_description"] != nil ? data!["weather_description"]! : "",
-                                Location.Keys.WeatherTemperature : data != nil && data!["weather_temp"] != nil ? data!["weather_temp"]! : 0.0,
-                                Location.Keys.WeatherTemperatureUnit : NSUserDefaults.standardUserDefaults().integerForKey("temperatureIndex"),
-                                Location.Keys.LastUpdate         : NSDate(),
-                                Location.Keys.TimezoneOffset     : timezoneInfo!,
-                                "doesExist"                      : false
+                                Location.Keys.City               : locationDescription["city"] != "" ? locationDescription["city"] as AnyObject : data != nil ? data!["city"] as AnyObject : "" as AnyObject,
+                                Location.Keys.Country            : locationDescription["country"] != "" ? locationDescription["country"] as AnyObject : data != nil ? data!["country"] as AnyObject : "" as AnyObject,
+                                Location.Keys.Latitude           : coordinates.latitude as AnyObject,
+                                Location.Keys.Longitude          : coordinates.longitude as AnyObject,
+                                Location.Keys.Weather            : data != nil && data!["weather"] != nil ? data!["weather"] as AnyObject : "" as AnyObject,
+                                Location.Keys.WeatherDescription : data != nil && data!["weather_description"] != nil ? data!["weather_description"] as AnyObject : "" as AnyObject,
+                                Location.Keys.WeatherTemperature : data != nil && data!["weather_temp"] != nil ? data!["weather_temp"] as AnyObject : 0.0 as AnyObject,
+                                Location.Keys.WeatherTemperatureUnit : UserDefaults.standard.integer(forKey: "temperatureIndex") as AnyObject,
+                                Location.Keys.LastUpdate         : Date() as AnyObject,
+                                Location.Keys.TimezoneOffset     : timezoneInfo! as AnyObject,
+                                "doesExist"                      : false as AnyObject
                             ]
-                            completionHandler(result: newLocationDict, didUpdate: true, error: nil)
+                            completionHandler(newLocationDict, true, nil)
                             return
                         }
                     }
                 }
             }
         } else {
-            completionHandler(result: nil, didUpdate: false, error: nil)
+            completionHandler(nil, false, nil)
             return
         }
     }
     
     // MARK: - Getting additional information from Contacts like country
-    func findContactofAttendee(attendeeName: String?) -> CNContact? {
-        let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+    func findContactofAttendee(_ attendeeName: String?) -> CNContact? {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
         var eligibleContact: CNContact? = nil
         
         // if access allowed to Contacts, going to search for an eligible contact with same name than in event
@@ -450,7 +450,7 @@ class Meeting: NSObject, CLLocationManagerDelegate {
                     let keysToFetch = [CNContactPostalAddressesKey]
                     
                     if let name = attendeeName {
-                        let contacts = try store.unifiedContactsMatchingPredicate(CNContact.predicateForContactsMatchingName(name), keysToFetch: keysToFetch)
+                        let contacts = try store.unifiedContacts(matching: CNContact.predicateForContacts(matchingName: name), keysToFetch: keysToFetch as [CNKeyDescriptor])
                         if let contact = contacts.first {
                             if (contact.isKeyAvailable(CNContactPostalAddressesKey)) {
                                 if contact.postalAddresses.count > 0 {

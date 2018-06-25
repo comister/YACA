@@ -16,7 +16,7 @@ import EventKit
 protocol DataSourceDelegate : class {
     func DataSourceFinishedProcessing()
     func DataSourceStartedProcessing()
-    func ConnectivityProblem(status: Bool)
+    func ConnectivityProblem(_ status: Bool)
 }
 
 class Datasource: MeetingDelegate {
@@ -27,8 +27,8 @@ class Datasource: MeetingDelegate {
     var meetings: [Meeting]?
     weak var delegate : DataSourceDelegate?
     
-    var daysOfMeeting = [NSDate:[Meeting]]()
-    var sortedMeetingArray = [NSDate]()
+    var daysOfMeeting = [Date:[Meeting]]()
+    var sortedMeetingArray = [Date]()
     var meetingId: String = ""
     
     // MARK: Keeps track of meetings under creation and fires delegate method as soon as at 0
@@ -40,11 +40,11 @@ class Datasource: MeetingDelegate {
         }
     }
     
-    func loadMeetings(meetings: [Meeting]?) {
+    func loadMeetings(_ meetings: [Meeting]?) {
         self.meetings = meetings
     }
     
-    func loadMeetings(events: [EKEvent]) {
+    func loadMeetings(_ events: [EKEvent]) {
         self.delegate?.DataSourceStartedProcessing()
         var localMeetings = [Meeting]()
         meetingsToCreate = events.count
@@ -64,69 +64,69 @@ class Datasource: MeetingDelegate {
     }
     
     // MARK: - prohibits the creation of an instance outside the singleton pattern
-    private init() { }
+    fileprivate init() { }
     
     // MARK: - iterate through each Event and fill up dates, afterwards sort
     func structureMeetings() {
         
         // new day, new structure ...
-        daysOfMeeting = [NSDate:[Meeting]]()
-        sortedMeetingArray = [NSDate]()
+        daysOfMeeting = [Date:[Meeting]]()
+        sortedMeetingArray = [Date]()
         
         if let items = meetings {
             for item in items {
-                let day = getDayOfDate(item.starttime)
+                let day = getDayOfDate(item.starttime as Date)
                 if daysOfMeeting[day] == nil {
                     daysOfMeeting[day] = [Meeting]()
                 }
                 daysOfMeeting[day]?.append(item)
             }
-            self.sortedMeetingArray = Array(daysOfMeeting.keys).sort({ $0.timeIntervalSinceReferenceDate < $1.timeIntervalSinceReferenceDate })
+            self.sortedMeetingArray = Array(daysOfMeeting.keys).sorted(by: { $0.timeIntervalSinceReferenceDate < $1.timeIntervalSinceReferenceDate })
         }
         
     }
     
     func MeetingDidCreate() {
-        self.meetingsToCreate--
+        self.meetingsToCreate -= 1
     }
     
     //pass through delegate
-    func ConnectivityProblem(status: Bool) {
+    func ConnectivityProblem(_ status: Bool) {
         self.delegate?.ConnectivityProblem(status)
     }
     
     // MARK: - returns the weekday of a date, the special is because it does return the string today and tomorrow
-    func getSpecialWeekdayOfDate(date: NSDate) -> String {
-        if NSDate.areDatesSameDay(NSDate(), dateTwo: date) {
+    func getSpecialWeekdayOfDate(_ date: Date) -> String {
+        if Date.areDatesSameDay(Date(), dateTwo: date) {
             return "TODAY"
-        } else if NSDate.areDatesSameDay(NSDate(timeIntervalSinceNow: 86400), dateTwo: date) {
+        } else if Date.areDatesSameDay(Date(timeIntervalSinceNow: 86400), dateTwo: date) {
             return "TOMORROW"
         } else {
-            let dateFormatter = NSDateFormatter()
+            let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "EEEE"
-            dateFormatter.locale = NSLocale(localeIdentifier: "en")
-            return dateFormatter.stringFromDate(date).uppercaseString
+            dateFormatter.locale = Locale(identifier: "en")
+            return dateFormatter.string(from: date).uppercased()
         }
     }
     
     // MARK: - Just return the day as NSDate, removing/avoiding time
-    func getDayOfDate(date: NSDate) -> NSDate {
-        let calendar = NSCalendar.currentCalendar()
-        let components = calendar.components([NSCalendarUnit.Day, NSCalendarUnit.Month, NSCalendarUnit.Year], fromDate: date)
-        return calendar.dateFromComponents(components)!
+    func getDayOfDate(_ date: Date) -> Date {
+        let calendar = Calendar.current
+        let components = (calendar as NSCalendar).components([NSCalendar.Unit.day, NSCalendar.Unit.month, NSCalendar.Unit.year], from: date)
+        return calendar.date(from: components)!
     }
     
     // MARK: - Just return Time of date
-    func getTimeOfDate(date: NSDate) -> String {
-        let calendar = NSCalendar.currentCalendar()
-        let components = calendar.components([NSCalendarUnit.Hour, NSCalendarUnit.Minute], fromDate: date)
-        return String(components.hour) + ":" + String(components.minute)
+    func getTimeOfDate(_ date: Date) -> String {
+        let calendar = Calendar.current
+        let components = (calendar as NSCalendar).components([NSCalendar.Unit.hour, NSCalendar.Unit.minute], from: date)
+        return String(describing: components.hour) + ":" + String(describing: components.minute)
     }
     
     // MARK: - Returns the week of Year
-    func getCalendarWeek(date: NSDate) -> Int {
-        let calendar = NSCalendar(calendarIdentifier: NSCalendarIdentifierGregorian)
-        calendar!.minimumDaysInFirstWeek = 4 // iso-week !
-        return (calendar?.components(NSCalendarUnit.WeekOfYear, fromDate: date).weekOfYear)!
+    func getCalendarWeek(_ date: Date) -> Int {
+        var calendar = Calendar(identifier: Calendar.Identifier.gregorian)
+        calendar.minimumDaysInFirstWeek = 4 // iso-week !
+        return ((calendar as NSCalendar?)?.components(NSCalendar.Unit.weekOfYear, from: date).weekOfYear)!
     }
 }

@@ -36,12 +36,12 @@ class MeetingListCell: UICollectionViewCell, UITableViewDelegate, UITableViewDat
     
     var backgroundGradient: CAGradientLayer? = nil
     
-    @IBAction func closeParticipantDetails(sender: UIButton) {
-        UIView.animateWithDuration(0.5, animations: {
+    @IBAction func closeParticipantDetails(_ sender: UIButton) {
+        UIView.animate(withDuration: 0.5, animations: {
             self.participantDetails.alpha = 0
         }, completion: { (finished: Bool) -> () in
             self.participantDetails.alpha = 1
-            self.participantDetails.hidden = true
+            self.participantDetails.isHidden = true
             
         })
     }
@@ -61,12 +61,12 @@ class MeetingListCell: UICollectionViewCell, UITableViewDelegate, UITableViewDat
         return CoreDataStackManager.sharedInstance().managedObjectContext!
     }
     
-    private func updateContent() {
+    fileprivate func updateContent() {
         calendarName.text = meeting.name
         //timingLabel.text = meeting.starttime
-        let dateFormatter = NSDateFormatter()
+        let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "HH:mm"
-        timingLabel.text = dateFormatter.stringFromDate(meeting.starttime) + " - " + dateFormatter.stringFromDate(meeting.endtime)
+        timingLabel.text = dateFormatter.string(from: meeting.starttime as Date) + " - " + dateFormatter.string(from: meeting.endtime as Date)
         notesArea()
     }
     
@@ -93,30 +93,30 @@ class MeetingListCell: UICollectionViewCell, UITableViewDelegate, UITableViewDat
         animation.autoreverses = true
         animation.fromValue = 1.0
         animation.toValue = 0.1
-        saveButton.hidden = false
-        deleteButton.hidden = false
-        saveButton.layer.addAnimation(animation, forKey: "animateOpacity")
+        saveButton.isHidden = false
+        deleteButton.isHidden = false
+        saveButton.layer.add(animation, forKey: "animateOpacity")
     }
     
     func stopSaveAnimation() {
-        saveButton.layer.removeAnimationForKey("animateOpacity")
-        saveButton.hidden = true
-        deleteButton.hidden = true
+        saveButton.layer.removeAnimation(forKey: "animateOpacity")
+        saveButton.isHidden = true
+        deleteButton.isHidden = true
     }
     
-    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if let location = meeting.participantArray[indexPath.row].location {
             
-            participantDetails.hidden = false
-            UIView.transitionWithView(participantDetails, duration: 0.5, options: UIViewAnimationOptions.TransitionFlipFromRight, animations: nil, completion: nil)
+            participantDetails.isHidden = false
+            UIView.transition(with: participantDetails, duration: 0.5, options: UIViewAnimationOptions.transitionFlipFromRight, animations: nil, completion: nil)
             participantDetailsName.text = ( meeting.participantArray[indexPath.row].name != nil ? meeting.participantArray[indexPath.row].name : meeting.participantArray[indexPath.row].email )
             
-            participantDetailsLastUpdate.text = "Last update: " + ( Int(round(NSDate().timeIntervalSinceDate(location.lastUpdate))) < 60 ? " just a moment ago":String(Int(round(NSDate().timeIntervalSinceDate(location.lastUpdate)/60))) + " minutes ago")
+            participantDetailsLastUpdate.text = "Last update: " + ( Int(round(Date().timeIntervalSince(location.lastUpdate as Date))) < 60 ? " just a moment ago":String(Int(round(Date().timeIntervalSince(location.lastUpdate as Date)/60))) + " minutes ago")
             
             participantDetailsLocation.text = location.city! + (location.country != "" ? ", " + location.country! : "")
             if let weather = location.weather {
                 participantDetailsWeather.text = OWFontIcons[weather]
-                participantDetailsWeatherTemperature.text = String(location.weather_temp!.integerValue) + (location.weather_temp_unit == 0 ? "°C":"°F")
+                participantDetailsWeatherTemperature.text = String(location.weather_temp!.intValue) + (location.weather_temp_unit == 0 ? "°C":"°F")
                 participantDetailsWeatherDescription.text = location.weather_description
                 
             } else {
@@ -125,54 +125,54 @@ class MeetingListCell: UICollectionViewCell, UITableViewDelegate, UITableViewDat
             
             // use timeoffset of google timezone api to calculate th respective times for meeting as well as actual time
             if let timeOffset = location.timezoneOffset {
-                let dateFormatter = NSDateFormatter()
-                dateFormatter.locale = NSLocale(localeIdentifier: "en_US")
+                let dateFormatter = DateFormatter()
+                dateFormatter.locale = Locale(identifier: "en_US")
                 dateFormatter.dateFormat = "YYYY-MM-dd HH:mm"
-                participantDetailsTime.text = "" + dateFormatter.stringFromDate(NSDate(timeInterval: (timeOffset as Double), sinceDate: NSDate()))
+                participantDetailsTime.text = "" + dateFormatter.string(from: Date(timeInterval: (timeOffset as! Double), since: Date()))
                 dateFormatter.dateFormat = "HH:mm"
-                participantDetailsMeetingTime.text = dateFormatter.stringFromDate(NSDate(timeInterval: (timeOffset as Double), sinceDate: meeting.starttime)) + " - " + dateFormatter.stringFromDate(NSDate(timeInterval: (timeOffset as Double), sinceDate: meeting.endtime))
+                participantDetailsMeetingTime.text = dateFormatter.string(from: Date(timeInterval: (timeOffset as! Double), since: meeting.starttime as Date)) + " - " + dateFormatter.string(from: Date(timeInterval: (timeOffset as! Double), since: meeting.endtime as Date))
             }
             
             // prepare Map and add annotation of location, if available
             if let longitude = location.longitude {
                 if let latitude = location.latitude {
-                    participantDetailsMap.hidden = false
+                    participantDetailsMap.isHidden = false
                     participantDetailsMap.removeAnnotations(participantDetailsMap.annotations)
                     let annotation = MKPointAnnotation()
                     annotation.coordinate = CLLocationCoordinate2D(latitude: CLLocationDegrees(latitude), longitude: CLLocationDegrees(longitude))
                     participantDetailsMap.addAnnotation(annotation)
-                    participantDetailsMap.userInteractionEnabled = false
+                    participantDetailsMap.isUserInteractionEnabled = false
                     
                     let viewRegion = MKCoordinateRegionMakeWithDistance(annotation.coordinate, 10000000, 10000000)
                     let adjustedRegion = participantDetailsMap.regionThatFits(viewRegion)
                     participantDetailsMap.setRegion(adjustedRegion, animated: true)
                     
                 } else {
-                    participantDetailsMap.hidden = true
+                    participantDetailsMap.isHidden = true
                 }
             } else {
-                participantDetailsMap.hidden = true
+                participantDetailsMap.isHidden = true
             }
         }
     }
     
-    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        participantsButton.enabled = meeting.participantArray.count > 0
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        participantsButton.isEnabled = meeting.participantArray.count > 0
         if meeting.participantArray.count > 0 {
             participantsButton.badgeString = String(meeting.participantArray.count)
-            participantsButton.badgeBackgroundColor = UIColor.darkGrayColor()
+            participantsButton.badgeBackgroundColor = UIColor.darkGray
         } else {
             participantsButton.badgeString = nil
         }
         return meeting.participantArray.count
     }
     
-    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         // MARK: - Create cells programmatically - try to dequeue, if not possible create new cell with new identifier
         let identifier = cellIdentifier!
-        var cell = tableView.dequeueReusableCellWithIdentifier(identifier)
+        var cell = tableView.dequeueReusableCell(withIdentifier: identifier)
         if cell == nil {
-            cell = UITableViewCell(style: UITableViewCellStyle.Value1, reuseIdentifier: identifier)
+            cell = UITableViewCell(style: UITableViewCellStyle.value1, reuseIdentifier: identifier)
         }
         
         // Use Name to display, use email if name does not exist
@@ -186,9 +186,9 @@ class MeetingListCell: UICollectionViewCell, UITableViewDelegate, UITableViewDat
         
         // show yourself in blue color, all others in black
         if meeting.participantArray[indexPath.row].myself {
-            cell?.textLabel?.textColor = UIColor.blueColor()
+            cell?.textLabel?.textColor = UIColor.blue
         } else {
-            cell?.textLabel?.textColor = UIColor.blackColor()
+            cell?.textLabel?.textColor = UIColor.black
         }
         
         return cell!
@@ -200,26 +200,26 @@ class MeetingListCell: UICollectionViewCell, UITableViewDelegate, UITableViewDat
 extension MeetingListCell {
     
     func participantArea() {
-        participantTable.hidden = false
-        notesText.hidden = true
+        participantTable.isHidden = false
+        notesText.isHidden = true
         participantTable.reloadData()
-        participantsButton.backgroundColor = UIColor.whiteColor()
-        notesButton.backgroundColor = .None
+        participantsButton.backgroundColor = UIColor.white
+        notesButton.backgroundColor = .none
     }
     
     func notesArea() {
-        participantTable.hidden = true
-        notesText.hidden = false
+        participantTable.isHidden = true
+        notesText.isHidden = false
         
-        notesButton.backgroundColor = UIColor.whiteColor()
-        participantsButton.backgroundColor = .None
+        notesButton.backgroundColor = UIColor.white
+        participantsButton.backgroundColor = .none
     }
     
-    @IBAction func participantsButton(sender: UIButton) {
+    @IBAction func participantsButton(_ sender: UIButton) {
         participantArea()
     }
     
-    @IBAction func notesButton(sender: UIButton) {
+    @IBAction func notesButton(_ sender: UIButton) {
         notesArea()
     }
     
@@ -227,11 +227,11 @@ extension MeetingListCell {
 
 extension MeetingListCell: UITextViewDelegate {
     
-    @IBAction func saveNote(sender: UIButton) {
+    @IBAction func saveNote(_ sender: UIButton) {
         self.endEditing(true)
     }
     
-    @IBAction func deleteNote(sender: UIButton) {
+    @IBAction func deleteNote(_ sender: UIButton) {
         self.endEditing(true)
         notesText.text = ""
         doSaveNote()
@@ -247,12 +247,12 @@ extension MeetingListCell: UITextViewDelegate {
                 Note.Keys.Note: notesText.text,
                 Note.Keys.MeetingId: self.meeting.meetingId,
                 Note.Keys.MeetingTitle: self.meeting.name
-            ]
-            self.meeting.note = Note(dictionary: noteDictionary, context: self.sharedContext)
+            ] as [String : Any]
+            self.meeting.note = Note(dictionary: noteDictionary as [String : AnyObject], context: self.sharedContext)
         // an existing note to be updated
         } else {
             if notesText.text == "" {
-                self.sharedContext.deleteObject(self.meeting.note!)
+                self.sharedContext.delete(self.meeting.note!)
             } else {
                 self.meeting.note?.note = notesText.text
                 self.meeting.note?.meetingTitle = self.meeting.name
@@ -265,12 +265,12 @@ extension MeetingListCell: UITextViewDelegate {
         
     }
     
-    func textViewDidBeginEditing(textView: UITextView) {
-        saveButton.hidden = false
-        deleteButton.hidden = false
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        saveButton.isHidden = false
+        deleteButton.isHidden = false
     }
     
-    func textViewDidEndEditing(textView: UITextView) {
+    func textViewDidEndEditing(_ textView: UITextView) {
         doSaveNote()
     }
     

@@ -23,7 +23,7 @@ class MeetingListCellHeader: UICollectionReusableView {
     }
     
     func rotateLabel() {
-        dayLabel?.transform = CGAffineTransformMakeRotation(CGFloat(M_PI_2)/2)
+        dayLabel?.transform = CGAffineTransform(rotationAngle: CGFloat(M_PI_2)/2)
     }
     
 }

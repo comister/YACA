@@ -22,7 +22,7 @@ class MeetingsViewController: UIViewController, DataSourceDelegate, CLLocationMa
     var calendars: [EKCalendar]?
     var selectedCalendar: String?
     var duration: Int = 0
-    let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+    let appDelegate = UIApplication.shared.delegate as! AppDelegate
     var tapRecognizer: UITapGestureRecognizer? = nil
     @IBOutlet weak var meetingCollectionView: UICollectionView!
     @IBOutlet weak var calendarName: UILabel!
@@ -34,50 +34,50 @@ class MeetingsViewController: UIViewController, DataSourceDelegate, CLLocationMa
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.meetingCollectionView?.registerNib(UINib(nibName: "MeetingListCellHeader", bundle: nil), forSupplementaryViewOfKind:UICollectionElementKindSectionHeader, withReuseIdentifier: "meetingCellHeader")
-        tapRecognizer = UITapGestureRecognizer(target: self, action: "handleSingleTap:")
+        self.meetingCollectionView?.register(UINib(nibName: "MeetingListCellHeader", bundle: nil), forSupplementaryViewOfKind:UICollectionElementKindSectionHeader, withReuseIdentifier: "meetingCellHeader")
+        tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(MeetingsViewController.handleSingleTap(_:)))
         tapRecognizer?.numberOfTapsRequired = 1
         tapRecognizer?.cancelsTouchesInView = false
         Datasource.sharedInstance.delegate = self
         
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("networkStatusChanged:"), name: ReachabilityStatusChangedNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(MeetingsViewController.networkStatusChanged(_:)), name: NSNotification.Name(rawValue: ReachabilityStatusChangedNotification), object: nil)
         Reach().monitorReachabilityChanges()
         
     }
     
-    func networkStatusChanged(note: NSNotification) {
+    @objc func networkStatusChanged(_ note: Notification) {
         let status = Reach().connectionStatus()
         switch status {
-            case .Unknown, .Offline:
+            case .unknown, .offline:
                 startConnectivityAnimation()
-            case .Online(.WWAN), .Online(.WiFi):
+            case .online(.wwan), .online(.wiFi):
                 stopConnectivityAnimation()
         }
     }
     
-    override func viewWillAppear(animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         configureUI()
         addKeyboardDismissRecognizer()
         
         // Check authorization for Calendar and Contacts
         if checkCalendarAndContactsAccess() {
-            self.noAccessView.hidden = true
+            self.noAccessView.isHidden = true
         }
         
         // Initialize LocationManager
         locationManager = CLLocationManager()
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
-        if CLLocationManager.authorizationStatus() == .NotDetermined {
+        if CLLocationManager.authorizationStatus() == .notDetermined {
             locationManager.requestWhenInUseAuthorization()
         }
         locationManager.startUpdatingLocation()
         
         // MARK: - Load Events from selected Calendar
-        if (NSUserDefaults.standardUserDefaults().stringForKey("selectedCalendar") != nil) {
-            self.selectedCalendar = NSUserDefaults.standardUserDefaults().stringForKey("selectedCalendar")
-            calendarName.text = self.eventStore.calendarWithIdentifier(self.selectedCalendar!)?.title
+        if (UserDefaults.standard.string(forKey: "selectedCalendar") != nil) {
+            self.selectedCalendar = UserDefaults.standard.string(forKey: "selectedCalendar")
+            calendarName.text = self.eventStore.calendar(withIdentifier: self.selectedCalendar!)?.title
         } else {
             self.tabBarController?.selectedIndex = 2
             return
@@ -86,14 +86,14 @@ class MeetingsViewController: UIViewController, DataSourceDelegate, CLLocationMa
         durationSgements.items = ["1 day", "1 week", "1 month"]
         durationSgements.font = UIFont(name: "Roboto-Regular", size: 12)
         durationSgements.borderColor = UIColor(white: 1.0, alpha: 0.3)
-        durationSgements.addTarget(self, action: "changeDuration:", forControlEvents: .ValueChanged)
+        durationSgements.addTarget(self, action: #selector(MeetingsViewController.changeDuration(_:)), for: .valueChanged)
         
-        self.duration = getDurationOfIndex(NSUserDefaults.standardUserDefaults().integerForKey("durationIndex"))
+        self.duration = getDurationOfIndex(UserDefaults.standard.integer(forKey: "durationIndex"))
         self.loadEvents()
         
         let status = Reach().connectionStatus()
         switch status {
-        case .Unknown, .Offline:
+        case .unknown, .offline:
             noConnectionIndicatorText.text = "no connection\nworking offline"
             startConnectivityAnimation()
         default:
@@ -107,7 +107,7 @@ class MeetingsViewController: UIViewController, DataSourceDelegate, CLLocationMa
         appDelegate.checkCalendarAuthorizationStatus() {
             granted in
             if !granted {
-                self.noAccessView.hidden = false
+                self.noAccessView.isHidden = false
                 self.noAccessView.fadeIn()
                 returnValue = false
             }
@@ -116,7 +116,7 @@ class MeetingsViewController: UIViewController, DataSourceDelegate, CLLocationMa
         appDelegate.checkContactsAuthorizationStatus() {
             granted in
             if !granted {
-                self.noAccessView.hidden = false
+                self.noAccessView.isHidden = false
                 self.noAccessView.fadeIn()
                 returnValue = false
             }
@@ -126,20 +126,20 @@ class MeetingsViewController: UIViewController, DataSourceDelegate, CLLocationMa
     
     // MARK: - Using the delegate of Datasource to determine Indicator appearance
     func DataSourceFinishedProcessing() {
-        dispatch_async(dispatch_get_main_queue()) {
-            self.meetingCollectionView.hidden = false
+        DispatchQueue.main.async {
+            self.meetingCollectionView.isHidden = false
             self.meetingCollectionView.reloadData()
             self.loadIndicator.stopAnimating()
         }
     }
     
     func DataSourceStartedProcessing() {
-        dispatch_async(dispatch_get_main_queue()) {
+        DispatchQueue.main.async {
             self.loadIndicator.startAnimating()
         }
     }
     
-    func ConnectivityProblem(status: Bool) {
+    func ConnectivityProblem(_ status: Bool) {
         if status == true {
             startConnectivityAnimation()
         } else {
@@ -148,70 +148,70 @@ class MeetingsViewController: UIViewController, DataSourceDelegate, CLLocationMa
     }
     
     func startConnectivityAnimation() {
-        if self.noConnectionIndicatorText.layer.animationForKey("animateOpacity") == nil {
+        if self.noConnectionIndicatorText.layer.animation(forKey: "animateOpacity") == nil {
             let animation = CABasicAnimation(keyPath: "opacity")
             animation.duration = 0.4
             animation.repeatCount = 45
             animation.autoreverses = true
             animation.fromValue = 0.1
             animation.toValue = 1.0
-            dispatch_async(dispatch_get_main_queue()) {
-                self.noConnectionIndicator.hidden = false
-                self.noConnectionIndicatorText.hidden = false
-                self.noConnectionIndicatorText.layer.addAnimation(animation, forKey: "animateOpacity")
-                self.noConnectionIndicator.layer.addAnimation(animation, forKey: "animateOpacity")
+            DispatchQueue.main.async {
+                self.noConnectionIndicator.isHidden = false
+                self.noConnectionIndicatorText.isHidden = false
+                self.noConnectionIndicatorText.layer.add(animation, forKey: "animateOpacity")
+                self.noConnectionIndicator.layer.add(animation, forKey: "animateOpacity")
             }
         }
     }
     
     func stopConnectivityAnimation() {
-        dispatch_async(dispatch_get_main_queue()) {
-            self.noConnectionIndicator.layer.removeAnimationForKey("animateOpacity")
-            self.noConnectionIndicator.hidden = true
-            self.noConnectionIndicatorText.layer.removeAnimationForKey("animateOpacity")
-            self.noConnectionIndicatorText.hidden = true
+        DispatchQueue.main.async {
+            self.noConnectionIndicator.layer.removeAnimation(forKey: "animateOpacity")
+            self.noConnectionIndicator.isHidden = true
+            self.noConnectionIndicatorText.layer.removeAnimation(forKey: "animateOpacity")
+            self.noConnectionIndicatorText.isHidden = true
         }
     }
     
-    override func viewDidAppear(animated: Bool) {
+    override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         // MARK: - Apply value to segmented control after view is visible, otherwise uiview.animate is not working
-        durationSgements.selectedIndex = NSUserDefaults.standardUserDefaults().integerForKey("durationIndex")
+        durationSgements.selectedIndex = UserDefaults.standard.integer(forKey: "durationIndex")
         
     }
     
-    override func viewWillDisappear(animated: Bool) {
+    override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         removeKeyboardDismissRecognizer()
-        NSNotificationCenter.defaultCenter().removeObserver(self, name: "kRefetchDatabaseNotification",object: nil )
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: "kRefetchDatabaseNotification"),object: nil )
     }
     
-    func locationManager(manager: CLLocationManager,
-        didChangeAuthorizationStatus status: CLAuthorizationStatus) {
-            if status == .AuthorizedAlways || status == .AuthorizedWhenInUse {
+    func locationManager(_ manager: CLLocationManager,
+        didChangeAuthorization status: CLAuthorizationStatus) {
+            if status == .authorizedAlways || status == .authorizedWhenInUse {
                 locationManager.startUpdatingLocation()
-            } else if status == .AuthorizedWhenInUse || status == .Restricted || status == .Denied {
+            } else if status == .authorizedWhenInUse || status == .restricted || status == .denied {
                 let alertController = UIAlertController(
                     title: "Background Location Access Disabled",
                     message: "To be able to see information about your current location it is recommended to enable location access.",
-                    preferredStyle: .Alert)
+                    preferredStyle: .alert)
                 
-                let cancelAction = UIAlertAction(title: "Cancel", style: .Cancel, handler: nil)
+                let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
                 alertController.addAction(cancelAction)
                 
-                let openAction = UIAlertAction(title: "Open Settings", style: .Default) { (action) in
-                    if let url = NSURL(string:UIApplicationOpenSettingsURLString) {
-                        UIApplication.sharedApplication().openURL(url)
+                let openAction = UIAlertAction(title: "Open Settings", style: .default) { (action) in
+                    if let url = URL(string:UIApplicationOpenSettingsURLString) {
+                        UIApplication.shared.openURL(url)
                     }
                 }
                 alertController.addAction(openAction)
                 
-                self.presentViewController(alertController, animated: true, completion: nil)
+                self.present(alertController, animated: true, completion: nil)
             }
     }
     
     // MARK: - Returns seconds for 1 day (index=0), 1 week (index=1) and 1 month (index=2)
-    func getDurationOfIndex(index: Int) -> Int {
+    func getDurationOfIndex(_ index: Int) -> Int {
         var duration = 0
         switch index {
             case 0:
@@ -226,10 +226,10 @@ class MeetingsViewController: UIViewController, DataSourceDelegate, CLLocationMa
         return duration
     }
     
-    func changeDuration(sender: AnyObject?) {
+    @objc func changeDuration(_ sender: AnyObject?) {
         let localDuration = getDurationOfIndex(durationSgements.selectedIndex)
-        NSUserDefaults.standardUserDefaults().setValue(durationSgements.selectedIndex, forKey: "durationIndex")
-        NSUserDefaults.standardUserDefaults().setValue(localDuration, forKey: "duration")
+        UserDefaults.standard.setValue(durationSgements.selectedIndex, forKey: "durationIndex")
+        UserDefaults.standard.setValue(localDuration, forKey: "duration")
         self.duration = localDuration
         self.loadEvents()
     }
@@ -239,15 +239,15 @@ class MeetingsViewController: UIViewController, DataSourceDelegate, CLLocationMa
         return CoreDataStackManager.sharedInstance().managedObjectContext!
     }
     
-    lazy var fetchedResultsController: NSFetchedResultsController = {
+    lazy var fetchedResultsController: NSFetchedResultsController<Participant> = {
         
-        let fetchRequest = NSFetchRequest(entityName: Meeting.statics.entityName)
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: Meeting.statics.entityName)
         fetchRequest.predicate = NSPredicate(format: "meeting == %@", self.meeting)
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: Meeting.Keys.Name, ascending: true)]
         
         let fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: self.sharedContext, sectionNameKeyPath: nil, cacheName: nil)
         
-        return fetchedResultsController
+        return fetchedResultsController as! NSFetchedResultsController<Participant>
         
     }()
     
@@ -256,17 +256,17 @@ class MeetingsViewController: UIViewController, DataSourceDelegate, CLLocationMa
 // MARK: - CollectionView related methods
 extension MeetingsViewController: UICollectionViewDataSource {
     
-    func numberOfSectionsInCollectionView(collectionView: UICollectionView) -> Int {
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
         return Datasource.sharedInstance.daysOfMeeting.count
     }
     
-    func collectionView(collectionView: UICollectionView, didDeselectItemAtIndexPath indexPath: NSIndexPath) {
+    func collectionView(_ collectionView: UICollectionView, didDeselectItemAtIndexPath indexPath: IndexPath) {
         //something to do when clicked --- NOPE, we are having all interactions within the Cell itself
     }
     
-    func collectionView(collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, atIndexPath indexPath: NSIndexPath) -> UICollectionReusableView {
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         
-        let headerCell = collectionView.dequeueReusableSupplementaryViewOfKind(kind, withReuseIdentifier: "meetingCellHeader", forIndexPath: indexPath) as? MeetingListCellHeader
+        let headerCell = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "meetingCellHeader", for: indexPath) as? MeetingListCellHeader
 
         headerCell?.dayLabel.text = Datasource.sharedInstance.getSpecialWeekdayOfDate((Datasource.sharedInstance.sortedMeetingArray[indexPath.section]))
         
@@ -274,14 +274,14 @@ extension MeetingsViewController: UICollectionViewDataSource {
     }
     
     
-    func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         let currentDate = Datasource.sharedInstance.sortedMeetingArray[section]
         let currentDateObjects = Datasource.sharedInstance.daysOfMeeting[currentDate]
         return currentDateObjects!.count
     }
     
-    func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCellWithReuseIdentifier("meetingViewCell", forIndexPath: indexPath) as! MeetingListCell
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "meetingViewCell", for: indexPath) as! MeetingListCell
         
         let currentDate = Datasource.sharedInstance.sortedMeetingArray[indexPath.section]
         let currentDateObjects = Datasource.sharedInstance.daysOfMeeting[currentDate]
@@ -289,14 +289,14 @@ extension MeetingsViewController: UICollectionViewDataSource {
         if let meetingObject = currentDateObjects![indexPath.row] as? Meeting {
             cell.calendarName.text = meetingObject.name
                     
-            if NSDate.areDatesSameDay(meetingObject.starttime, dateTwo: meetingObject.endtime) {
+            if Date.areDatesSameDay(meetingObject.starttime, dateTwo: meetingObject.endtime) {
                 cell.timingLabel?.text = (Datasource.sharedInstance.getTimeOfDate(meetingObject.starttime)) + " - " + (Datasource.sharedInstance.getTimeOfDate(meetingObject.endtime))
             } else {
                 cell.timingLabel?.text = (Datasource.sharedInstance.getTimeOfDate(meetingObject.starttime)) + " - " + (Datasource.sharedInstance.getTimeOfDate(meetingObject.endtime))
             }
             cell.cellIdentifier = "meetingParticipant_" + String(indexPath.row)
             cell.meeting = meetingObject
-            cell.participantDetails.hidden = true
+            cell.participantDetails.isHidden = true
             cell.participantTable.reloadData()
             cell.configureUI()
             if let meetingNote = meetingObject.note {
@@ -315,16 +315,16 @@ extension MeetingsViewController {
     
     func configureUI() {
         /* Configure background gradient */
-        self.view.backgroundColor = UIColor.clearColor()
+        self.view.backgroundColor = UIColor.clear
         //let colorTop = UIColor(red: 0.345, green: 0.839, blue: 0.988, alpha: 1.0).CGColor
-        let colorTop = UIColor(red: 1, green: 0.680, blue: 0.225, alpha: 1.0).CGColor
+        let colorTop = UIColor(red: 1, green: 0.680, blue: 0.225, alpha: 1.0).cgColor
         //let colorBottom = UIColor(red: 0.023, green: 0.569, blue: 0.910, alpha: 1.0).CGColor
-        let colorBottom = UIColor(red: 1, green: 0.594, blue: 0.128, alpha: 1.0).CGColor
+        let colorBottom = UIColor(red: 1, green: 0.594, blue: 0.128, alpha: 1.0).cgColor
         self.backgroundGradient = CAGradientLayer()
         self.backgroundGradient!.colors = [colorTop, colorBottom]
         self.backgroundGradient!.locations = [0.0, 1.0]
         self.backgroundGradient!.frame = view.frame
-        self.view.layer.insertSublayer(self.backgroundGradient!, atIndex: 0)
+        self.view.layer.insertSublayer(self.backgroundGradient!, at: 0)
     }
     
 }
@@ -332,38 +332,38 @@ extension MeetingsViewController {
 // MARK: - Calendar background actions (will/should be called in a backgroundThread)
 extension MeetingsViewController {
     
-    @IBAction func gotoSettingsButtonClick(sender: UIButton) {
+    @IBAction func gotoSettingsButtonClick(_ sender: UIButton) {
         grantAccessClicked()
     }
     
     func grantAccessClicked() {
-        let openSettingsUrl = NSURL(string: UIApplicationOpenSettingsURLString)
-        UIApplication.sharedApplication().openURL(openSettingsUrl!)
+        let openSettingsUrl = URL(string: UIApplicationOpenSettingsURLString)
+        UIApplication.shared.openURL(openSettingsUrl!)
     }
     
-    func showMessage(message: String, title: String) {
-        let alertController = UIAlertController(title: title, message: message, preferredStyle: UIAlertControllerStyle.Alert)
-        let OKAction = UIAlertAction(title: "Yes", style: UIAlertActionStyle.Default) { (action) -> Void in
+    func showMessage(_ message: String, title: String) {
+        let alertController = UIAlertController(title: title, message: message, preferredStyle: UIAlertControllerStyle.alert)
+        let OKAction = UIAlertAction(title: "Yes", style: UIAlertActionStyle.default) { (action) -> Void in
             self.grantAccessClicked()
         }
         
-        let dismissAction = UIAlertAction(title: "No", style: UIAlertActionStyle.Cancel) { (action) -> Void in
-            dispatch_async(dispatch_get_main_queue()) {
-                self.noAccessView.hidden = false
+        let dismissAction = UIAlertAction(title: "No", style: UIAlertActionStyle.cancel) { (action) -> Void in
+            DispatchQueue.main.async {
+                self.noAccessView.isHidden = false
                 self.noAccessView.fadeIn()
             }
         }
         
         alertController.addAction(dismissAction)
         alertController.addAction(OKAction)
-        self.presentViewController(alertController, animated: true, completion: nil)
+        self.present(alertController, animated: true, completion: nil)
     }
     
     func loadEvents() {
         appDelegate.checkCalendarAuthorizationStatus { (accessGranted) -> Void in
             if accessGranted {
-                if self.noAccessView.hidden == false {
-                    dispatch_async(dispatch_get_main_queue()) {
+                if self.noAccessView.isHidden == false {
+                    DispatchQueue.main.async {
                         self.noAccessView.fadeOut()
                     }
                 }
@@ -372,11 +372,19 @@ extension MeetingsViewController {
                     self.events = [EKEvent]()
                     for event in events {
                         // Only add events which do not have a Reccurence rule (YACA cannot deal with that (yet))
+                        //print(event.hasRecurrenceRules)
+                        //if event.hasRecurrenceRules == false {
+                            self.events.append(event)
+                        //}
+                        
+                        /* OLD (SWIFT 2)
                         if let recRules = event.recurrenceRules {
                             if recRules.count == 0 {
                                 self.events.append(event)
                             }
-                        }
+                        }*/
+                        
+                        
                     }
                     // MARK: - Feed datasource and let it do the job to structure probably for the CollectionView
                     Datasource.sharedInstance.loadMeetings(self.events)
@@ -389,10 +397,10 @@ extension MeetingsViewController {
         }
     }
     
-    func fetchEvents(eventStore: EKEventStore, calendarIdentity: String, completed: ([EKEvent]) -> ()) {
-        let endDate = NSDate(timeIntervalSinceNow: NSTimeInterval(self.duration))
-        let predicate = eventStore.predicateForEventsWithStartDate(NSDate(), endDate: endDate, calendars: [self.eventStore.calendarWithIdentifier(calendarIdentity)!])
-        completed(eventStore.eventsMatchingPredicate(predicate) as [EKEvent]!)
+    func fetchEvents(_ eventStore: EKEventStore, calendarIdentity: String, completed: ([EKEvent]) -> ()) {
+        let endDate = Date(timeIntervalSinceNow: TimeInterval(self.duration))
+        let predicate = eventStore.predicateForEvents(withStart: Date(), end: endDate, calendars: [self.eventStore.calendar(withIdentifier: calendarIdentity)!])
+        completed(eventStore.events(matching: predicate) as [EKEvent]!)
     }
 }
 
@@ -407,7 +415,7 @@ extension MeetingsViewController {
         view.removeGestureRecognizer(tapRecognizer!)
     }
     
-    func handleSingleTap(recognizer: UITapGestureRecognizer) {
+    @objc func handleSingleTap(_ recognizer: UITapGestureRecognizer) {
         view.endEditing(true)
     }
     

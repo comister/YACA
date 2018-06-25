@@ -13,11 +13,11 @@ import EventKit
 extension EKParticipant {
     func getEmail() -> String {
         if let currentParticipant = self as? EKParticipant {
-            let descriptionDictionary = currentParticipant.description.componentsSeparatedByString("{")[1].componentsSeparatedByString("}")[0].componentsSeparatedByString("; ")
+            let descriptionDictionary = currentParticipant.description.components(separatedBy: "{")[1].components(separatedBy: "}")[0].components(separatedBy: "; ")
             var resultDict = [String:String]()
             
             for descriptionComponent in descriptionDictionary {
-                let components = descriptionComponent.componentsSeparatedByString(" = ")
+                let components = descriptionComponent.components(separatedBy: " = ")
                 resultDict[components[0]] = components[1]
             }
             return resultDict["email"]!

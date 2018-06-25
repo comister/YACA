@@ -11,37 +11,37 @@ import Foundation
 class GoogleAPIClient : NSObject {
     
     /* Shared session */
-    var session: NSURLSession
+    var session: URLSession
     
     override init() {
-        session = NSURLSession.sharedSession()
+        session = URLSession.shared
         super.init()
     }
     
     
     // MARK: - GET
     
-    func taskForGETMethod(parameters: [String : AnyObject], completionHandler: (result: AnyObject!, error: NSError?) -> Void) -> NSURLSessionDataTask {
+    func taskForGETMethod(_ parameters: [String : AnyObject], completionHandler: @escaping (_ result: AnyObject?, _ error: NSError?) -> Void) -> URLSessionDataTask {
         
         /* 1. Set the parameters */
         var mutableParameters = parameters
-        mutableParameters[ParameterKeys.ApiKey] = Constants.ApiKey
+        mutableParameters[ParameterKeys.ApiKey] = Constants.ApiKey as AnyObject
         
         /* 2/3. Build the URL and configure the request */
         let urlString = Constants.BaseURL + GoogleAPIClient.escapedParameters(mutableParameters)
-        let url = NSURL(string: urlString)!
-        let request = NSMutableURLRequest(URL: url)
+        let url = URL(string: urlString)!
+        let request = NSMutableURLRequest(url: url)
         request.timeoutInterval = 10 // this cannot take longer than 10 seconds, otherwise we are assuming connection is not working
         /* 4. Make the request */
-        let task = session.dataTaskWithRequest(request) {data, response, downloadError in
+        let task = self.session.dataTask(with: request as URLRequest, completionHandler: {data, response, downloadError in
             /* 5/6. Parse the data and use the data (happens in completion handler) */
             if let error = downloadError {
-                let newError = GoogleAPIClient.errorForData(data, response: response, error: error)
-                completionHandler(result: nil, error: newError)
+                let newError = GoogleAPIClient.errorForData(data, response: response, error: error as NSError)
+                completionHandler(nil, newError)
             } else {
-                GoogleAPIClient.parseJSONWithCompletionHandler(data!, completionHandler: completionHandler)
+                GoogleAPIClient.parseJSONWithCompletionHandler(data!, completionHandler: completionHandler as! (Any, NSError?) -> Void)
             }
-        }
+        }) 
         
         /* 7. Start the request */
         task.resume()
@@ -53,35 +53,36 @@ class GoogleAPIClient : NSObject {
     // MARK: - Helpers
     
     /* Helper: Substitute the key for the value that is contained within the method name */
-    class func subtituteKeyInMethod(method: String, key: String, value: String) -> String? {
-        if method.rangeOfString("{\(key)}") != nil {
-            return method.stringByReplacingOccurrencesOfString("{\(key)}", withString: value)
+    class func subtituteKeyInMethod(_ method: String, key: String, value: String) -> String? {
+        if method.range(of: "{\(key)}") != nil {
+            return method.replacingOccurrences(of: "{\(key)}", with: value)
         } else {
             return nil
         }
     }
     
     /* Helper: Given a response with error, see if a status_message is returned, otherwise return the previous error */
-    class func errorForData(data: NSData?, response: NSURLResponse?, error: NSError) -> NSError {
+    class func errorForData(_ data: Data?, response: URLResponse?, error: NSError) -> NSError {
         return error
     }
     
     /* Helper: Given raw JSON, return a usable Foundation object */
-    class func parseJSONWithCompletionHandler(data: NSData, completionHandler: (result: AnyObject!, error: NSError?) -> Void) {
+    class func parseJSONWithCompletionHandler(_ data: Data, completionHandler: (_ result: Any, _ error: NSError?) -> Void) {
         
-        var parsedResult: AnyObject?
+        var parsedResult: Any
         
         
         do {
-            try parsedResult = NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.AllowFragments)
-            completionHandler(result: parsedResult, error: nil)
+            try parsedResult = JSONSerialization.jsonObject(with: data, options: JSONSerialization.ReadingOptions.allowFragments)
+            completionHandler(parsedResult, nil)
         } catch let error as NSError {
-            completionHandler(result: nil, error: error)
+            // FROM (SWIFT 2) -- There was nil before ""
+            completionHandler("", error)
         }
     }
     
     /* Helper function: Given a dictionary of parameters, convert to a string for a url */
-    class func escapedParameters(parameters: [String : AnyObject]) -> String {
+    class func escapedParameters(_ parameters: [String : AnyObject]) -> String {
         
         var urlVars = [String]()
         var isSimple = false
@@ -93,7 +94,7 @@ class GoogleAPIClient : NSObject {
             
             if stringValue != "" {
                 /* Escape it */
-                let escapedValue = stringValue.stringByAddingPercentEncodingWithAllowedCharacters(NSCharacterSet.URLQueryAllowedCharacterSet())
+                let escapedValue = stringValue.addingPercentEncoding(withAllowedCharacters: CharacterSet.urlQueryAllowed)
                 
                 /* Append it */
                 urlVars += [key + "=" + "\(escapedValue!)"]
@@ -104,7 +105,7 @@ class GoogleAPIClient : NSObject {
             
         }
         
-        return (!urlVars.isEmpty ? isSimple ? "":"?" : "") + ( isSimple ? urlVars.joinWithSeparator("/"):urlVars.joinWithSeparator("&") )
+        return (!urlVars.isEmpty ? isSimple ? "":"?" : "") + ( isSimple ? urlVars.joined(separator: "/"):urlVars.joined(separator: "&") )
     }
     
     // MARK: - Shared Instance

@@ -10,26 +10,26 @@ import Foundation
 
 extension GoogleAPIClient {
     
-    func getTimeOfLocation(lat: NSNumber, long: NSNumber, completionHandler: (result: Double?, error: NSError?) -> Void) {
+    func getTimeOfLocation(lat: NSNumber, long: NSNumber, completionHandler: @escaping (_ result: Double?, _ error: NSError?) -> Void) {
         let parameters = [
-            ParameterKeys.Location  : String(lat) + "," + String(long),
-            ParameterKeys.Timestamp : NSDate().timeIntervalSince1970
-        ]
+            ParameterKeys.Location  : String(describing: lat) + "," + String(describing: long),
+            ParameterKeys.Timestamp : Date().timeIntervalSince1970
+        ] as [String : Any]
         
-        taskForGETMethod(parameters as! [String : AnyObject]) {
+        taskForGETMethod(parameters as [String : AnyObject]) {
             result, error in
             if let connectionError = error {
-                completionHandler(result: nil, error: connectionError)
+                completionHandler(nil, connectionError)
                 return
             }
-            if let status = result[JSONResponseKeys.Status] {
+            if let status = result?[JSONResponseKeys.Status] {
                 //all good, we have offset + daylight saving offset which we simply add together
                 if status as! String == "OK" {
-                    completionHandler(result: ((result[JSONResponseKeys.UTCOffset] as! Double) + (result[JSONResponseKeys.DayLightSavingOffset] as! Double)), error: nil)
+                    completionHandler(((result?[JSONResponseKeys.UTCOffset] as! Double) + (result?[JSONResponseKeys.DayLightSavingOffset] as! Double)), nil)
                 }
                 
             } else {
-                completionHandler(result: nil, error: NSError(domain: "No data received", code: 1, userInfo: [NSLocalizedDescriptionKey: "google timezone API did not provide any information"]))
+                completionHandler(nil, NSError(domain: "No data received", code: 1, userInfo: [NSLocalizedDescriptionKey: "google timezone API did not provide any information"]))
             }
             
         }

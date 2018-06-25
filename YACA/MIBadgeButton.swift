@@ -10,7 +10,7 @@ import UIKit
 
 class MIBadgeButton: UIButton {
     
-    private var badgeLabel: UILabel
+    fileprivate var badgeLabel: UILabel
     var badgeString: String? {
         didSet {
             setupBadgeViewWithString(badgeText: badgeString)
@@ -23,13 +23,13 @@ class MIBadgeButton: UIButton {
         }
     }
     
-    var badgeBackgroundColor = UIColor.redColor() {
+    var badgeBackgroundColor = UIColor.red {
         didSet {
             badgeLabel.backgroundColor = badgeBackgroundColor
         }
     }
     
-    var badgeTextColor = UIColor.whiteColor() {
+    var badgeTextColor = UIColor.white {
         didSet {
             badgeLabel.textColor = badgeTextColor
         }
@@ -48,7 +48,7 @@ class MIBadgeButton: UIButton {
         setupBadgeViewWithString(badgeText: "")
     }
     
-    func initWithFrame(frame frame: CGRect, withBadgeString badgeString: String, withBadgeInsets badgeInsets: UIEdgeInsets) -> AnyObject {
+    func initWithFrame(frame: CGRect, withBadgeString badgeString: String, withBadgeInsets badgeInsets: UIEdgeInsets) -> AnyObject {
         
         badgeLabel = UILabel()
         badgeEdgeInsets = badgeInsets
@@ -56,11 +56,11 @@ class MIBadgeButton: UIButton {
         return self
     }
     
-    private func setupBadgeViewWithString(badgeText badgeText: String?) {
+    fileprivate func setupBadgeViewWithString(badgeText: String?) {
         badgeLabel.clipsToBounds = true
         badgeLabel.text = badgeText
-        badgeLabel.font = UIFont.systemFontOfSize(12)
-        badgeLabel.textAlignment = .Center
+        badgeLabel.font = UIFont.systemFont(ofSize: 12)
+        badgeLabel.textAlignment = .center
         badgeLabel.sizeToFit()
         let badgeSize = badgeLabel.frame.size
         
@@ -76,19 +76,19 @@ class MIBadgeButton: UIButton {
             let y = -(Double(badgeSize.height) / 2) - 10 + vertical!
             badgeLabel.frame = CGRect(x: x, y: y, width: width, height: height)
         } else {
-            let x = CGRectGetWidth(self.frame) - CGFloat((width / 2.0))
+            let x = self.frame.width - CGFloat((width / 2.0))
             let y = CGFloat(-(height / 2.0))
-            badgeLabel.frame = CGRectMake(x, y, CGFloat(width), CGFloat(height))
+            badgeLabel.frame = CGRect(x: x, y: y, width: CGFloat(width), height: CGFloat(height))
         }
         
         setupBadgeStyle()
         addSubview(badgeLabel)
         
-        badgeLabel.hidden = badgeText != nil ? false : true
+        badgeLabel.isHidden = badgeText != nil ? false : true
     }
     
-    private func setupBadgeStyle() {
-        badgeLabel.textAlignment = .Center
+    fileprivate func setupBadgeStyle() {
+        badgeLabel.textAlignment = .center
         badgeLabel.backgroundColor = badgeBackgroundColor
         badgeLabel.textColor = badgeTextColor
         badgeLabel.layer.cornerRadius = badgeLabel.bounds.size.height / 2

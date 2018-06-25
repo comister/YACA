@@ -27,22 +27,22 @@ class Note: NSManagedObject {
     @NSManaged var note: String
     @NSManaged var meetingId: String
     @NSManaged var meetingTitle: String
-    @NSManaged var createdAt: NSDate
+    @NSManaged var createdAt: Date
     
-    override init(entity: NSEntityDescription, insertIntoManagedObjectContext context: NSManagedObjectContext?) {
-        super.init(entity: entity, insertIntoManagedObjectContext: context)
+    override init(entity: NSEntityDescription, insertInto context: NSManagedObjectContext?) {
+        super.init(entity: entity, insertInto: context)
     }
     
     // Mark: - Standard initializer using dictionary
     init(dictionary: [String : AnyObject], context: NSManagedObjectContext) {
         // Core Data
-        let entity =  NSEntityDescription.entityForName(statics.entityName, inManagedObjectContext: context)!
-        super.init(entity: entity, insertIntoManagedObjectContext: context)
+        let entity =  NSEntityDescription.entity(forEntityName: statics.entityName, in: context)!
+        super.init(entity: entity, insertInto: context)
         // Dictionary
         note = dictionary[Keys.Note] as! String
         meetingId = dictionary[Keys.MeetingId] as! String
         meetingTitle = dictionary[Keys.MeetingTitle] as! String
         // set createdAt to actual Date, do not have to bother about this outside of the Model !
-        createdAt = NSDate()
+        createdAt = Date()
     }
 }

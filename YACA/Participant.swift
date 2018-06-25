@@ -32,14 +32,14 @@ class Participant: NSManagedObject {
     @NSManaged var myself: Bool
     @NSManaged var location: Location?
     
-    override init(entity: NSEntityDescription, insertIntoManagedObjectContext context: NSManagedObjectContext?) {
-        super.init(entity: entity, insertIntoManagedObjectContext: context)
+    override init(entity: NSEntityDescription, insertInto context: NSManagedObjectContext?) {
+        super.init(entity: entity, insertInto: context)
     }
     
     init(dictionary: [String : AnyObject], context: NSManagedObjectContext) {
         // Core Data
-        let entity =  NSEntityDescription.entityForName(statics.entityName, inManagedObjectContext: context)!
-        super.init(entity: entity, insertIntoManagedObjectContext: context)
+        let entity =  NSEntityDescription.entity(forEntityName: statics.entityName, in: context)!
+        super.init(entity: entity, insertInto: context)
         // Dictionary
         
         name = dictionary[Keys.Name] as? String
@@ -49,11 +49,11 @@ class Participant: NSManagedObject {
 
     init(attendee: EKParticipant?, context: NSManagedObjectContext) {
         // Core Data
-        let entity =  NSEntityDescription.entityForName(statics.entityName, inManagedObjectContext: context)!
-        super.init(entity: entity, insertIntoManagedObjectContext: context)
+        let entity =  NSEntityDescription.entity(forEntityName: statics.entityName, in: context)!
+        super.init(entity: entity, insertInto: context)
         
         name = attendee!.name
         email = attendee!.getEmail()
-        myself = attendee!.currentUser
+        myself = attendee!.isCurrentUser
     }
 }

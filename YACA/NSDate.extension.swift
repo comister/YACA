@@ -8,44 +8,44 @@
 
 import Foundation
 
-extension NSDate {
+extension Date {
     
-    convenience init(dateString:String) {
-        let dateStringFormatter = NSDateFormatter()
+    init(dateString:String) {
+        let dateStringFormatter = DateFormatter()
         dateStringFormatter.dateFormat = "dd/MM/yyyy HH:mm"
-        dateStringFormatter.locale = NSLocale.systemLocale()
-        let d = dateStringFormatter.dateFromString(dateString)
-        self.init(timeInterval:0, sinceDate:d!)
+        dateStringFormatter.locale = Locale.current // changed from Locale.system (SWIFT 2)
+        let d = dateStringFormatter.date(from: dateString)
+        self.init(timeInterval:0, since:d!)
     }
     
-    class func dateFromMetOfficeString(string:String) -> NSDate {
-        let dateStringFormatter = NSDateFormatter()
+    static func dateFromMetOfficeString(_ string:String) -> Date {
+        let dateStringFormatter = DateFormatter()
         dateStringFormatter.dateFormat = "yyyy-MM-ddZ"
-        dateStringFormatter.locale = NSLocale.systemLocale()
-        let d = dateStringFormatter.dateFromString(string)
-        return NSDate(timeInterval:0, sinceDate:d!)
+        dateStringFormatter.locale = Locale.current
+        let d = dateStringFormatter.date(from: string)
+        return Date(timeInterval:0, since:d!)
     }
     
-    class func areDatesSameDay(dateOne:NSDate,dateTwo:NSDate) -> Bool {
-        let calender = NSCalendar.currentCalendar()
-        let flags: NSCalendarUnit = [NSCalendarUnit.Day, NSCalendarUnit.Month, NSCalendarUnit.Year]
-        let compOne: NSDateComponents = calender.components(flags, fromDate: dateOne)
-        let compTwo: NSDateComponents = calender.components(flags, fromDate: dateTwo);
+    static func areDatesSameDay(_ dateOne:Date,dateTwo:Date) -> Bool {
+        let calender = Calendar.current
+        let flags: NSCalendar.Unit = [NSCalendar.Unit.day, NSCalendar.Unit.month, NSCalendar.Unit.year]
+        let compOne: DateComponents = (calender as NSCalendar).components(flags, from: dateOne)
+        let compTwo: DateComponents = (calender as NSCalendar).components(flags, from: dateTwo);
         return (compOne.day == compTwo.day && compOne.month == compTwo.month && compOne.year == compTwo.year);
     }
     
-    class func stringFromDate(date:NSDate) -> NSString {
-        let date_formatter = NSDateFormatter()
+    static func stringFromDate(_ date:Date) -> NSString {
+        let date_formatter = DateFormatter()
         date_formatter.dateFormat = "dd/MM/yyyy"
-        let date_string = date_formatter.stringFromDate(date)
-        return date_string
+        let date_string = date_formatter.string(from: date)
+        return date_string as NSString
     }
     
-    class func stringTimeFromDate(date:NSDate) -> NSString {
-        let date_formatter = NSDateFormatter()
+    static func stringTimeFromDate(_ date:Date) -> NSString {
+        let date_formatter = DateFormatter()
         date_formatter.dateFormat = "HH:mm"
-        let date_string = date_formatter.stringFromDate(date)
-        return date_string
+        let date_string = date_formatter.string(from: date)
+        return date_string as NSString
     }
     
 }

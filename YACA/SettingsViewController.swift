@@ -20,7 +20,7 @@ class SettingsViewController: UIViewController {
     var contacts: [CNContainer]?
     var groups: [CNGroup]?
     var selectedCalendar: String?
-    let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+    let appDelegate = UIApplication.shared.delegate as! AppDelegate
     @IBOutlet weak var welcomeLabel: UILabel!
     @IBOutlet weak var descriptionLabel: UILabel!
     
@@ -34,27 +34,27 @@ class SettingsViewController: UIViewController {
         calendarPicker.dataSource = self
     }
     
-    override func viewWillAppear(animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         loadCalendars()
-        if NSUserDefaults.standardUserDefaults().stringForKey("selectedCalendar") != nil {
-            let buttonText = NSUserDefaults.standardUserDefaults().stringForKey("selectedCalendarName")
+        if UserDefaults.standard.string(forKey: "selectedCalendar") != nil {
+            let buttonText = UserDefaults.standard.string(forKey: "selectedCalendarName")
             //pickCalendarButton.titleLabel?.text = buttonText
-            pickCalendarButton.setTitle(buttonText, forState: UIControlState.Normal)
-            selectedCalendar = NSUserDefaults.standardUserDefaults().stringForKey("selectedCalendar")
-            durationSegments.selectedSegmentIndex = NSUserDefaults.standardUserDefaults().integerForKey("durationIndex")
-            temperatureSegment.selectedSegmentIndex = NSUserDefaults.standardUserDefaults().integerForKey("temperatureIndex")
+            pickCalendarButton.setTitle(buttonText, for: UIControlState())
+            selectedCalendar = UserDefaults.standard.string(forKey: "selectedCalendar")
+            durationSegments.selectedSegmentIndex = UserDefaults.standard.integer(forKey: "durationIndex")
+            temperatureSegment.selectedSegmentIndex = UserDefaults.standard.integer(forKey: "temperatureIndex")
         } else {
-            welcomeLabel.hidden = false
-            descriptionLabel.hidden = false
+            welcomeLabel.isHidden = false
+            descriptionLabel.isHidden = false
             
-            NSUserDefaults.standardUserDefaults().setInteger(0, forKey: "temperatureIndex")
-            NSUserDefaults.standardUserDefaults().setInteger(0, forKey: "durationIndex")
+            UserDefaults.standard.set(0, forKey: "temperatureIndex")
+            UserDefaults.standard.set(0, forKey: "durationIndex")
         }
     }
 
-    @IBAction func durationClicked(sender: UISegmentedControl) {
-        NSUserDefaults.standardUserDefaults().setInteger(sender.selectedSegmentIndex, forKey: "durationIndex")
+    @IBAction func durationClicked(_ sender: UISegmentedControl) {
+        UserDefaults.standard.set(sender.selectedSegmentIndex, forKey: "durationIndex")
         var duration = 0
         switch sender.selectedSegmentIndex {
             case 0:
@@ -66,11 +66,11 @@ class SettingsViewController: UIViewController {
             default:
                 duration = 0
         }
-        NSUserDefaults.standardUserDefaults().setValue(duration, forKey: "duration")
+        UserDefaults.standard.setValue(duration, forKey: "duration")
     }
     
-    @IBAction func metricsChanged(sender: UISegmentedControl) {
-        NSUserDefaults.standardUserDefaults().setInteger(sender.selectedSegmentIndex, forKey: "temperatureIndex")
+    @IBAction func metricsChanged(_ sender: UISegmentedControl) {
+        UserDefaults.standard.set(sender.selectedSegmentIndex, forKey: "temperatureIndex")
     }
 }
 
@@ -78,31 +78,31 @@ class SettingsViewController: UIViewController {
 extension SettingsViewController {
     
     func grantAccessClicked() {
-        let openSettingsUrl = NSURL(string: UIApplicationOpenSettingsURLString)
-        UIApplication.sharedApplication().openURL(openSettingsUrl!)
+        let openSettingsUrl = URL(string: UIApplicationOpenSettingsURLString)
+        UIApplication.shared.openURL(openSettingsUrl!)
     }
     
-    func showMessage(message: String, title: String) {
-        let alertController = UIAlertController(title: title, message: message, preferredStyle: UIAlertControllerStyle.Alert)
-        let OKAction = UIAlertAction(title: "Yes", style: UIAlertActionStyle.Default) { (action) -> Void in
+    func showMessage(_ message: String, title: String) {
+        let alertController = UIAlertController(title: title, message: message, preferredStyle: UIAlertControllerStyle.alert)
+        let OKAction = UIAlertAction(title: "Yes", style: UIAlertActionStyle.default) { (action) -> Void in
             self.grantAccessClicked()
         }
         
-        let dismissAction = UIAlertAction(title: "No", style: UIAlertActionStyle.Cancel) { (action) -> Void in
-            dispatch_async(dispatch_get_main_queue()) {
+        let dismissAction = UIAlertAction(title: "No", style: UIAlertActionStyle.cancel) { (action) -> Void in
+            DispatchQueue.main.async {
 
             }
         }
         
         alertController.addAction(dismissAction)
         alertController.addAction(OKAction)
-        self.presentViewController(alertController, animated: true, completion: nil)
+        self.present(alertController, animated: true, completion: nil)
     }
     
     func loadCalendars() {
         appDelegate.checkCalendarAuthorizationStatus { (accessGranted) -> Void in
             if accessGranted {
-                self.calendars = self.eventStore.calendarsForEntityType(EKEntityType.Event)
+                self.calendars = self.eventStore.calendars(for: EKEntityType.event)
             } else {
                 self.showMessage("You have not allowed access to Calendar. This application does not work without this access! You can change this Setting in the global Settings. Should I bring you there?", title: "No access to Calendar")
             }
@@ -113,23 +113,23 @@ extension SettingsViewController {
 // MARK: - Everything related to the PickerViewmfor Calendar Selection
 extension SettingsViewController: UIPickerViewDelegate, UIPickerViewDataSource {
     
-    @IBAction func clickCalendar(sender: UIButton) {
-        calendarPicker.hidden = false
+    @IBAction func clickCalendar(_ sender: UIButton) {
+        calendarPicker.isHidden = false
         self.calendarPicker.reloadAllComponents()
         var x = 0
         for calendar in self.calendars! {
             if calendar.calendarIdentifier == self.selectedCalendar {
                 calendarPicker.selectRow(x, inComponent: 0, animated: true)
             }
-            x++
+            x += 1
         }
     }
     
-    func numberOfComponentsInPickerView(pickerView: UIPickerView) -> Int {
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
         return 1
     }
     
-    func pickerView(pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
         if let calendars = self.calendars {
             return calendars.count
         } else {
@@ -137,17 +137,17 @@ extension SettingsViewController: UIPickerViewDelegate, UIPickerViewDataSource {
         }
     }
     
-    func pickerView(pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
             return self.calendars![row].title
     }
     
-    func pickerView(pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         //select calendar, store identifier in user defaults and hide pickerView !
         pickCalendarButton.titleLabel?.text = self.calendars![row].title
-        NSUserDefaults.standardUserDefaults().setValue(self.calendars![row].calendarIdentifier, forKey: "selectedCalendar")
-        NSUserDefaults.standardUserDefaults().setValue(self.calendars![row].title, forKey: "selectedCalendarName")
-        welcomeLabel.hidden = true
-        descriptionLabel.hidden = true
-        pickerView.hidden = true
+        UserDefaults.standard.setValue(self.calendars![row].calendarIdentifier, forKey: "selectedCalendar")
+        UserDefaults.standard.setValue(self.calendars![row].title, forKey: "selectedCalendarName")
+        welcomeLabel.isHidden = true
+        descriptionLabel.isHidden = true
+        pickerView.isHidden = true
     }
 }

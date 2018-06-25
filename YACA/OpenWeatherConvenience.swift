@@ -10,50 +10,50 @@ import Foundation
 
 extension OpenWeatherClient {
     
-    func getWeatherByLatLong(lat: NSNumber, long: NSNumber, unitIndex: Int, completionHandler: (result: [String:AnyObject]?, error: NSError?) -> Void) {
+    func getWeatherByLatLong(_ lat: NSNumber, long: NSNumber, unitIndex: Int, completionHandler: @escaping (_ result: [String:AnyObject]?, _ error: NSError?) -> Void) {
         let parameters = [
             ParameterKeys.Latitude  : lat,
             ParameterKeys.Longitude : long,
             ParameterKeys.Unit : ParameterKeys.Units[unitIndex]!
-        ]
-        taskForGETMethod(parameters) { JSONResult, error in
+        ] as [String : Any]
+        taskForGETMethod(parameters as [String : AnyObject]) { JSONResult, error in
             if let error = error {
-                completionHandler(result: nil, error: error)
+                completionHandler(nil, error)
             } else {
                 var returnDict = [String:AnyObject]()
-                if let weatherContainer = JSONResult.valueForKey(OpenWeatherClient.JSONResponseKeys.Weather) {
-                    if let weatherId = weatherContainer.valueForKey(OpenWeatherClient.JSONResponseKeys.weatherId) {
-                        returnDict["weather"] = String(weatherId[0])
+                if let weatherContainer = JSONResult?.value(forKey: OpenWeatherClient.JSONResponseKeys.Weather) {
+                    if let weatherId = (weatherContainer as AnyObject).value(forKey: OpenWeatherClient.JSONResponseKeys.weatherId) {
+                        returnDict["weather"] = (weatherId as! [Int:String])[0]! as AnyObject
                     } else {
-                        completionHandler(result: nil, error: error)
+                        completionHandler(nil, error)
                         return
                     }
-                    if let weatherDescription = weatherContainer.valueForKey(OpenWeatherClient.JSONResponseKeys.weatherDescription) {
-                        returnDict["weather_description"] = String(weatherDescription[0])
+                    if let weatherDescription = (weatherContainer as AnyObject).value(forKey: OpenWeatherClient.JSONResponseKeys.weatherDescription) {
+                        returnDict["weather_description"] = (weatherDescription as! [Int:String])[0]! as AnyObject
                     }
                 } else {
-                    completionHandler(result: nil, error: error)
+                    completionHandler(nil, error)
                     return
                 }
                 
-                if let sysContainer = JSONResult.valueForKey(OpenWeatherClient.JSONResponseKeys.Sys) {
-                    if let country = sysContainer.valueForKey(OpenWeatherClient.JSONResponseKeys.Country) {
-                        returnDict["country"] = String(country)
+                if let sysContainer = JSONResult?.value(forKey: OpenWeatherClient.JSONResponseKeys.Sys) {
+                    if let country = (sysContainer as AnyObject).value(forKey: OpenWeatherClient.JSONResponseKeys.Country) {
+                        returnDict["country"] = country as AnyObject
                     }
                 }
                 
-                if let city = JSONResult.valueForKey(OpenWeatherClient.JSONResponseKeys.City) {
-                    returnDict["city"] = String(city)
+                if let city = JSONResult?.value(forKey: OpenWeatherClient.JSONResponseKeys.City) {
+                    returnDict["city"] = city as AnyObject
                 }
                 
-                if let mainContainer = JSONResult.valueForKey(OpenWeatherClient.JSONResponseKeys.Main) {
-                    if let temperature = mainContainer.valueForKey(OpenWeatherClient.JSONResponseKeys.mainTemperature) {
-                        returnDict["weather_temp"] = NSNumber(double: temperature as! Double)
-                        completionHandler(result: returnDict, error: nil)
+                if let mainContainer = JSONResult?.value(forKey: OpenWeatherClient.JSONResponseKeys.Main) {
+                    if let temperature = (mainContainer as AnyObject).value(forKey: OpenWeatherClient.JSONResponseKeys.mainTemperature) {
+                        returnDict["weather_temp"] = NSNumber(value: temperature as! Double as Double)
+                        completionHandler(returnDict, nil)
                         return
                     }
                 }
-                completionHandler(result: returnDict, error: nil)
+                completionHandler(returnDict, nil)
             }
         }
     }
