@@ -367,15 +367,15 @@ extension MeetingsViewController {
                         self.noAccessView.fadeOut()
                     }
                 }
-                self.fetchEvents(self.eventStore, calendarIdentity: self.selectedCalendar!, completed: { (events: [EKEvent]) -> Void in
+                self.fetchEvents(self.eventStore, calendarIdentity: self.selectedCalendar!, completed: { (localEvents: [EKEvent]) -> Void in
                     // We are going to empty the events array first
                     self.events = [EKEvent]()
-                    for event in events {
+                    for event in localEvents {
                         // Only add events which do not have a Reccurence rule (YACA cannot deal with that (yet))
                         //print(event.hasRecurrenceRules)
-                        //if event.hasRecurrenceRules == false {
+                        if event.hasRecurrenceRules == false {
                             self.events.append(event)
-                        //}
+                        }
                         
                         /* OLD (SWIFT 2)
                         if let recRules = event.recurrenceRules {

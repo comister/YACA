@@ -30,16 +30,17 @@ class GoogleAPIClient : NSObject {
         /* 2/3. Build the URL and configure the request */
         let urlString = Constants.BaseURL + GoogleAPIClient.escapedParameters(mutableParameters)
         let url = URL(string: urlString)!
-        let request = NSMutableURLRequest(url: url)
+        //let request = NSMutableURLRequest(url: url)
+        var request = URLRequest(url: url)
         request.timeoutInterval = 10 // this cannot take longer than 10 seconds, otherwise we are assuming connection is not working
         /* 4. Make the request */
-        let task = self.session.dataTask(with: request as URLRequest, completionHandler: {data, response, downloadError in
+        let task = self.session.dataTask(with: request, completionHandler: {data, response, downloadError in
             /* 5/6. Parse the data and use the data (happens in completion handler) */
             if let error = downloadError {
                 let newError = GoogleAPIClient.errorForData(data, response: response, error: error as NSError)
                 completionHandler(nil, newError)
             } else {
-                GoogleAPIClient.parseJSONWithCompletionHandler(data!, completionHandler: completionHandler as! (Any, NSError?) -> Void)
+                GoogleAPIClient.parseJSONWithCompletionHandler(data!, completionHandler: completionHandler as (AnyObject?, NSError?) -> Void)
             }
         }) 
         
@@ -67,17 +68,16 @@ class GoogleAPIClient : NSObject {
     }
     
     /* Helper: Given raw JSON, return a usable Foundation object */
-    class func parseJSONWithCompletionHandler(_ data: Data, completionHandler: (_ result: Any, _ error: NSError?) -> Void) {
+    class func parseJSONWithCompletionHandler(_ data: Data, completionHandler: (_ result: AnyObject?, _ error: NSError?) -> Void) {
         
-        var parsedResult: Any
-        
+        var parsedResult: AnyObject
         
         do {
-            try parsedResult = JSONSerialization.jsonObject(with: data, options: JSONSerialization.ReadingOptions.allowFragments)
+            try parsedResult = JSONSerialization.jsonObject(with: data, options: JSONSerialization.ReadingOptions.allowFragments) as AnyObject
             completionHandler(parsedResult, nil)
         } catch let error as NSError {
             // FROM (SWIFT 2) -- There was nil before ""
-            completionHandler("", error)
+            completionHandler(nil, error)
         }
     }
     

@@ -21,20 +21,22 @@ extension OpenWeatherClient {
                 completionHandler(nil, error)
             } else {
                 var returnDict = [String:AnyObject]()
+                
                 if let weatherContainer = JSONResult?.value(forKey: OpenWeatherClient.JSONResponseKeys.Weather) {
                     if let weatherId = (weatherContainer as AnyObject).value(forKey: OpenWeatherClient.JSONResponseKeys.weatherId) {
-                        returnDict["weather"] = (weatherId as! [Int:String])[0]! as AnyObject
+                        returnDict["weather"] = (weatherId as! [Int])[0] as AnyObject?
                     } else {
                         completionHandler(nil, error)
                         return
                     }
                     if let weatherDescription = (weatherContainer as AnyObject).value(forKey: OpenWeatherClient.JSONResponseKeys.weatherDescription) {
-                        returnDict["weather_description"] = (weatherDescription as! [Int:String])[0]! as AnyObject
+                        returnDict["weather_description"] = (weatherDescription as! [String])[0] as AnyObject? 
                     }
                 } else {
                     completionHandler(nil, error)
                     return
                 }
+                
                 
                 if let sysContainer = JSONResult?.value(forKey: OpenWeatherClient.JSONResponseKeys.Sys) {
                     if let country = (sysContainer as AnyObject).value(forKey: OpenWeatherClient.JSONResponseKeys.Country) {
